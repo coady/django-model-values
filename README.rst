@@ -1,9 +1,9 @@
 About django-model-values
 =========================
-`Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
-Implemented through compatible method and operator extensions QuerySets and Managers.
+Provides `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
+Implemented through compatible method and operator extensions ``QuerySets`` and ``Managers``.
 
-The goal is to provide elegant syntatic support for best practices in using Django's ORM.
+The goal is to provide elegant syntactic support for best practices in using Django's ORM.
 Specifically avoiding the inefficiencies and race conditions associated with always using objects.
 
 Usage
@@ -28,6 +28,7 @@ Usage
 
    Book.objects[pk]['rating'] = 5.0
 
+Instantiate the custom ``Manager`` in your models.
 See `documentation`_ for more examples.
 
 Installation
