@@ -178,6 +178,14 @@ class Manager(models.Manager):
         """Return whether pk is present using exists."""
         return self[pk].exists()
 
+    def changed(self, pk, **kwargs):
+        """Return mapping of fields and values which differ in the db.
+
+        Also efficient enough to be used in boolean contexts, instead of ``.exists()``.
+        """
+        row = self[pk].exclude(**kwargs).values(*kwargs).first() or {}
+        return {field: value for field, value in row.items() if value != kwargs[field]}
+
     def update_rows(self, data):
         """Perform bulk row updates as efficiently and minimally as possible.
 

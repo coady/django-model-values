@@ -46,15 +46,17 @@ def test_queryset(books):
 
 def test_manager(books):
     assert 1 in Book.objects
-    assert Book.objects[1]['id'][0] == 1
+    assert Book.objects[1]['id'].first() == 1
     assert Book.objects.update_rows(dict.fromkeys([3, 4, 5], {'quantity': 2})) == {4}
     assert 4 in (books['quantity'] == 2)['id']
     assert Book.objects.update_columns('quantity', dict.fromkeys([3, 4, 5], 1)) == {1: 3}
     assert len(books['quantity'] == 1) == 3
+    assert Book.objects.changed(1, quantity=5) == {'quantity': 10}
+    assert Book.objects.changed(1, quantity=10) == {}
 
 
 def test_aggregation(books):
-    assert set(books['author',].annotate()) == {('A',), ('B',)}
+    assert set(books['author', ].annotate()) == {('A',), ('B',)}
     assert dict(books['author'].annotate(models.Max('quantity'))) == {'A': 10, 'B': 2}
     assert dict(books['author'].value_counts()) == {'A': 2, 'B': 3}
 
