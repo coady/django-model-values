@@ -47,7 +47,7 @@ Tests
 =========================
 100% branch coverage.  Tested against Django 1.8 and Python 2.7, 3.4. ::
 
-  $ py.test
+  $ py.test [--cov]
 
 .. _django: https://docs.djangoproject.com
 .. _documentation: http://pythonhosted.org/django-model-values/
