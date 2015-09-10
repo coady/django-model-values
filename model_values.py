@@ -218,3 +218,8 @@ class Manager(models.Manager):
         for value in updates:
             self.filter(pk__in=updates[value])[field] = value
         return {value: len(updates[value]) for value in updates}
+
+
+class classproperty(property):
+    def __get__(self, instance, owner):
+        return self.fget(owner)

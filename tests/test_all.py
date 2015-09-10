@@ -83,3 +83,13 @@ def test_functions(books):
     assert book['quantity'].first() == 3
     book['quantity'] **= 2
     assert book['quantity'].first() == 9
+
+
+def test_model(books):
+    book = Book.objects.get(pk=1)
+    assert list(book.object) == [book]
+    assert len(Book.in_stock) == 5
+    assert book.changed(quantity=5) == {'quantity': 10}
+    assert book.changed(quantity=10) == {}
+    assert book.update(quantity=2) == 1
+    assert book.quantity == 2 and 2 in book.object['quantity']

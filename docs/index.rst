@@ -158,10 +158,11 @@ Updates with ``F``.
 Contents
 ==================
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    queryset
    manager
+   example
 
 Indices and tables
 ==================
