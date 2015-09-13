@@ -1,7 +1,7 @@
 About django-model-values
 =========================
 Provides `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
-Implemented through compatible method and operator extensions ``QuerySets`` and ``Managers``.
+Implemented through compatible method and operator extensions to ``QuerySets`` and ``Managers``.
 
 The goal is to provide elegant syntactic support for best practices in using Django's ORM.
 Specifically avoiding the inefficiencies and race conditions associated with always using objects.
@@ -40,12 +40,12 @@ Standard installation from pypi or local download. ::
 
 Dependencies
 =========================
-   * Django
+   * Django 1.7+
    * Python 2.7, 3.2+
 
 Tests
 =========================
-100% branch coverage.  Tested against Django 1.8 and Python 2.7, 3.4. ::
+100% branch coverage. ::
 
   $ py.test [--cov]
 

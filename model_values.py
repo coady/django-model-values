@@ -127,13 +127,13 @@ class QuerySet(models.QuerySet):
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
     def remove(self):
-        """Delete in bulk and return number of rows deleted.
+        """Equivalent to ``_raw_delete``, and returns number of rows deleted.
 
-        Django's delete actually fetches the ids first and uses them in the delete query.
-        This will run the simpler expected query.
+        Django's delete may fetch ids first;  this will execute only one query.
         """
         query = models.sql.DeleteQuery(self.model)
-        query.tables, query.where = [self.model._meta.db_table], self.query.where
+        query.get_initial_alias()
+        query.where = self.query.where
         return query.get_compiler(self.db).execute_sql(models.sql.constants.CURSOR).rowcount
 
     def exists(self, count=1):
