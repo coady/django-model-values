@@ -56,6 +56,7 @@ def test_manager(books):
 
 
 def test_aggregation(books):
+    assert books.values('author').annotate(models.Max('quantity'))
     assert set(books['author', ].annotate()) == {('A',), ('B',)}
     assert dict(books['author'].annotate(models.Max('quantity'))) == {'A': 10, 'B': 2}
     assert dict(books['author'].value_counts()) == {'A': 2, 'B': 3}

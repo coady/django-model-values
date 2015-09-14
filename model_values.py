@@ -1,11 +1,29 @@
 import collections
+import itertools
 from django.db import models
 from django.utils import six
 
 __version__ = '0.1'
 
+# Django 1.9 compatibility
+_iterable_classes = 'FlatValuesListIterable', 'ValuesListIterable'
+_iterable_classes = tuple(getattr(models.query, name) for name in _iterable_classes if hasattr(models.query, name))
+
 
 class QuerySet(models.QuerySet):
+    @property
+    def _flat(self):
+        if _iterable_classes:
+            return issubclass(self._iterable_class, _iterable_classes[0])
+        return getattr(self, 'flat', None)
+
+    @_flat.setter
+    def _flat(self, value):
+        if not _iterable_classes:
+            self.flat = bool(value)
+        elif issubclass(self._iterable_class, _iterable_classes):
+            self._iterable_class = _iterable_classes[not value]
+
     def __getitem__(self, key):
         """Allow column access:  qs['id'], qs['id', name']
 
@@ -24,7 +42,7 @@ class QuerySet(models.QuerySet):
 
     def __eq__(self, value, op=''):
         """Return queryset filtered by comparison to given value."""
-        return self.filter(**dict.fromkeys((field + op for field in self.field_names), value))
+        return self.filter(**dict.fromkeys((field + op for field in self._fields), value))
 
     def __ne__(self, value):
         """Filter by __ne=value."""
@@ -48,70 +66,70 @@ class QuerySet(models.QuerySet):
 
     def __contains__(self, value):
         """Return whether value is present using exists."""
-        if self._result_cache is None and getattr(self, 'flat', False):
+        if self._result_cache is None and self._flat:
             (self == value).exists()
         return value in iter(self)
 
     def __add__(self, value):
         """F + value."""
-        return models.F(*self.field_names) + value
+        return models.F(*self._fields) + value
 
     def __sub__(self, value):
         """F - value."""
-        return models.F(*self.field_names) - value
+        return models.F(*self._fields) - value
 
     def __mul__(self, value):
         """F * value."""
-        return models.F(*self.field_names) * value
+        return models.F(*self._fields) * value
 
     def __truediv__(self, value):
         """F / value."""
-        return models.F(*self.field_names) / value
+        return models.F(*self._fields) / value
     __div__ = __truediv__
 
     def __mod__(self, value):
         """F % value."""
-        return models.F(*self.field_names) % value
+        return models.F(*self._fields) % value
 
     def __pow__(self, value):
         """F ** value."""
-        return models.F(*self.field_names) ** value
+        return models.F(*self._fields) ** value
 
     def annotate(self, *args, **kwargs):
         qs = super(QuerySet, self).annotate(*args, **kwargs)
         if args or kwargs:
-            qs.flat = False
+            qs._flat = False
         return qs
 
     def value_counts(self):
         """Return annotated value counts."""
-        return self.annotate(models.Count(self.field_names[0]))
+        return self.annotate(models.Count(self._fields[0]))
 
     def reduce(self, *funcs):
         """Return aggregated tuple values from field_names.
 
         :param funcs: aggregation function classes
         """
-        funcs = [func(field) for field, func in zip(self.field_names, funcs)]
+        funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         data = self.aggregate(*funcs)
         values = tuple(data[func.default_alias] for func in funcs)
-        return values[0] if getattr(self, 'flat', False) else values
+        return values[0] if self._flat else values
 
     def min(self):
         """Aggregate with Min."""
-        return self.reduce(*[models.Min] * len(self.field_names))
+        return self.reduce(models.Min)
 
     def max(self):
         """Aggregate with Max."""
-        return self.reduce(*[models.Max] * len(self.field_names))
+        return self.reduce(models.Max)
 
     def sum(self):
         """Aggregate with Sum."""
-        return self.reduce(*[models.Sum] * len(self.field_names))
+        return self.reduce(models.Sum)
 
     def mean(self):
         """Aggregate with Avg."""
-        return self.reduce(*[models.Avg] * len(self.field_names))
+        return self.reduce(models.Avg)
 
     def modify(self, defaults=(), **kwargs):
         """Update and return number of rows that actually changed.
