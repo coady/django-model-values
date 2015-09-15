@@ -125,17 +125,25 @@ Again the method names mirror projects like `pandas`_ whenever applicable.
 
    sum(book.rating for book in qs) / len(qs)
 
+   counts = collections.Counter()
+   for book in qs:
+      counts[book.author] += book.quantity
+
 *The Ugly*::
 
    dict(qs.values_list('author').annotate(model.Count('author')))
 
    qs.aggregate(models.Avg('rating'))['rating__avg']
 
+   dict(qs.values_list('author').annotate(models.Sum('quantity')))
+
 *The Good*::
 
    dict(qs['author'].value_counts())
 
    qs['rating'].mean()
+
+   dict(qs['quantity'].groupby('author').sum())
 
 Functions
 ^^^^^^^^^^^^

@@ -68,6 +68,13 @@ def test_aggregation(books):
     assert books['quantity'].sum() == 25
     assert books['quantity'].mean() == 5.0
 
+    groups = books['quantity'].groupby('author')
+    assert {key: sorted(values) for key, values in groups} == {'A': [10, 10], 'B': [1, 2, 2]}
+    assert dict(groups.min()) == {'A': 10, 'B': 1}
+    assert dict(groups.max()) == {'A': 10, 'B': 2}
+    assert dict(groups.sum()) == {'A': 20, 'B': 5}
+    assert dict(groups.mean()) == {'A': 10, 'B': 5.0 / 3}
+
 
 def test_functions(books):
     book = Book.objects[1]

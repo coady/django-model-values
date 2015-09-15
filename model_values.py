@@ -1,5 +1,10 @@
 import collections
 import itertools
+import operator
+try:
+    from future_builtins import map
+except ImportError:
+    pass
 from django.db import models
 from django.utils import six
 
@@ -95,6 +100,25 @@ class QuerySet(models.QuerySet):
         """F ** value."""
         return models.F(*self._fields) ** value
 
+    def __iter__(self):
+        if not hasattr(self, '_groupby'):
+            return super(QuerySet, self).__iter__()
+        size = len(self._groupby)
+        rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
+        groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
+        getter = operator.itemgetter(size if self._flat else slice(size, None))
+        return ((key, map(getter, values)) for key, values in groups)
+
+    def groupby(self, *fields):
+        """Return a grouped `QuerySet`_.
+
+        The queryset is iterable in the same manner as ``itertools.groupby``.
+        Additionally the ``reduce`` functions will return annotated querysets.
+        """
+        qs = self.all()
+        qs._groupby = fields
+        return qs
+
     def annotate(self, *args, **kwargs):
         qs = super(QuerySet, self).annotate(*args, **kwargs)
         if args or kwargs:
@@ -106,29 +130,31 @@ class QuerySet(models.QuerySet):
         return self.annotate(models.Count(self._fields[0]))
 
     def reduce(self, *funcs):
-        """Return aggregated tuple values from field_names.
+        """Return aggregated tuple values, or an annotated queryset if ``groupby`` is in use.
 
         :param funcs: aggregation function classes
         """
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
+        if hasattr(self, '_groupby'):
+            return self[self._groupby].annotate(*funcs)
         data = self.aggregate(*funcs)
         values = tuple(data[func.default_alias] for func in funcs)
         return values[0] if self._flat else values
 
     def min(self):
-        """Aggregate with Min."""
+        """``reduce`` with Min."""
         return self.reduce(models.Min)
 
     def max(self):
-        """Aggregate with Max."""
+        """``reduce`` with Max."""
         return self.reduce(models.Max)
 
     def sum(self):
-        """Aggregate with Sum."""
+        """``reduce`` with Sum."""
         return self.reduce(models.Sum)
 
     def mean(self):
-        """Aggregate with Avg."""
+        """``reduce`` with Avg."""
         return self.reduce(models.Avg)
 
     def modify(self, defaults=(), **kwargs):
