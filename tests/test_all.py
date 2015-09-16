@@ -61,7 +61,8 @@ def test_aggregation(books):
     assert dict(books['author'].annotate(models.Max('quantity'))) == {'A': 10, 'B': 2}
     assert dict(books['author'].value_counts()) == {'A': 2, 'B': 3}
 
-    assert books['author', 'quantity'].reduce(models.Max, models.Min) == ('B', 1)
+    values = books['author', 'quantity'].reduce(models.Max, models.Min)
+    assert values.author__max == 'B' and values.quantity__min == 1 and values == ('B', 1)
     assert books['author', 'quantity'].min() == ('A', 1)
     assert books['quantity'].min() == 1
     assert books['quantity'].max() == 10
@@ -74,6 +75,9 @@ def test_aggregation(books):
     assert dict(groups.max()) == {'A': 10, 'B': 2}
     assert dict(groups.sum()) == {'A': 20, 'B': 5}
     assert dict(groups.mean()) == {'A': 10, 'B': 5.0 / 3}
+    key, values = next(iter(books.values('title', 'last_modified').groupby('author', 'quantity')))
+    assert key == ('A', 10)
+    assert all(value.title and value.last_modified for value in values)
 
 
 def test_functions(books):

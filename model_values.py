@@ -106,7 +106,8 @@ class QuerySet(models.QuerySet):
         size = len(self._groupby)
         rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
-        getter = operator.itemgetter(size if self._flat else slice(size, None))
+        Values = collections.namedtuple('Values', self._fields)
+        getter = operator.itemgetter(size) if self._flat else lambda tup: Values(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
     def groupby(self, *fields):
@@ -137,8 +138,8 @@ class QuerySet(models.QuerySet):
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
             return self[self._groupby].annotate(*funcs)
-        data = self.aggregate(*funcs)
-        values = tuple(data[func.default_alias] for func in funcs)
+        names = (func.default_alias for func in funcs)
+        values = collections.namedtuple('Values', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values
 
     def min(self):
