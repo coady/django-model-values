@@ -11,7 +11,7 @@ setup(
     url='https://bitbucket.org/coady/django-model-values',
     license='Apache Software License',
     py_modules=['model_values'],
-    install_requires=['django'],
+    install_requires=['django>=1.7'],
     tests_require=['pytest-django', 'pytest-cov', 'django-dynamic-fixture'],
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -25,6 +25,7 @@ setup(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Database :: Database Engines/Servers',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
