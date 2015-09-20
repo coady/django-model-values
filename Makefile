@@ -15,6 +15,6 @@ dist: html
 
 check:
 	python setup.py $@ -mrs
-	pep8
+	flake8
 	py.test-2.7 --cov
 	py.test-3.5 --cov --cov-append --cov-fail-under=100
