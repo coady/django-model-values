@@ -1,0 +1,18 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.4"
+
+env:
+  - DJANGO="django>=1.7,<1.8"
+  - DJANGO="django>=1.8,<1.9"
+
+install:
+  - pip install $DJANGO pytest-django pytest-cov django-dynamic-fixture
+
+script:
+  - py.test --cov
+
+after_success:
+  - coveralls
