@@ -7,9 +7,10 @@ python:
 env:
   - DJANGO="django>=1.7,<1.8"
   - DJANGO="django>=1.8,<1.9"
+  - DJANGO="https://github.com/django/django/archive/master.tar.gz"
 
 install:
-  - pip install $DJANGO pytest-django pytest-cov django-dynamic-fixture
+  - pip install $DJANGO pytest-django pytest-cov django-dynamic-fixture python-coveralls
 
 script:
   - py.test --cov
