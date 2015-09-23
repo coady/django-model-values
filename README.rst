@@ -5,7 +5,9 @@ About django-model-values
 .. image:: https://img.shields.io/pypi/pyversions/django-model-values.svg
 .. image:: https://img.shields.io/pypi/status/django-model-values.svg
 .. image:: https://img.shields.io/travis/coady/django-model-values.svg
-.. image:: https://img.shields.io/coveralls/coady/django-model-values.svg
+   :target: https://travis-ci.org/coady/django-model-values
+.. image:: https://img.shields.io/codecov/c/github/coady/django-model-values.svg
+   :target: https://codecov.io/github/coady/django-model-values
 
 Provides `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
 Implemented through compatible method and operator extensions to ``QuerySets`` and ``Managers``.

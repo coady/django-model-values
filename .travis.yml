@@ -10,10 +10,10 @@ env:
   - DJANGO="https://github.com/django/django/archive/master.tar.gz"
 
 install:
-  - pip install $DJANGO pytest-django pytest-cov django-dynamic-fixture python-coveralls
+  - pip install $DJANGO pytest-django pytest-cov django-dynamic-fixture codecov
 
 script:
-  - py.test --cov
+  - py.test -v --cov
 
 after_success:
-  - coveralls
+  - codecov --min-coverage=100
