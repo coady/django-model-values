@@ -72,33 +72,37 @@ class QuerySet(models.QuerySet):
     def __contains__(self, value):
         """Return whether value is present using exists."""
         if self._result_cache is None and self._flat:
-            (self == value).exists()
+            return (self == value).exists()
         return value in iter(self)
+
+    @property
+    def F(self):
+        return models.F(*self._fields)
 
     def __add__(self, value):
         """F + value."""
-        return models.F(*self._fields) + value
+        return self.F + value
 
     def __sub__(self, value):
         """F - value."""
-        return models.F(*self._fields) - value
+        return self.F - value
 
     def __mul__(self, value):
         """F * value."""
-        return models.F(*self._fields) * value
+        return self.F * value
 
     def __truediv__(self, value):
         """F / value."""
-        return models.F(*self._fields) / value
+        return self.F / value
     __div__ = __truediv__
 
     def __mod__(self, value):
         """F % value."""
-        return models.F(*self._fields) % value
+        return self.F % value
 
     def __pow__(self, value):
         """F ** value."""
-        return models.F(*self._fields) ** value
+        return self.F ** value
 
     def __iter__(self):
         if not hasattr(self, '_groupby'):

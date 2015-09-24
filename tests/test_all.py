@@ -29,9 +29,8 @@ def test_queryset(books):
     assert len(books['quantity'] != 2) == 3
 
     quant = books['quantity']
-    assert 10 in quant
-    assert quant
-    assert 10 in quant
+    assert 10 in quant and quant._result_cache is None
+    assert quant and 10 in quant
     assert books[0] in books.all()
     assert ('A', 10) in books['author', 'quantity']
 
