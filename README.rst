@@ -56,7 +56,15 @@ Tests
 =========================
 100% branch coverage. ::
 
-  $ py.test [--cov]
+   $ py.test [--cov]
+
+Changes
+=========================
+0.2
+
+   * Change detection
+   * Groupby functionality
+   * Named tuples
 
 .. _django: https://docs.djangoproject.com
 .. _documentation: http://pythonhosted.org/django-model-values/
