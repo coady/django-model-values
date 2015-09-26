@@ -8,7 +8,7 @@ except ImportError:
 from django.db import models
 from django.utils import six
 
-__version__ = '0.1'
+__version__ = '0.2'
 
 # Django 1.9 compatibility
 _iterable_classes = 'FlatValuesListIterable', 'ValuesListIterable'
