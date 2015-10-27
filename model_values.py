@@ -223,6 +223,10 @@ class Manager(models.Manager):
         """
         return self.filter(pk=pk)
 
+    def __delitem__(self, pk):
+        """Delete row with primary key."""
+        self[pk].delete()
+
     def __contains__(self, pk):
         """Return whether pk is present using exists."""
         return self[pk].exists()
@@ -244,13 +248,11 @@ class Manager(models.Manager):
         :param data: ``{pk: {field: value, ...}, ...}``
         :returns: set of changed pks
         """
-        keys = {key for update in data.values() for key in update}
-        changed = set()
-        for row in self.filter(pk__in=data).values('pk', *keys).iterator():
-            update = data[row['pk']]
-            if any(row[key] != update[key] for key in update):
-                changed.add(row['pk'])
-                self[row['pk']].update(**update)
+        fields = set(itertools.chain.from_iterable(data.values()))
+        rows = self.filter(pk__in=data).values('pk', *fields).iterator()
+        changed = {row['pk'] for row in rows if any(row[field] != value for field, value in data[row['pk']].items())}
+        for pk in changed:
+            self[pk].update(**data[pk])
         return changed
 
     def update_columns(self, field, data):

@@ -52,6 +52,8 @@ def test_manager(books):
     assert len(books['quantity'] == 1) == 3
     assert Book.objects.changed(1, quantity=5) == {'quantity': 10}
     assert Book.objects.changed(1, quantity=10) == {}
+    del Book.objects[1]
+    assert 1 not in Book.objects
 
 
 def test_aggregation(books):
