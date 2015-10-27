@@ -25,6 +25,7 @@ Updates
    book.save()
 
 This example is ubiquitous and even encouraged in many django circles.  It's also an epic fail.
+
    * Runs an unnecessary select query, as no fields need to be read.
    * Updates all fields instead of just the one needed.
    * Therefore also suffers from race conditions.
@@ -45,6 +46,7 @@ The `QuerySet <queryset.html>`_ supports column updates.
    Book.objects[pk]['rating'] = 5.0
 
 But one might posit...
+
    * "Isn't the encapsulation ``save`` provides worth it in principle?"
    * "Doesn't the new ``update_fields`` option fix this in practice?"
    * "What if the object is cached or has custom logic in the ``save`` method?"
@@ -168,8 +170,7 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   queryset
-   manager
+   reference
    example
 
 Indices and tables

@@ -46,7 +46,7 @@ class QuerySet(models.QuerySet):
         self.update(**{key: value})
 
     def __eq__(self, value, op=''):
-        """Return queryset filtered by comparison to given value."""
+        """Return `QuerySet`_ filtered by comparison to given value."""
         return self.filter(**dict.fromkeys((field + op for field in self._fields), value))
 
     def __ne__(self, value):
@@ -70,7 +70,7 @@ class QuerySet(models.QuerySet):
         return self.__eq__(value, '__gte')
 
     def __contains__(self, value):
-        """Return whether value is present using exists."""
+        """Return whether value is present using ``exists``."""
         if self._result_cache is None and self._flat:
             return (self == value).exists()
         return value in iter(self)
@@ -135,7 +135,7 @@ class QuerySet(models.QuerySet):
         return self.annotate(models.Count(self._fields[0]))
 
     def reduce(self, *funcs):
-        """Return aggregated tuple values, or an annotated queryset if ``groupby`` is in use.
+        """Return aggregated values, or an annotated `QuerySet`_ if ``groupby`` is in use.
 
         :param funcs: aggregation function classes
         """
@@ -147,19 +147,19 @@ class QuerySet(models.QuerySet):
         return values[0] if self._flat else values
 
     def min(self):
-        """``reduce`` with Min."""
+        """``reduce`` with ``Min``."""
         return self.reduce(models.Min)
 
     def max(self):
-        """``reduce`` with Max."""
+        """``reduce`` with ``Max``."""
         return self.reduce(models.Max)
 
     def sum(self):
-        """``reduce`` with Sum."""
+        """``reduce`` with ``Sum``."""
         return self.reduce(models.Sum)
 
     def mean(self):
-        """``reduce`` with Avg."""
+        """``reduce`` with ``Avg``."""
         return self.reduce(models.Avg)
 
     def modify(self, defaults=(), **kwargs):
@@ -167,11 +167,11 @@ class QuerySet(models.QuerySet):
 
         For triggering on-change logic without fetching first.
 
-        ``if qs.modify(status=...):  # status actually changed``
+        ``if qs.modify(status=...):``  # status actually changed
 
-        ``qs.modify({'last_modified': now}, status=...)  # last_modified only updated if status updated``
+        ``qs.modify({'last_modified': now}, status=...)``  # last_modified only updated if status updated
 
-        :param defaults: optional mapping which will be updated conditionally, as with get_or_create.
+        :param defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
@@ -217,7 +217,7 @@ class Manager(models.Manager):
         return QuerySet(self.model, Query(self.model), self._db, self._hints)
 
     def __getitem__(self, pk):
-        """Return queryset which matches primary key.
+        """Return `QuerySet`_ which matches primary key.
 
         To encourage direct db access, instead of always using get and save.
         """
@@ -228,13 +228,13 @@ class Manager(models.Manager):
         self[pk].delete()
 
     def __contains__(self, pk):
-        """Return whether pk is present using exists."""
+        """Return whether pk is present using ``exists``."""
         return self[pk].exists()
 
     def changed(self, pk, **kwargs):
         """Return mapping of fields and values which differ in the db.
 
-        Also efficient enough to be used in boolean contexts, instead of ``.exists()``.
+        Also efficient enough to be used in boolean contexts, instead of ``exists``.
         """
         row = self[pk].exclude(**kwargs).values(*kwargs).first() or {}
         return {field: value for field, value in row.items() if value != kwargs[field]}
@@ -272,5 +272,6 @@ class Manager(models.Manager):
 
 
 class classproperty(property):
+    """A property bound to a class."""
     def __get__(self, instance, owner):
         return self.fget(owner)
