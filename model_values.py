@@ -10,9 +10,10 @@ from django.utils import six
 
 __version__ = '0.2'
 
-# Django 1.9 compatibility
-_iterable_classes = 'FlatValuesListIterable', 'ValuesListIterable'
-_iterable_classes = tuple(getattr(models.query, name) for name in _iterable_classes if hasattr(models.query, name))
+try:
+    _iterable_classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
+except AttributeError:  # django < 1.9
+    _iterable_classes = ()
 
 
 class Lookup(object):
@@ -136,7 +137,7 @@ class QuerySet(models.QuerySet, Lookup):
 
     @property
     def F(self):
-        return FExpr(*self._fields)
+        return models.F(*self._fields)
 
     def __add__(self, value):
         """F + value."""
@@ -255,9 +256,9 @@ class NotEqual(models.Lookup):
     """Missing != operator."""
     lookup_name = 'ne'
 
-    def as_sql(self, qn, connection):
-        lhs, lhs_params = self.process_lhs(qn, connection)
-        rhs, rhs_params = self.process_rhs(qn, connection)
+    def as_sql(self, *args):
+        lhs, lhs_params = self.process_lhs(*args)
+        rhs, rhs_params = self.process_rhs(*args)
         return '{} <> {}'.format(lhs, rhs), lhs_params + rhs_params
 
 models.Field.register_lookup(NotEqual)
@@ -265,10 +266,10 @@ models.Field.register_lookup(NotEqual)
 
 class Query(models.sql.Query):
     """Allow __ne=None lookup."""
-    def prepare_lookup_value(self, value, lookups, *args, **kwargs):
+    def prepare_lookup_value(self, value, lookups, *args):
         if value is None and lookups[-1:] == ['ne']:
             value, lookups[-1] = False, 'isnull'
-        return super(Query, self).prepare_lookup_value(value, lookups, *args, **kwargs)
+        return super(Query, self).prepare_lookup_value(value, lookups, *args)
 
 
 class Manager(models.Manager):
