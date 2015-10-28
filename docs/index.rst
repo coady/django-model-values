@@ -9,7 +9,7 @@ Taking the **O** out of **ORM**.
 Introduction
 ^^^^^^^^^^^^
 Provides `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
-Implemented through compatible method and operator extensions [#compat]_ to `QuerySets <queryset.html>`_ and `Managers <manager.html>`_.
+Implemented through compatible method and operator extensions [#compat]_ to `QuerySets <reference.html#queryset>`_ and `Managers <reference.html#manager>`_.
 
 The primary motivation is the experiential observation that the active record pattern - specifically ``Model.save`` - is the root of all evil.
 The secondary goal is to provide a more intuitive data layer, similar to PyData projects such as `pandas`_.
@@ -38,8 +38,8 @@ The solution is relatively well-known, and endorsed by `django's own docs`_, but
    Book.objects.filter(pk=pk).update(rating=5.0)
 
 So why not provide syntactic support for the better approach.
-The `Manager <manager.html>`_ supports filtering by primary key, since that's so common.
-The `QuerySet <queryset.html>`_ supports column updates.
+The `Manager <reference.html#manager>`_ supports filtering by primary key, since that's so common.
+The `QuerySet <reference.html#queryset>`_ supports column updates.
 
 *The Good*::
 
@@ -89,7 +89,7 @@ And this can be generalized with a little inspiration from ``{get,update}_or_cre
 Selects
 ^^^^^^^^^^^^
 Direct column access has some of the clunkiest syntax:  ``values_list(..., flat=True)``.
-`QuerySets <queryset.html>`_  override ``__getitem__``, as well as comparison operators for simple filters.
+`QuerySet <reference.html#queryset>`_  override ``__getitem__``, as well as comparison operators for simple filters.
 Both are common syntax in panel data layers.
 
 *The Bad*::
@@ -147,11 +147,13 @@ Again the method names mirror projects like `pandas`_ whenever applicable.
 
    dict(qs['quantity'].groupby('author').sum())
 
-Functions
+Expressions
 ^^^^^^^^^^^^
-Updates with ``F``.
+``F`` and ``Q`` objects.
 
 *The Bad*::
+
+   (book for book in qs if book.author.startswith('A') or book.author.startswith('B'))
 
    for book in qs:
       book.rating += 1
@@ -159,9 +161,14 @@ Updates with ``F``.
 
 *The Ugly*::
 
+   qs.filter(Q(author__startswith='A') | Q(author__startswith='B'))
+
    qs.update(rating=F('rating') + 1)
 
 *The Good*::
+
+   lookup = F.author.startswith
+   qs[lookup('A') | lookup('B')]
 
    qs['rating'] += 1
 

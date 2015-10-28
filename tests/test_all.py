@@ -3,6 +3,7 @@ from django.utils import timezone
 from django_dynamic_fixture import G
 import pytest
 from .models import Book
+from model_values import F
 
 pytestmark = pytest.mark.django_db
 
@@ -96,6 +97,24 @@ def test_functions(books):
     assert book['quantity'].first() == 3
     book['quantity'] **= 2
     assert book['quantity'].first() == 9
+
+
+def test_lookups(books):
+    assert len(books[F.last_modified.year == timezone.now().year]) == 5
+    assert str(F.author.search('')) == "(AND: ('author__search', ''))"
+
+    authors = books['author']
+    assert set(authors.in_('A', 'B')) == {'A', 'B'}
+    assert set(authors.iexact('a')) == {'A'}
+    assert set(authors.contains('A')) == {'A'}
+    assert set(authors.icontains('a')) == {'A'}
+    assert set(authors.startswith('A')) == {'A'}
+    assert set(authors.istartswith('a')) == {'A'}
+    assert set(authors.endswith('A')) == {'A'}
+    assert set(authors.iendswith('a')) == {'A'}
+    assert set(authors.range('A', 'B')) == {'A', 'B'}
+    assert set(authors.regex('A')) == {'A'}
+    assert set(authors.iregex('a')) == {'A'}
 
 
 def test_model(books):

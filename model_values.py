@@ -15,7 +15,80 @@ _iterable_classes = 'FlatValuesListIterable', 'ValuesListIterable'
 _iterable_classes = tuple(getattr(models.query, name) for name in _iterable_classes if hasattr(models.query, name))
 
 
-class QuerySet(models.QuerySet):
+class Lookup(object):
+    """Mixin for field lookups."""
+    def __ne__(self, value):
+        return self.__eq__(value, '__ne')
+
+    def __lt__(self, value):
+        return self.__eq__(value, '__lt')
+
+    def __le__(self, value):
+        return self.__eq__(value, '__lte')
+
+    def __gt__(self, value):
+        return self.__eq__(value, '__gt')
+
+    def __ge__(self, value):
+        return self.__eq__(value, '__gte')
+
+    def in_(self, *values):
+        return self.__eq__(values, '__in')
+
+    def iexact(self, value):
+        return self.__eq__(value, '__iexact')
+
+    def contains(self, value):
+        return self.__eq__(value, '__contains')
+
+    def icontains(self, value):
+        return self.__eq__(value, '__icontains')
+
+    def startswith(self, value):
+        return self.__eq__(value, '__startswith')
+
+    def istartswith(self, value):
+        return self.__eq__(value, '__istartswith')
+
+    def endswith(self, value):
+        return self.__eq__(value, '__endswith')
+
+    def iendswith(self, value):
+        return self.__eq__(value, '__iendswith')
+
+    def range(self, *values):
+        return self.__eq__(values, '__range')
+
+    def search(self, value):
+        return self.__eq__(value, '__search')
+
+    def regex(self, value):
+        return self.__eq__(value, '__regex')
+
+    def iregex(self, value):
+        return self.__eq__(value, '__iregex')
+
+
+class FExpr(models.F, Lookup):
+    """Singleton for creating ``F`` and ``Q`` objects with expressions.
+
+    ``F.user.created`` == ``F(user__created)``
+
+    ``F.user.created >= ...`` == ``Q(user__created__gte=...)``
+
+    ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
+    """
+    def __getattr__(self, name):
+        """Return new `F`_ object with chained attribute."""
+        return type(self)('{}__{}'.format(self.name, name).lstrip('_'))
+
+    def __eq__(self, value, lookup=''):
+        """Return ``Q`` object with lookup."""
+        return models.Q(**{self.name + lookup: value})
+F = FExpr('')
+
+
+class QuerySet(models.QuerySet, Lookup):
     @property
     def _flat(self):
         if _iterable_classes:
@@ -30,44 +103,30 @@ class QuerySet(models.QuerySet):
             self._iterable_class = _iterable_classes[not value]
 
     def __getitem__(self, key):
-        """Allow column access:  qs['id'], qs['id', name']
+        """Allow column access and filtering.
 
-        :param key: str or tuple of strs
-        :returns: flat values or tuples
+        ``qs[field]`` returns flat ``values_list``
+
+        ``qs[field, ...]`` returns tupled ``values_list``
+
+        ``qs[Q_obj]`` returns filtered `QuerySet`_
         """
         if isinstance(key, tuple):
             return self.values_list(*key)
         if isinstance(key, six.string_types):
             return self.values_list(key, flat=True)
+        if isinstance(key, models.Q):
+            return self.filter(key)
         return super(QuerySet, self).__getitem__(key)
 
     def __setitem__(self, key, value):
         """Update a single column."""
         self.update(**{key: value})
 
-    def __eq__(self, value, op=''):
+    def __eq__(self, value, lookup=''):
         """Return `QuerySet`_ filtered by comparison to given value."""
-        return self.filter(**dict.fromkeys((field + op for field in self._fields), value))
-
-    def __ne__(self, value):
-        """Filter by __ne=value."""
-        return self.__eq__(value, '__ne')
-
-    def __lt__(self, value):
-        """Filter by __lt=value."""
-        return self.__eq__(value, '__lt')
-
-    def __le__(self, value):
-        """Filter by __lte=value."""
-        return self.__eq__(value, '__lte')
-
-    def __gt__(self, value):
-        """Filter by __gt=value."""
-        return self.__eq__(value, '__gt')
-
-    def __ge__(self, value):
-        """Filter by __gte=value."""
-        return self.__eq__(value, '__gte')
+        lookups = (field + lookup for field in self._fields)
+        return self.filter(**dict.fromkeys(lookups, value))
 
     def __contains__(self, value):
         """Return whether value is present using ``exists``."""
@@ -77,7 +136,7 @@ class QuerySet(models.QuerySet):
 
     @property
     def F(self):
-        return models.F(*self._fields)
+        return FExpr(*self._fields)
 
     def __add__(self, value):
         """F + value."""
@@ -167,9 +226,9 @@ class QuerySet(models.QuerySet):
 
         For triggering on-change logic without fetching first.
 
-        ``if qs.modify(status=...):``  # status actually changed
+        ``if qs.modify(status=...):`` status actually changed
 
-        ``qs.modify({'last_modified': now}, status=...)``  # last_modified only updated if status updated
+        ``qs.modify({'last_modified': now}, status=...)`` last_modified only updated if status updated
 
         :param defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
         """
