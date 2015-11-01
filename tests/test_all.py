@@ -102,6 +102,11 @@ def test_functions(books):
 def test_lookups(books):
     assert len(books[F.last_modified.year == timezone.now().year]) == 5
     assert str(F.author.search('')) == "(AND: ('author__search', ''))"
+    assert isinstance(F.quantity.min(), models.Min)
+    assert isinstance(F.quantity.max(), models.Max)
+    assert isinstance(F.quantity.sum(), models.Sum)
+    assert isinstance(F.quantity.mean(), models.Avg)
+    assert isinstance(F.count(distinct=True), models.Count)
 
     authors = books['author']
     assert set(authors.in_('A', 'B')) == {'A', 'B'}

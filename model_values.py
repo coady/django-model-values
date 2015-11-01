@@ -1,4 +1,5 @@
 import collections
+import functools
 import itertools
 import operator
 try:
@@ -70,15 +71,27 @@ class Lookup(object):
         return self.__eq__(value, '__iregex')
 
 
+def method(func):
+    return functools.update_wrapper(lambda *args, **extra: func(*args, **extra), func)
+
+
 class FExpr(models.F, Lookup):
-    """Singleton for creating ``F`` and ``Q`` objects with expressions.
+    """Singleton for creating ``F``, ``Q``, and ``Func`` objects with expressions.
 
     ``F.user.created`` == ``F('user__created')``
 
     ``F.user.created >= ...`` == ``Q(user__created__gte=...)``
 
+    ``F.user.created.min()`` == ``Min('user__created')``
+
     ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
     """
+    min = method(models.Min)
+    max = method(models.Max)
+    sum = method(models.Sum)
+    mean = method(models.Avg)
+    count = method(models.Count)
+
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
         return type(self)('{}__{}'.format(self.name, name).lstrip('_'))

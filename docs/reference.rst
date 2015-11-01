@@ -10,7 +10,8 @@ F
 .. autoclass:: model_values.FExpr
    :show-inheritance:
    :members:
-   :special-members:
+   :special-members: __eq__, __getattr__
+   :undoc-members:
 
 QuerySet
 =============
