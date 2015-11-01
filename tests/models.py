@@ -1,5 +1,5 @@
 from django.db import models
-from model_values import Manager, classproperty
+from model_values import F, Manager, classproperty
 
 
 class Book(models.Model):
@@ -12,7 +12,7 @@ class Book(models.Model):
 
     @classproperty
     def in_stock(cls):
-        return cls.objects.filter(quantity__gt=0)
+        return cls.objects.filter(F.quantity > 0)
 
     @property
     def object(self):

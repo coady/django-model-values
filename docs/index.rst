@@ -89,7 +89,7 @@ And this can be generalized with a little inspiration from ``{get,update}_or_cre
 Selects
 ^^^^^^^^^^^^
 Direct column access has some of the clunkiest syntax:  ``values_list(..., flat=True)``.
-`QuerySet <reference.html#queryset>`_  override ``__getitem__``, as well as comparison operators for simple filters.
+`QuerySets <reference.html#queryset>`_  override ``__getitem__``, as well as comparison operators for simple filters.
 Both are common syntax in panel data layers.
 
 *The Bad*::

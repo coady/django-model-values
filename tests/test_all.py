@@ -19,8 +19,8 @@ def books():
 
 def test_queryset(books):
     assert books.filter(id__ne=None).exists(5)
-    assert set(books['author']) == {'A', 'B'}
-    assert dict(books['id', 'author']) == {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'B'}
+    assert set(books['author']) == set(books[F.author]) == {'A', 'B'}
+    assert dict(books[F.id, 'author']) == {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'B'}
 
     assert len(books['quantity'] < 2) == 1
     assert len(books['quantity'] <= 2) == 3

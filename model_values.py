@@ -73,7 +73,7 @@ class Lookup(object):
 class FExpr(models.F, Lookup):
     """Singleton for creating ``F`` and ``Q`` objects with expressions.
 
-    ``F.user.created`` == ``F(user__created)``
+    ``F.user.created`` == ``F('user__created')``
 
     ``F.user.created >= ...`` == ``Q(user__created__gte=...)``
 
@@ -104,7 +104,7 @@ class QuerySet(models.QuerySet, Lookup):
             self._iterable_class = _iterable_classes[not value]
 
     def __getitem__(self, key):
-        """Allow column access and filtering.
+        """Allow column access by field names (or ``F`` objects) and filtering by ``Q`` objects.
 
         ``qs[field]`` returns flat ``values_list``
 
@@ -113,9 +113,12 @@ class QuerySet(models.QuerySet, Lookup):
         ``qs[Q_obj]`` returns filtered `QuerySet`_
         """
         if isinstance(key, tuple):
-            return self.values_list(*key)
+            fields = (field.name if isinstance(field, models.F) else field for field in key)
+            return self.values_list(*fields)
         if isinstance(key, six.string_types):
             return self.values_list(key, flat=True)
+        if isinstance(key, models.F):
+            return self.values_list(key.name, flat=True)
         if isinstance(key, models.Q):
             return self.filter(key)
         return super(QuerySet, self).__getitem__(key)
