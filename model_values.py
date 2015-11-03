@@ -91,6 +91,8 @@ class FExpr(models.F, Lookup):
     sum = method(models.Sum)
     mean = method(models.Avg)
     count = method(models.Count)
+    var = method(models.Variance)
+    std = method(models.StdDev)
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
@@ -237,6 +239,14 @@ class QuerySet(models.QuerySet, Lookup):
     def mean(self):
         """``reduce`` with ``Avg``."""
         return self.reduce(models.Avg)
+
+    def var(self):
+        """``reduce`` with ``Variance``."""
+        return self.reduce(models.Variance)
+
+    def std(self):
+        """``reduce`` with ``StdDev``."""
+        return self.reduce(models.StdDev)
 
     def modify(self, defaults=(), **kwargs):
         """Update and return number of rows that actually changed.

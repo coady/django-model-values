@@ -77,6 +77,8 @@ def test_aggregation(books):
     assert dict(groups.max()) == {'A': 10, 'B': 2}
     assert dict(groups.sum()) == {'A': 20, 'B': 5}
     assert dict(groups.mean()) == {'A': 10, 'B': 5.0 / 3}
+    assert isinstance(groups.var(), models.QuerySet)
+    assert isinstance(groups.std(), models.QuerySet)
     key, values = next(iter(books.values('title', 'last_modified').groupby('author', 'quantity')))
     assert key == ('A', 10)
     assert all(value.title and value.last_modified for value in values)
@@ -107,6 +109,8 @@ def test_lookups(books):
     assert isinstance(F.quantity.sum(), models.Sum)
     assert isinstance(F.quantity.mean(), models.Avg)
     assert isinstance(F.count(distinct=True), models.Count)
+    assert isinstance(F.quantity.var(sample=True), models.Variance)
+    assert isinstance(F.quantity.std(sample=True), models.StdDev)
 
     authors = books['author']
     assert set(authors.in_('A', 'B')) == {'A', 'B'}
