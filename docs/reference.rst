@@ -2,16 +2,15 @@ Lookup
 =============
 .. autoclass:: model_values.Lookup
    :members:
-   :special-members: __ne__, __lt__, __le__, __gt__, __ge__
-   :undoc-members:
+   :special-members:
+   :exclude-members: __weakref__
 
 F
 =============
 .. autoclass:: model_values.FExpr
    :show-inheritance:
    :members:
-   :special-members: __eq__, __getattr__
-   :undoc-members:
+   :special-members:
 
 QuerySet
 =============

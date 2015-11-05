@@ -1,5 +1,4 @@
 import collections
-import functools
 import itertools
 import operator
 try:
@@ -17,62 +16,44 @@ except AttributeError:  # django < 1.9
     _iterable_classes = ()
 
 
+def update_wrapper(wrapper, wrapped):
+    wrapper.__name__ = wrapper.__doc__ = getattr(wrapped, '__name__', wrapped)
+    return wrapper
+
+
+def method(lookup):
+    return update_wrapper(lambda self, value: self.__eq__(value, '__' + lookup), lookup)
+
+
 class Lookup(object):
     """Mixin for field lookups."""
-    def __ne__(self, value):
-        return self.__eq__(value, '__ne')
-
-    def __lt__(self, value):
-        return self.__eq__(value, '__lt')
-
-    def __le__(self, value):
-        return self.__eq__(value, '__lte')
-
-    def __gt__(self, value):
-        return self.__eq__(value, '__gt')
-
-    def __ge__(self, value):
-        return self.__eq__(value, '__gte')
+    __ne__ = method('ne')
+    __lt__ = method('lt')
+    __le__ = method('lte')
+    __gt__ = method('gt')
+    __ge__ = method('gte')
+    iexact = method('iexact')
+    contains = method('contains')  # __contains__ coerces to a bool
+    icontains = method('icontains')
+    startswith = method('startswith')
+    istartswith = method('istartswith')
+    endswith = method('endswith')
+    iendswith = method('iendswith')
+    search = method('search')
+    regex = method('regex')
+    iregex = method('iregex')
 
     def in_(self, *values):
+        """in"""
         return self.__eq__(values, '__in')
 
-    def iexact(self, value):
-        return self.__eq__(value, '__iexact')
-
-    def contains(self, value):
-        return self.__eq__(value, '__contains')
-
-    def icontains(self, value):
-        return self.__eq__(value, '__icontains')
-
-    def startswith(self, value):
-        return self.__eq__(value, '__startswith')
-
-    def istartswith(self, value):
-        return self.__eq__(value, '__istartswith')
-
-    def endswith(self, value):
-        return self.__eq__(value, '__endswith')
-
-    def iendswith(self, value):
-        return self.__eq__(value, '__iendswith')
-
     def range(self, *values):
+        """range"""
         return self.__eq__(values, '__range')
-
-    def search(self, value):
-        return self.__eq__(value, '__search')
-
-    def regex(self, value):
-        return self.__eq__(value, '__regex')
-
-    def iregex(self, value):
-        return self.__eq__(value, '__iregex')
 
 
 def method(func):
-    return functools.update_wrapper(lambda *args, **extra: func(*args, **extra), func)
+    return update_wrapper(lambda *args, **extra: func(*args, **extra), func)
 
 
 class FExpr(models.F, Lookup):
@@ -104,7 +85,18 @@ class FExpr(models.F, Lookup):
 F = FExpr('')
 
 
+def method(func):
+    return update_wrapper(lambda self: self.reduce(func), func)
+
+
 class QuerySet(models.QuerySet, Lookup):
+    min = method(models.Min)
+    max = method(models.Max)
+    sum = method(models.Sum)
+    mean = method(models.Avg)
+    var = method(models.Variance)
+    std = method(models.StdDev)
+
     @property
     def _flat(self):
         if _iterable_classes:
@@ -223,30 +215,6 @@ class QuerySet(models.QuerySet, Lookup):
         names = (func.default_alias for func in funcs)
         values = collections.namedtuple('Values', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values
-
-    def min(self):
-        """``reduce`` with ``Min``."""
-        return self.reduce(models.Min)
-
-    def max(self):
-        """``reduce`` with ``Max``."""
-        return self.reduce(models.Max)
-
-    def sum(self):
-        """``reduce`` with ``Sum``."""
-        return self.reduce(models.Sum)
-
-    def mean(self):
-        """``reduce`` with ``Avg``."""
-        return self.reduce(models.Avg)
-
-    def var(self):
-        """``reduce`` with ``Variance``."""
-        return self.reduce(models.Variance)
-
-    def std(self):
-        """``reduce`` with ``StdDev``."""
-        return self.reduce(models.StdDev)
 
     def modify(self, defaults=(), **kwargs):
         """Update and return number of rows that actually changed.
