@@ -1,12 +1,9 @@
 import collections
 import itertools
 import operator
-try:
-    from future_builtins import map
-except ImportError:
-    pass
 from django.db import models
 from django.utils import six
+map = six.moves.map
 
 __version__ = '0.2'
 
@@ -57,7 +54,7 @@ def method(func):
 
 
 class FExpr(models.F, Lookup):
-    """Singleton for creating ``F``, ``Q``, and ``Func`` objects with expressions.
+    """Singleton for creating ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
 
     ``F.user.created`` == ``F('user__created')``
 
@@ -65,8 +62,11 @@ class FExpr(models.F, Lookup):
 
     ``F.user.created.min()`` == ``Min('user__created')``
 
+    ``-F.user.created`` == ``F('user__created').desc()``
+
     ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
     """
+    __neg__ = models.F.desc
     min = method(models.Min)
     max = method(models.Max)
     sum = method(models.Sum)

@@ -111,6 +111,8 @@ def test_lookups(books):
     assert isinstance(F.count(distinct=True), models.Count)
     assert isinstance(F.quantity.var(sample=True), models.Variance)
     assert isinstance(F.quantity.std(sample=True), models.StdDev)
+    ordering = -F.user.created
+    assert ordering.expression.name == 'user__created' and ordering.descending
 
     authors = books['author']
     assert set(authors.in_('A', 'B')) == {'A', 'B'}
