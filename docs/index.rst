@@ -155,6 +155,8 @@ Expressions
 
    (book for book in qs if book.author.startswith('A') or book.author.startswith('B'))
 
+   (book.title[:10] for book in qs)
+
    for book in qs:
       book.rating += 1
       book.save()
@@ -163,12 +165,16 @@ Expressions
 
    qs.filter(Q(author__startswith='A') | Q(author__startswith='B'))
 
+   qs.annotate(alias=functions.Substr('title', 1, 10)).values_list('alias', flat=True)
+
    qs.update(rating=F('rating') + 1)
 
 *The Good*::
 
    lookup = F.author.startswith
    qs[lookup('A') | lookup('B')]
+
+   qs.annotate(alias=F.title[:10])['alias']
 
    qs['rating'] += 1
 

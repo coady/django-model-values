@@ -2,6 +2,7 @@ import collections
 import itertools
 import operator
 from django.db import models
+from django.db.models import functions
 from django.utils import six
 map = six.moves.map
 
@@ -67,6 +68,11 @@ class FExpr(models.F, Lookup):
     ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
     """
     __neg__ = models.F.desc
+    __or__ = method(functions.Coalesce)
+    concat = method(functions.Concat)  # __add__ is taken
+    length = method(functions.Length)  # __len__ requires an int
+    lower = method(functions.Lower)
+    upper = method(functions.Upper)
     min = method(models.Min)
     max = method(models.Max)
     sum = method(models.Sum)
@@ -82,6 +88,13 @@ class FExpr(models.F, Lookup):
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
         return models.Q(**{self.name + lookup: value})
+
+    def __getitem__(self, slc):
+        """Return field ``Substr``."""
+        start = slc.start or 0
+        size = slc.stop and slc.stop - start
+        assert start >= 0 and (size is None or size >= 0) and slc.step is None
+        return functions.Substr(self, start + 1, size)
 F = FExpr('')
 
 

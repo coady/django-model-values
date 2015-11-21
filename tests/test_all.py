@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import functions
 from django.utils import timezone
 from django_dynamic_fixture import G
 import pytest
@@ -99,6 +100,15 @@ def test_functions(books):
     assert book['quantity'].first() == 3
     book['quantity'] **= 2
     assert book['quantity'].first() == 9
+
+    assert isinstance(F.author | 'title', functions.Coalesce)
+    assert isinstance(F.author.concat('title'), functions.Concat)
+    assert isinstance(F.author.length(), functions.Length)
+    assert isinstance(F.title.lower(), functions.Lower)
+    assert isinstance(F.title.upper(), functions.Upper)
+    assert isinstance(F.title[:10], functions.Substr)
+    with pytest.raises(AssertionError):
+        F.title[:-10]
 
 
 def test_lookups(books):
