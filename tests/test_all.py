@@ -84,6 +84,12 @@ def test_aggregation(books):
     assert key == ('A', 10)
     assert all(value.title and value.last_modified for value in values)
 
+    groups = books['quantity'].groupby(author=F.author.lower())
+    assert dict(groups.sum()) == {'a': 20, 'b': 5}
+    counts = books.groupby(alias=F.author.lower()).value_counts()
+    assert dict(counts) == {'a': 2, 'b': 3}
+    assert dict(counts[F('count') > 2]) == {'b': 3}
+
 
 def test_functions(books):
     book = Book.objects[1]

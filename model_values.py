@@ -84,6 +84,7 @@ class FExpr(models.F, Lookup):
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
         return type(self)('{}__{}'.format(self.name, name).lstrip('_'))
+    __call__ = __getattr__
 
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
@@ -197,25 +198,27 @@ class QuerySet(models.QuerySet, Lookup):
         getter = operator.itemgetter(size) if self._flat else lambda tup: Values(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
-    def groupby(self, *fields):
+    def groupby(self, *fields, **annotations):
         """Return a grouped `QuerySet`_.
 
         The queryset is iterable in the same manner as ``itertools.groupby``.
         Additionally the ``reduce`` functions will return annotated querysets.
         """
-        qs = self.all()
-        qs._groupby = fields
+        qs = super(QuerySet, self).annotate(**annotations)
+        qs._groupby = fields + tuple(annotations)
         return qs
 
     def annotate(self, *args, **kwargs):
+        if hasattr(self, '_groupby'):
+            self = self[self._groupby]
         qs = super(QuerySet, self).annotate(*args, **kwargs)
         if args or kwargs:
             qs._flat = False
         return qs
 
-    def value_counts(self):
+    def value_counts(self, alias='count'):
         """Return annotated value counts."""
-        return self.annotate(models.Count(self._fields[0]))
+        return self.annotate(**{alias: F.count()})
 
     def reduce(self, *funcs):
         """Return aggregated values, or an annotated `QuerySet`_ if ``groupby`` is in use.
@@ -224,7 +227,7 @@ class QuerySet(models.QuerySet, Lookup):
         """
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
-            return self[self._groupby].annotate(*funcs)
+            return self.annotate(*funcs)
         names = (func.default_alias for func in funcs)
         values = collections.namedtuple('Values', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values
