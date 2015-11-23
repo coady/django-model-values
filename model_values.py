@@ -232,6 +232,17 @@ class QuerySet(models.QuerySet, Lookup):
         values = collections.namedtuple('Values', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values
 
+    def update(self, **kwargs):
+        """Update extended to also handle mapping values, as a case expression.
+
+        :param kwargs: ``field={Q_obj: value, ...}, ...``
+        """
+        for field, value in kwargs.items():
+            if isinstance(value, collections.Mapping):
+                cases = (models.When(q, models.Value(value[q])) for q in value)
+                kwargs[field] = models.Case(*cases, default=field)
+        return super(QuerySet, self).update(**kwargs)
+
     def modify(self, defaults=(), **kwargs):
         """Update and return number of rows that actually changed.
 
@@ -262,6 +273,7 @@ class QuerySet(models.QuerySet, Lookup):
         return super(QuerySet, self).exists()
 
 
+@models.Field.register_lookup
 class NotEqual(models.Lookup):
     """Missing != operator."""
     lookup_name = 'ne'
@@ -270,8 +282,6 @@ class NotEqual(models.Lookup):
         lhs, lhs_params = self.process_lhs(*args)
         rhs, rhs_params = self.process_rhs(*args)
         return '{} <> {}'.format(lhs, rhs), lhs_params + rhs_params
-
-models.Field.register_lookup(NotEqual)
 
 
 class Query(models.sql.Query):

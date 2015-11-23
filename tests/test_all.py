@@ -41,6 +41,8 @@ def test_queryset(books):
     assert len(books['last_modified'] == now) == 1
     assert books.filter(author='B').modify({'last_modified': timezone.now()}, quantity=2) == 0
     assert len(books['last_modified'] == now) == 1
+    books['quantity'] = {F.author == 'B': 3}
+    assert set(books['quantity']) == {3, 10}
     assert books.remove() == 5
     assert not books
 
