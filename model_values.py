@@ -323,36 +323,32 @@ class Manager(models.Manager):
         row = self[pk].exclude(**kwargs).values(*kwargs).first() or {}
         return {field: value for field, value in row.items() if value != kwargs[field]}
 
-    def update_rows(self, data):
-        """Perform bulk row updates as efficiently and minimally as possible.
-
-        At the expense of a single select query,
-        this is effective if the percentage of changed rows is relatively small.
-
-        :param data: ``{pk: {field: value, ...}, ...}``
-        :returns: set of changed pks
-        """
-        fields = set(itertools.chain.from_iterable(data.values()))
-        rows = self.filter(pk__in=data).values('pk', *fields).iterator()
-        changed = {row['pk'] for row in rows if any(row[field] != value for field, value in data[row['pk']].items())}
-        for pk in changed:
-            self[pk].update(**data[pk])
-        return changed
-
-    def update_columns(self, field, data):
-        """Perform bulk column updates for one field as efficiently and minimally as possible.
-
-        Faster than row updates if the number of possible values is limited, e.g., booleans.
+    def bulk_changed(self, field, data):
+        """Return mapping of values which differ in the db.
 
         :param data: ``{pk: value, ...}``
-        :returns: number of rows matched per value
         """
+        rows = self.filter(pk__in=data)['pk', field].iterator()
+        return {pk: value for pk, value in rows if value != data[pk]}
+
+    def bulk_update(self, field, data, changed=False, case=False):
+        """Update with a minimal number of queries, by inverting the data to use ``pk__in``.
+
+        :param data: ``{pk: value, ...}``
+        :param changed: execute select query first to update only rows which differ;
+            more efficient if the expected percentage of changed rows is relatively small
+        :param case: execute a single query with a case statement;
+            may be more efficient if the number of rows is large (but bounded)
+        """
+        if changed:
+            data = {pk: data[pk] for pk in self.bulk_changed(field, data)}
         updates = collections.defaultdict(list)
         for pk in data:
             updates[data[pk]].append(pk)
-        for value in updates:
-            self.filter(pk__in=updates[value])[field] = value
-        return {value: len(updates[value]) for value in updates}
+        updates = {F.pk__in == updates[value]: value for value in updates}
+        if case:
+            return self.filter(pk__in=data).update(**{field: updates})
+        return sum(self.filter(q).update(**{field: updates[q]}) for q in updates)
 
 
 class classproperty(property):

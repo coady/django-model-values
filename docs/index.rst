@@ -181,6 +181,7 @@ Expressions
 Conditionals
 ^^^^^^^^^^^^
 Annotations and updates with ``Case`` and ``When`` expressions.
+See also `bulk_changed and bulk_update <reference.html#manager>`_ for efficient bulk operations on primary keys.
 
 *The Bad*::
 

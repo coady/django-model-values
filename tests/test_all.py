@@ -50,10 +50,11 @@ def test_queryset(books):
 def test_manager(books):
     assert 1 in Book.objects
     assert Book.objects[1]['id'].first() == 1
-    assert Book.objects.update_rows(dict.fromkeys([3, 4, 5], {'quantity': 2})) == {4}
-    assert 4 in (books['quantity'] == 2)['id']
-    assert Book.objects.update_columns('quantity', dict.fromkeys([3, 4, 5], 1)) == {1: 3}
-    assert len(books['quantity'] == 1) == 3
+    assert Book.objects.bulk_changed('quantity', {3: 2, 4: 2, 5: 2}) == {4: 1}
+    assert Book.objects.bulk_update('quantity', {3: 2, 4: 2}, changed=True) == 1
+    assert set(books.filter(quantity=2)['id']) == {3, 4, 5}
+    assert Book.objects.bulk_update('quantity', {3: 2, 4: 3}, case=True) == 2
+    assert set(books.filter(quantity=2)['id']) == {3, 5}
     assert Book.objects.changed(1, quantity=5) == {'quantity': 10}
     assert Book.objects.changed(1, quantity=10) == {}
     del Book.objects[1]
