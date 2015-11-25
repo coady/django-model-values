@@ -91,6 +91,8 @@ def test_aggregation(books):
     counts = books.groupby(alias=F.author.lower()).value_counts()
     assert dict(counts) == {'a': 2, 'b': 3}
     assert dict(counts[F('count') > 2]) == {'b': 3}
+    groups = books.groupby(amount={F.quantity < 10: 'low', F.quantity >= 10: 'high'})
+    assert dict(groups.value_counts()) == {'low': 3, 'high': 2}
 
 
 def test_functions(books):

@@ -167,7 +167,7 @@ Expressions
 
    qs.annotate(alias=functions.Substr('title', 1, 10)).values_list('alias', flat=True)
 
-   qs.update(rating=F('rating') + 1)
+   qs.update(rating=models.F('rating') + 1)
 
 *The Good*::
 
@@ -177,6 +177,36 @@ Expressions
    qs.annotate(alias=F.title[:10])['alias']
 
    qs['rating'] += 1
+
+Conditionals
+^^^^^^^^^^^^
+Annotations and updates with ``Case`` and ``When`` expressions.
+
+*The Bad*::
+
+   collections.Counter('low' if book.quantity < 10 else 'high' for book in qs).items()
+
+   for author, quantity in items:
+      for book in qs.filter(author=author):
+         book.quantity = quantity
+         book.save()
+
+*The Ugly*::
+
+   qs.annotate(amount=models.Case(
+      models.When(quantity__lt=10, then=models.Value('low')),
+      models.When(quantity__gte=10, then=models.Value('high')),
+      output_field=models.CharField(),
+   )).values_list('amount').annotate(count=models.Count('*'))
+
+   cases = (models.When(author=author, then=models.Value(quantity)) for author, quantity in items)
+   qs.update(quantity=models.Case(*cases, default='quantity'))
+
+*The Good*::
+
+   qs.groupby(amount={F.quantity < 10: 'low', F.quantity >= 10: 'high'}).value_counts()
+
+   qs.update(quantity={F.author == author: quantity for author, quantity in items})
 
 Contents
 ==================

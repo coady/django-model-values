@@ -204,13 +204,19 @@ class QuerySet(models.QuerySet, Lookup):
         The queryset is iterable in the same manner as ``itertools.groupby``.
         Additionally the ``reduce`` functions will return annotated querysets.
         """
-        qs = super(QuerySet, self).annotate(**annotations)
+        qs = self.annotate(**annotations)
         qs._groupby = fields + tuple(annotations)
         return qs
 
     def annotate(self, *args, **kwargs):
+        """Annotate extended to also handle mapping values, as a case expression.
+
+        :param kwargs: ``field={Q_obj: value, ...}, ...``
+        """
         if hasattr(self, '_groupby'):
             self = self[self._groupby]
+        kwargs.update((field, Case(value)) for field, value in kwargs.items()
+                      if isinstance(value, collections.Mapping))
         qs = super(QuerySet, self).annotate(*args, **kwargs)
         if args or kwargs:
             qs._flat = False
@@ -237,10 +243,8 @@ class QuerySet(models.QuerySet, Lookup):
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
         """
-        for field, value in kwargs.items():
-            if isinstance(value, collections.Mapping):
-                cases = (models.When(q, models.Value(value[q])) for q in value)
-                kwargs[field] = models.Case(*cases, default=field)
+        kwargs.update((field, Case(value, default=field)) for field, value in kwargs.items()
+                      if isinstance(value, collections.Mapping))
         return super(QuerySet, self).update(**kwargs)
 
     def modify(self, defaults=(), **kwargs):
@@ -355,3 +359,15 @@ class classproperty(property):
     """A property bound to a class."""
     def __get__(self, instance, owner):
         return self.fget(owner)
+
+
+class Case(models.Case):
+    """``Case`` expression from mapping of when conditionals."""
+    types = {str: models.CharField, int: models.IntegerField, float: models.FloatField, bool: models.BooleanField}
+
+    def __init__(self, conds, **extra):
+        cases = (models.When(cond, models.Value(conds[cond])) for cond in conds)
+        types = set(map(type, conds.values()))
+        if 'default' not in extra and len(types) == 1 and types.issubset(self.types):
+            extra.setdefault('output_field', self.types.get(*types)())
+        super(Case, self).__init__(*cases, **extra)
