@@ -60,6 +60,14 @@ Tests
 
 Changes
 =========================
+0.3
+
+   * Lookup methods and operators
+   * F expressions and aggregation methods
+   * Database functions
+   * Conditional expressions for updates and annotations
+   * Bulk updates and change detection
+
 0.2
 
    * Change detection
