@@ -53,7 +53,7 @@ def test_manager(books):
     assert Book.objects.bulk_changed('quantity', {3: 2, 4: 2, 5: 2}) == {4: 1}
     assert Book.objects.bulk_update('quantity', {3: 2, 4: 2}, changed=True) == 1
     assert set(books.filter(quantity=2)['id']) == {3, 4, 5}
-    assert Book.objects.bulk_update('quantity', {3: 2, 4: 3}, case=True) == 2
+    assert Book.objects.bulk_update('quantity', {3: 2, 4: 3}, conditional=True) == 2
     assert set(books.filter(quantity=2)['id']) == {3, 5}
     assert Book.objects.changed(1, quantity=5) == {'quantity': 10}
     assert Book.objects.changed(1, quantity=10) == {}

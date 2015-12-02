@@ -6,7 +6,7 @@ from django.db.models import functions
 from django.utils import six
 map = six.moves.map
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 try:
     _iterable_classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
@@ -331,13 +331,13 @@ class Manager(models.Manager):
         rows = self.filter(pk__in=data)['pk', field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
-    def bulk_update(self, field, data, changed=False, case=False):
+    def bulk_update(self, field, data, changed=False, conditional=False):
         """Update with a minimal number of queries, by inverting the data to use ``pk__in``.
 
         :param data: ``{pk: value, ...}``
         :param changed: execute select query first to update only rows which differ;
             more efficient if the expected percentage of changed rows is relatively small
-        :param case: execute a single query with a case statement;
+        :param conditional: execute a single query with a conditional expression;
             may be more efficient if the number of rows is large (but bounded)
         """
         if changed:
@@ -346,7 +346,7 @@ class Manager(models.Manager):
         for pk in data:
             updates[data[pk]].append(pk)
         updates = {F.pk__in == updates[value]: value for value in updates}
-        if case:
+        if conditional:
             return self.filter(pk__in=data).update(**{field: updates})
         return sum(self.filter(q).update(**{field: updates[q]}) for q in updates)
 
