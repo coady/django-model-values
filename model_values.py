@@ -260,16 +260,6 @@ class QuerySet(models.QuerySet, Lookup):
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
-    def remove(self):
-        """Equivalent to ``_raw_delete``, and returns number of rows deleted.
-
-        Django's delete may fetch ids first;  this will execute only one query.
-        """
-        query = models.sql.DeleteQuery(self.model)
-        query.get_initial_alias()
-        query.where = self.query.where
-        return query.get_compiler(self.db).execute_sql(models.sql.constants.CURSOR).rowcount
-
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""
         if self._result_cache is None and count != 1:
