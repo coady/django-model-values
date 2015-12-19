@@ -1,7 +1,7 @@
 import collections
 import itertools
 import operator
-from django.db import models
+from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 from django.utils import six
 map = six.moves.map
@@ -259,6 +259,18 @@ class QuerySet(models.QuerySet, Lookup):
         :param defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
+
+    def upsert(self, defaults={}, **kwargs):
+        """Update or insert returning number of rows or created object; faster and safer than ``update_or_create``.
+
+        :param defaults: optional mapping which will be updated, as with ``update_or_create``.
+        """
+        update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
+        try:
+            with transaction.atomic():
+                return update(**defaults) or self.create(**dict(kwargs, **defaults))
+        except IntegrityError:
+            return update(**defaults)
 
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""

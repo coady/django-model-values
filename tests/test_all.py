@@ -43,6 +43,10 @@ def test_queryset(books):
     assert len(books['last_modified'] == now) == 1
     books['quantity'] = {F.author == 'B': 3}
     assert set(books['quantity']) == {3, 10}
+    assert books.upsert({'quantity': 0}, pk=1) == 1
+    assert books.upsert(pk=0) == 0  # simulates race condition
+    book = books.upsert({'quantity': 0}, pk=0)
+    assert book.pk == book.quantity == 0
 
 
 def test_manager(books):
