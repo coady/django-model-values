@@ -1,9 +1,8 @@
 from setuptools import setup
-import model_values
 
 setup(
     name='django-model-values',
-    version=model_values.__version__,
+    version='0.3',
     description='Taking the O out of ORM.',
     long_description=open('README.rst').read(),
     author='Aric Coady',
