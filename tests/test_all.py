@@ -122,6 +122,10 @@ def test_functions(books):
     assert isinstance(F.title[:10], functions.Substr)
     with pytest.raises(AssertionError):
         F.title[:-10]
+    if hasattr(type(F), 'now'):
+        assert isinstance(F.title.greatest('author'), functions.Greatest)
+        assert isinstance(F.title.least('author'), functions.Least)
+        assert F.now is functions.Now
 
 
 def test_lookups(books):

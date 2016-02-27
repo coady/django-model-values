@@ -1,17 +1,13 @@
 import collections
 import itertools
 import operator
+import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 from django.utils import six
 map = six.moves.map
 
 __version__ = '0.3'
-
-try:
-    _iterable_classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
-except AttributeError:  # django < 1.9
-    _iterable_classes = ()
 
 
 def update_wrapper(wrapper, wrapped):
@@ -80,6 +76,10 @@ class FExpr(models.F, Lookup):
     count = method(models.Count)
     var = method(models.Variance)
     std = method(models.StdDev)
+    if django.VERSION >= (1, 9):
+        greatest = method(functions.Greatest)
+        least = method(functions.Least)
+        now = staticmethod(functions.Now)
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
@@ -113,16 +113,17 @@ class QuerySet(models.QuerySet, Lookup):
 
     @property
     def _flat(self):
-        if _iterable_classes:
-            return issubclass(self._iterable_class, _iterable_classes[0])
-        return getattr(self, 'flat', None)
+        return issubclass(self._iterable_class, models.query.FlatValuesListIterable)
 
     @_flat.setter
     def _flat(self, value):
-        if not _iterable_classes:
-            self.flat = bool(value)
-        elif issubclass(self._iterable_class, _iterable_classes):
-            self._iterable_class = _iterable_classes[not value]
+        classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
+        if issubclass(self._iterable_class, classes):
+            self._iterable_class = classes[not value]
+
+    if django.VERSION < (1, 9):
+        _flat = property(lambda self: getattr(self, 'flat', None),
+                         lambda self, value: setattr(self, 'flat', bool(value)))
 
     def __getitem__(self, key):
         """Allow column access by field names (or ``F`` objects) and filtering by ``Q`` objects.
