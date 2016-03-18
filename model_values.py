@@ -334,7 +334,7 @@ class Manager(models.Manager):
         rows = self.filter(pk__in=data)['pk', field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
-    def bulk_update(self, field, data, changed=False, conditional=False):
+    def bulk_update(self, field, data, changed=False, conditional=False, **kwargs):
         """Update with a minimal number of queries, by inverting the data to use ``pk__in``.
 
         :param data: ``{pk: value, ...}``
@@ -342,16 +342,21 @@ class Manager(models.Manager):
             more efficient if the expected percentage of changed rows is relatively small
         :param conditional: execute a single query with a conditional expression;
             may be more efficient if the number of rows is large (but bounded)
+        :param kwargs: additional fields to be updated
         """
         if changed:
             data = {pk: data[pk] for pk in self.bulk_changed(field, data)}
         updates = collections.defaultdict(list)
         for pk in data:
             updates[data[pk]].append(pk)
-        updates = {F.pk__in == updates[value]: value for value in updates}
         if conditional:
-            return self.filter(pk__in=data).update(**{field: updates})
-        return sum(self.filter(q).update(**{field: updates[q]}) for q in updates)
+            kwargs[field] = {F.pk__in == updates[value]: value for value in updates}
+            return self.filter(pk__in=data).update(**kwargs)
+        count = 0
+        for value in updates:
+            kwargs[field] = value
+            count += self.filter(pk__in=updates[value]).update(**kwargs)
+        return count
 
 
 class classproperty(property):
