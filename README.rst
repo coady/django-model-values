@@ -50,7 +50,7 @@ Standard installation from pypi or local download. ::
 Dependencies
 =========================
    * Django 1.8+
-   * Python 2.7, 3.2+
+   * Python 2.7, 3.3+
 
 Tests
 =========================
