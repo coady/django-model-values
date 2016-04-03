@@ -12,7 +12,7 @@ setup(
     py_modules=['model_values'],
     install_requires=['django>=1.8'],
     tests_require=['pytest-django', 'pytest-cov', 'django-dynamic-fixture'],
-    keywords='values_list pandas column-oriented data mapper pattern',
+    keywords=['values_list', 'pandas', 'column-oriented', 'data', 'mapper', 'pattern'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Framework :: Django :: 1.8',

@@ -10,8 +10,8 @@ map = six.moves.map
 __version__ = '0.3'
 
 
-def update_wrapper(wrapper, wrapped):
-    wrapper.__name__ = wrapper.__doc__ = getattr(wrapped, '__name__', wrapped)
+def update_wrapper(wrapper, name):
+    wrapper.__name__ = wrapper.__doc__ = name
     return wrapper
 
 
@@ -47,7 +47,7 @@ class Lookup(object):
 
 
 def method(func):
-    return update_wrapper(lambda *args, **extra: func(*args, **extra), func)
+    return update_wrapper(lambda *args, **extra: func(*args, **extra), func.__name__)
 
 
 class FExpr(models.F, Lookup):
@@ -100,7 +100,7 @@ F = FExpr('')
 
 
 def method(func):
-    return update_wrapper(lambda self: self.reduce(func), func)
+    return update_wrapper(lambda self: self.reduce(func), func.__name__)
 
 
 class QuerySet(models.QuerySet, Lookup):

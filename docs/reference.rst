@@ -1,32 +1,34 @@
+.. automodule:: model_values
+
 Lookup
 =============
-.. autoclass:: model_values.Lookup
+.. autoclass:: Lookup
    :members:
    :special-members:
    :exclude-members: __weakref__
 
 F
 =============
-.. autoclass:: model_values.FExpr
+.. autoclass:: FExpr
    :show-inheritance:
    :members:
    :special-members:
 
 QuerySet
 =============
-.. autoclass:: model_values.QuerySet
+.. autoclass:: QuerySet
    :show-inheritance:
    :members:
    :special-members:
 
 Manager
 =============
-.. autoclass:: model_values.Manager
+.. autoclass:: Manager
    :show-inheritance:
    :members:
    :special-members:
 
 classproperty
 =============
-.. autoclass:: model_values.classproperty
+.. autoclass:: classproperty
    :show-inheritance:

@@ -42,15 +42,14 @@ See `documentation`_ for more examples.
 
 Installation
 =========================
-Standard installation from pypi or local download. ::
+::
 
    $ pip install django-model-values
-   $ python setup.py install
 
 Dependencies
 =========================
-   * Django 1.8+
-   * Python 2.7, 3.3+
+* Django 1.8+
+* Python 2.7, 3.3+
 
 Tests
 =========================
@@ -62,17 +61,17 @@ Changes
 =========================
 0.3
 
-   * Lookup methods and operators
-   * F expressions and aggregation methods
-   * Database functions
-   * Conditional expressions for updates and annotations
-   * Bulk updates and change detection
+* Lookup methods and operators
+* F expressions and aggregation methods
+* Database functions
+* Conditional expressions for updates and annotations
+* Bulk updates and change detection
 
 0.2
 
-   * Change detection
-   * Groupby functionality
-   * Named tuples
+* Change detection
+* Groupby functionality
+* Named tuples
 
 .. _django: https://docs.djangoproject.com
 .. _documentation: http://pythonhosted.org/django-model-values/
