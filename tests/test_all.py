@@ -45,8 +45,10 @@ def test_queryset(books):
     assert set(books['quantity']) == {3, 10}
     assert books.upsert({'quantity': 0}, pk=1) == 1
     assert books.upsert(pk=0) == 0  # simulates race condition
-    book = books.upsert({'quantity': 0}, pk=0)
-    assert book.pk == book.quantity == 0
+    book = books.upsert({'quantity': F.quantity + 1}, pk=0)
+    assert book.pk == 0 and book.quantity == 1
+    assert books.upsert({'quantity': F.quantity + 1}, pk=0) == 1
+    assert books['quantity'].get(pk=0) == 2
 
 
 def test_manager(books):

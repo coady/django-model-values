@@ -264,12 +264,18 @@ class QuerySet(models.QuerySet, Lookup):
     def upsert(self, defaults={}, **kwargs):
         """Update or insert returning number of rows or created object; faster and safer than ``update_or_create``.
 
+        Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
+
         :param defaults: optional mapping which will be updated, as with ``update_or_create``.
         """
-        update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
+        lookup, params = self._extract_model_params(defaults, **kwargs)
+        for field, value in params.items():
+            if isinstance(value, models.expressions.CombinedExpression):
+                params[field] = value.rhs.value
+        update = getattr(self.filter(**lookup), 'update' if defaults else 'count')
         try:
             with transaction.atomic():
-                return update(**defaults) or self.create(**dict(kwargs, **defaults))
+                return update(**defaults) or self.create(**params)
         except IntegrityError:
             return update(**defaults)
 
