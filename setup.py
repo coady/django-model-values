@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='django-model-values',
-    version='0.3',
+    version='0.4',
     description='Taking the O out of ORM.',
     long_description=open('README.rst').read(),
     author='Aric Coady',
@@ -12,9 +12,9 @@ setup(
     py_modules=['model_values'],
     install_requires=['django>=1.8'],
     tests_require=['pytest-django', 'pytest-cov', 'django-dynamic-fixture'],
-    keywords=['values_list', 'pandas', 'column-oriented', 'data', 'mapper', 'pattern'],
+    keywords='values_list pandas column-oriented data mapper pattern orm',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Framework :: Django :: 1.8',
         'Framework :: Django :: 1.9',
         'Intended Audience :: Developers',

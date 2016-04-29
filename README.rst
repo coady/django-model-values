@@ -1,5 +1,3 @@
-About django-model-values
-=========================
 .. image:: https://img.shields.io/pypi/v/django-model-values.svg
    :target: https://pypi.python.org/pypi/django-model-values/
 .. image:: https://img.shields.io/pypi/pyversions/django-model-values.svg
@@ -9,7 +7,7 @@ About django-model-values
 .. image:: https://img.shields.io/codecov/c/github/coady/django-model-values.svg
    :target: https://codecov.io/github/coady/django-model-values
 
-Provides `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
+`Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
 Implemented through compatible method and operator extensions to ``QuerySets`` and ``Managers``.
 
 The goal is to provide elegant syntactic support for best practices in using Django's ORM.
@@ -17,7 +15,7 @@ Specifically avoiding the inefficiencies and race conditions associated with alw
 
 Usage
 =========================
-*Do you want readability, ...*
+Typical model usage is verbose, inefficient, and incorrect.
 
 .. code-block:: python
 
@@ -25,19 +23,34 @@ Usage
    book.rating = 5.0
    book.save()
 
-*efficiency, correctness, ...*
+The correct method is generally supported, but arguably less readable.
 
 .. code-block:: python
 
    Book.objects.filter(pk=pk).update(rating=5.0)
 
-*Choose all 3*
+``model_values`` encourages the better approach with operator support.
 
 .. code-block:: python
 
    Book.objects[pk]['rating'] = 5.0
 
-Instantiate the custom ``Manager`` in your models.
+Similarly for queries:
+
+.. code-block:: python
+
+   (book.rating for book in books)
+   books.values_list('rating', flat=True)
+   books['rating']
+
+Column-oriented syntax is common in panel data layers, and the greater expressiveness cascades.
+
+.. code-block:: python
+
+   books.values_list('rating', flat=True).filter(rating__gt=0)
+   books['rating'] > 0
+
+To enable, instantiate the custom ``Manager`` in your models.
 See `documentation`_ for more examples.
 
 Installation
@@ -59,6 +72,12 @@ Tests
 
 Changes
 =========================
+0.4
+
+* ``upsert`` method
+* django 1.9 database functions
+* ``bulk_update`` supports additional fields
+
 0.3
 
 * Lookup methods and operators
