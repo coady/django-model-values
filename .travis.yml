@@ -6,7 +6,8 @@ python:
   - "3.5"
 
 env:
-  - DJANGO="django>=1.8,<1.9"
+  - DJANGO="django<1.9"
+  - DJANGO="django<1.10"
   - DJANGO="django"
 
 install:
