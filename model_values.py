@@ -96,6 +96,8 @@ class FExpr(models.F, Lookup):
         size = slc.stop and slc.stop - start
         assert start >= 0 and (size is None or size >= 0) and slc.step is None
         return functions.Substr(self, start + 1, size)
+
+
 F = FExpr('')
 
 
