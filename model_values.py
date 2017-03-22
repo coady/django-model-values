@@ -271,9 +271,8 @@ class QuerySet(models.QuerySet, Lookup):
         :param defaults: optional mapping which will be updated, as with ``update_or_create``.
         """
         lookup, params = self._extract_model_params(defaults, **kwargs)
-        for field, value in params.items():
-            if isinstance(value, models.expressions.CombinedExpression):
-                params[field] = value.rhs.value
+        params.update((field, value.rhs.value) for field, value in params.items()
+                      if isinstance(value, models.expressions.CombinedExpression))
         update = getattr(self.filter(**lookup), 'update' if defaults else 'count')
         try:
             with transaction.atomic():
@@ -323,7 +322,7 @@ class Manager(models.Manager):
         self[pk].delete()
 
     def __contains__(self, pk):
-        """Return whether pk is present using ``exists``."""
+        """Return whether primary key is present using ``exists``."""
         return self[pk].exists()
 
     def changed(self, pk, **kwargs):

@@ -3,7 +3,7 @@ all: check html
 clean:
 	make -C docs $@
 	hg st -in | xargs rm
-	rm -rf build dist django_model_values.egg-info .tox
+	rm -rf build dist django_model_values.egg-info
 
 html:
 	make -C docs $@ SPHINXOPTS=-W
