@@ -8,7 +8,6 @@ python:
 
 env:
   - DJANGO="django<1.9"
-  - DJANGO="django<1.10"
   - DJANGO="django<1.11"
   - DJANGO="django"
 
