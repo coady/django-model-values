@@ -19,6 +19,10 @@ def method(lookup):
     return update_wrapper(lambda self, value: self.__eq__(value, '__' + lookup), lookup)
 
 
+def starmethod(lookup):
+    return update_wrapper(lambda self, *values: self.__eq__(values, '__' + lookup), lookup)
+
+
 class Lookup(object):
     """Mixin for field lookups."""
     __ne__ = method('ne')
@@ -36,14 +40,8 @@ class Lookup(object):
     search = method('search')
     regex = method('regex')
     iregex = method('iregex')
-
-    def in_(self, *values):
-        """in"""
-        return self.__eq__(values, '__in')
-
-    def range(self, *values):
-        """range"""
-        return self.__eq__(values, '__range')
+    in_ = starmethod('in')
+    range = starmethod('range')
 
 
 def method(func):
@@ -105,6 +103,10 @@ def method(func):
     return update_wrapper(lambda self: self.reduce(func), func.__name__)
 
 
+def binary(func):
+    return update_wrapper(lambda self, value: func(models.F(*self._fields), value), func.__name__)
+
+
 class QuerySet(models.QuerySet, Lookup):
     min = method(models.Min)
     max = method(models.Max)
@@ -112,6 +114,12 @@ class QuerySet(models.QuerySet, Lookup):
     mean = method(models.Avg)
     var = method(models.Variance)
     std = method(models.StdDev)
+    __add__ = binary(operator.add)
+    __sub__ = binary(operator.sub)
+    __mul__ = binary(operator.mul)
+    __truediv__ = __div__ = binary(operator.truediv)
+    __mod__ = binary(operator.mod)
+    __pow__ = binary(operator.pow)
 
     @property
     def _flat(self):
@@ -161,35 +169,6 @@ class QuerySet(models.QuerySet, Lookup):
         if self._result_cache is None and self._flat:
             return (self == value).exists()
         return value in iter(self)
-
-    @property
-    def F(self):
-        return models.F(*self._fields)
-
-    def __add__(self, value):
-        """F + value."""
-        return self.F + value
-
-    def __sub__(self, value):
-        """F - value."""
-        return self.F - value
-
-    def __mul__(self, value):
-        """F * value."""
-        return self.F * value
-
-    def __truediv__(self, value):
-        """F / value."""
-        return self.F / value
-    __div__ = __truediv__
-
-    def __mod__(self, value):
-        """F % value."""
-        return self.F % value
-
-    def __pow__(self, value):
-        """F ** value."""
-        return self.F ** value
 
     def __iter__(self):
         if not hasattr(self, '_groupby'):
