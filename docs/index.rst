@@ -172,8 +172,7 @@ Note they can be used directly even without a custom manager.
 
 *The Good*::
 
-   lookup = F.author.startswith
-   qs[lookup('A') | lookup('B')]
+   qs[F.any(map(F.author.startswith, 'AB'))]
 
    qs.annotate(alias=F.title[:10])['alias']
 

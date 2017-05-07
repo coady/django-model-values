@@ -58,6 +58,14 @@ class MetaF(type):
     def __getattr__(cls, name):
         return cls(name)
 
+    def any(cls, exprs):
+        """Return ``Q`` OR object."""
+        return functools.reduce(operator.or_, exprs)
+
+    def all(cls, exprs):
+        """Return ``Q`` AND object."""
+        return functools.reduce(operator.and_, exprs)
+
 
 class F(six.with_metaclass(MetaF, models.F, Lookup)):
     """Create ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
@@ -72,6 +80,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
     """
+    __pos__ = models.F.asc
     __neg__ = models.F.desc
     __or__ = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
