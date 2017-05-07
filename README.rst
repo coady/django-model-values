@@ -51,6 +51,7 @@ Column-oriented syntax is common in panel data layers, and the greater expressiv
    books['rating'] > 0
 
 To enable, instantiate the custom ``Manager`` in your models.
+``F`` expressions, aggregation, and conditionals are also supported.
 See `documentation`_ for more examples.
 
 Installation

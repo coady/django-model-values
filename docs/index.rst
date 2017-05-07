@@ -149,7 +149,8 @@ Again the method names mirror projects like `pandas`_ whenever applicable.
 
 Expressions
 ^^^^^^^^^^^^
-``F`` and ``Q`` objects.
+``F`` expressions are similarly extended to easily create ``Q``, ``Func``, and ``OrderBy`` objects.
+Note they can be used directly even without a custom manager.
 
 *The Bad*::
 

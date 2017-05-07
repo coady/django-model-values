@@ -1,6 +1,8 @@
 import collections
+import functools
 import itertools
 import operator
+import types
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -44,12 +46,21 @@ class Lookup(object):
     range = starmethod('range')
 
 
-def method(func):
-    return update_wrapper(lambda *args, **extra: func(*args, **extra), func.__name__)
+class method(functools.partial):
+    def __init__(self, func):
+        self.__doc__ = func.__doc__ or func.__name__
+
+    def __get__(self, instance, owner):
+        return self if instance is None else types.MethodType(self, instance)
 
 
-class FExpr(models.F, Lookup):
-    """Singleton for creating ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
+class MetaF(type):
+    def __getattr__(cls, name):
+        return cls(name)
+
+
+class F(six.with_metaclass(MetaF, models.F, Lookup)):
+    """Create ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
 
     ``F.user.created`` == ``F('user__created')``
 
@@ -81,8 +92,7 @@ class FExpr(models.F, Lookup):
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
-        return type(self)('{}__{}'.format(self.name, name).lstrip('_'))
-    __call__ = __getattr__
+        return type(self)('{}__{}'.format(self.name, name))
 
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
@@ -95,8 +105,10 @@ class FExpr(models.F, Lookup):
         assert start >= 0 and (size is None or size >= 0) and slc.step is None
         return functions.Substr(self, start + 1, size)
 
-
-F = FExpr('')
+    @method
+    def count(self='*', **extra):
+        """Count"""
+        return models.Count(self, **extra)
 
 
 def method(func):

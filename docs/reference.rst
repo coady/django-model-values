@@ -9,7 +9,7 @@ Lookup
 
 F
 =============
-.. autoclass:: FExpr
+.. autoclass:: F
    :show-inheritance:
    :members:
    :special-members:
