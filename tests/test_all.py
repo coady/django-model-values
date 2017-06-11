@@ -139,7 +139,8 @@ def test_lookups(books):
     assert isinstance(F.quantity.max(), models.Max)
     assert isinstance(F.quantity.sum(), models.Sum)
     assert isinstance(F.quantity.mean(), models.Avg)
-    assert isinstance(F.count(distinct=True), models.Count)
+    assert str(F.quantity.count()) == "Count(F(quantity), distinct=False)"
+    assert str(F.count(distinct=True)) == "Count('*', distinct=True)"
     assert isinstance(F.quantity.var(sample=True), models.Variance)
     assert isinstance(F.quantity.std(sample=True), models.StdDev)
     ordering = -F.user.created

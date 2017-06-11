@@ -117,7 +117,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     @method
     def count(self='*', **extra):
         """Count"""
-        return models.Count(self, **extra)
+        return models.Count(getattr(self, 'name', self), **extra)
 
 
 def method(func):
