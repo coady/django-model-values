@@ -82,7 +82,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     """
     __pos__ = models.F.asc
     __neg__ = models.F.desc
-    __or__ = method(functions.Coalesce)
+    __or__ = coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
     length = method(functions.Length)  # __len__ requires an int
     lower = method(functions.Lower)
@@ -98,6 +98,10 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         greatest = method(functions.Greatest)
         least = method(functions.Least)
         now = staticmethod(functions.Now)
+    if django.VERSION >= (1, 10):
+        cast = method(functions.Cast)
+        extract = method(functions.Extract)
+        trunc = method(functions.Trunc)
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""

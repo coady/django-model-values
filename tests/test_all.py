@@ -1,3 +1,4 @@
+import django
 from django.db import models
 from django.db.models import functions
 from django.utils import timezone
@@ -119,6 +120,7 @@ def test_functions(books):
     assert book['quantity'].first() == 9
 
     assert isinstance(F.author | 'title', functions.Coalesce)
+    assert isinstance(F.coalesce('author', 'title'), functions.Coalesce)
     assert isinstance(F.author.concat('title'), functions.Concat)
     assert isinstance(F.author.length(), functions.Length)
     assert isinstance(F.title.lower(), functions.Lower)
@@ -126,10 +128,16 @@ def test_functions(books):
     assert isinstance(F.title[:10], functions.Substr)
     with pytest.raises(AssertionError):
         F.title[:-10]
-    if hasattr(type(F), 'now'):
-        assert isinstance(F.title.greatest('author'), functions.Greatest)
-        assert isinstance(F.title.least('author'), functions.Least)
-        assert F.now is functions.Now
+
+
+@pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django 1.10+')
+def test_new_functions():
+    assert isinstance(F.title.greatest('author'), functions.Greatest)
+    assert isinstance(F.title.least('author'), functions.Least)
+    assert F.now is functions.Now
+    assert isinstance(F.quantity.cast(models.FloatField()), functions.Cast)
+    assert isinstance(F.last_modified.extract('year'), functions.Extract)
+    assert isinstance(F.last_modified.trunc('year'), functions.Trunc)
 
 
 def test_lookups(books):
