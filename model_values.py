@@ -26,14 +26,16 @@ def starmethod(lookup):
 
 
 class Lookup(object):
-    """Mixin for field lookups."""
+    """Mixin for field lookups.
+
+    .. note:: Spatial lookups are experimental and may change in the future.
+    """
     __ne__ = method('ne')
     __lt__ = method('lt')
     __le__ = method('lte')
     __gt__ = method('gt')
     __ge__ = method('gte')
     iexact = method('iexact')
-    contains = method('contains')  # __contains__ coerces to a bool
     icontains = method('icontains')
     startswith = method('startswith')
     istartswith = method('istartswith')
@@ -44,6 +46,50 @@ class Lookup(object):
     iregex = method('iregex')
     in_ = starmethod('in')
     range = starmethod('range')
+    # spatial lookups
+    contained = method('contained')
+    coveredby = method('coveredby')
+    covers = method('covers')
+    crosses = method('crosses')
+    disjoint = method('disjoint')
+    equals = method('equals')  # __eq__ is taken
+    intersects = method('intersects')  # __and__ is taken
+    relate = starmethod('relate')
+    touches = method('touches')
+    __lshift__ = method('left')
+    __rshift__ = method('right')
+    above = method('strictly_above')
+    below = method('strictly_below')
+
+    @property
+    def is_valid(self):
+        """Whether field `isvalid`."""
+        return self.__eq__(True, '__isvalid')
+
+    def contains(self, value, properly=False, bb=False):
+        """Return whether field `contains` the value.  Options apply only to geom fields.
+
+        :param properly: `contains_properly`
+        :param bb: bounding box, `bbcontains`
+        """
+        return self.__eq__(value, '__{}contains{}'.format('bb' * bool(bb), '_properly' * bool(properly)))
+
+    def overlaps(self, geom, position='', bb=False):
+        """Return whether field `overlaps` with geometry .
+
+        :param position: `overlaps_{left, right, above, below}`
+        :param bb: bounding box, `bboverlaps`
+        """
+        return self.__eq__(geom, '__{}overlaps_{}'.format('bb' * bool(bb), position).rstrip('_'))
+
+    def within(self, geom, distance=None):
+        """Return whether field is `within` geometry.
+
+        :param distance: `dwithin`
+        """
+        if distance is None:
+            return self.__eq__(geom, '__within')
+        return self.__eq__((geom, distance), '__dwithin')
 
 
 class method(functools.partial):

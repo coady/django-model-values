@@ -181,3 +181,35 @@ def test_model(books):
     assert book.changed(quantity=10) == {}
     assert book.update(quantity=2) == 1
     assert book.quantity == 2 and 2 in book.object['quantity']
+
+
+def test_spatial_lookups():
+    point = 'POINT(0 0)'
+    assert F.location.is_valid.children == [('location__isvalid', True)]
+    assert F.location.contains(point, bb=True).children == [('location__bbcontains', point)]
+    assert F.location.contains(point, properly=True).children == [('location__contains_properly', point)]
+
+    assert F.location.overlaps(point).children == [('location__overlaps', point)]
+    assert F.location.overlaps(point, bb=True).children == [('location__bboverlaps', point)]
+    assert F.location.overlaps(point, 'left').children == [('location__overlaps_left', point)]
+    assert F.location.overlaps(point, 'right').children == [('location__overlaps_right', point)]
+    assert F.location.overlaps(point, 'above').children == [('location__overlaps_above', point)]
+    assert F.location.overlaps(point, 'below').children == [('location__overlaps_below', point)]
+
+    assert F.location.within(point).children == [('location__within', point)]
+    assert F.location.within(point, 0).children == [('location__dwithin', (point, 0))]
+
+    assert F.location.contained(point).children == [('location__contained', point)]
+    assert F.location.coveredby(point).children == [('location__coveredby', point)]
+    assert F.location.covers(point).children == [('location__covers', point)]
+    assert F.location.crosses(point).children == [('location__crosses', point)]
+    assert F.location.disjoint(point).children == [('location__disjoint', point)]
+    assert F.location.equals(point).children == [('location__equals', point)]
+    assert F.location.intersects(point).children == [('location__intersects', point)]
+    assert F.location.relate(point, '').children == [('location__relate', (point, ''))]
+    assert F.location.touches(point).children == [('location__touches', point)]
+
+    assert (F.location << point).children == [('location__left', point)]
+    assert (F.location >> point).children == [('location__right', point)]
+    assert F.location.above(point).children == [('location__strictly_above', point)]
+    assert F.location.below(point).children == [('location__strictly_below', point)]
