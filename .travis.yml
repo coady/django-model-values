@@ -13,7 +13,7 @@ env:
 
 install:
   - pip install --pre $DJANGO
-  - pip install -U pytest-django pytest-cov django-dynamic-fixture codecov
+  - pip install pytest-django pytest-cov django-dynamic-fixture codecov
 
 script:
   - pytest -v --cov

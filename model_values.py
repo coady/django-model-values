@@ -12,7 +12,7 @@ map = six.moves.map
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions
     import django.contrib.gis.db.models as gis
-except ImproperlyConfigured:
+except (ImportError, ImproperlyConfigured):
     gis = None
 
 __version__ = '0.4'
