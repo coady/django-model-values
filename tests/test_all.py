@@ -5,7 +5,7 @@ from django.utils import timezone
 from django_dynamic_fixture import G
 import pytest
 from .models import Book
-from model_values import F
+from model_values import F, gis
 
 pytestmark = pytest.mark.django_db
 
@@ -119,7 +119,6 @@ def test_functions(books):
     book['quantity'] **= 2
     assert book['quantity'].first() == 9
 
-    assert isinstance(F.author | 'title', functions.Coalesce)
     assert isinstance(F.coalesce('author', 'title'), functions.Coalesce)
     assert isinstance(F.author.concat('title'), functions.Concat)
     assert isinstance(F.author.length(), functions.Length)
@@ -213,3 +212,45 @@ def test_spatial_lookups():
     assert (F.location >> point).children == [('location__right', point)]
     assert F.location.above(point).children == [('location__strictly_above', point)]
     assert F.location.below(point).children == [('location__strictly_below', point)]
+
+
+@pytest.mark.skipif(not gis, reason='requires spatial lib')
+def test_spatial_functions(books):
+    from django.contrib.gis.geos import Point
+    point = Point(0, 0, srid=4326)
+
+    assert isinstance(F.location.area, gis.functions.Area)
+    assert isinstance(F.location.geojson(), gis.functions.AsGeoJSON)
+    assert isinstance(F.location.gml(), gis.functions.AsGML)
+    assert isinstance(F.location.kml(), gis.functions.AsKML)
+    assert isinstance(F.location.svg(), gis.functions.AsSVG)
+    assert isinstance(F.location.bounding_circle(), gis.functions.BoundingCircle)
+    assert isinstance(F.location.centroid, gis.functions.Centroid)
+    assert isinstance(F.location.distance(point), gis.functions.Distance)
+    assert isinstance(F.location.envelope, gis.functions.Envelope)
+    assert isinstance(F.location.force_rhr(), gis.functions.ForceRHR)
+    assert isinstance(F.location.geohash(), gis.functions.GeoHash)
+    assert isinstance(F.location.make_valid(), gis.functions.MakeValid)
+    assert isinstance(F.location.mem_size, gis.functions.MemSize)
+    assert isinstance(F.location.num_geometries, gis.functions.NumGeometries)
+    assert isinstance(F.location.num_points, gis.functions.NumPoints)
+    assert isinstance(F.location.perimeter, gis.functions.Perimeter)
+    assert isinstance(F.location.point_on_surface, gis.functions.PointOnSurface)
+    assert isinstance(F.location.reverse(), gis.functions.Reverse)
+    assert isinstance(F.location.scale(0, 0), gis.functions.Scale)
+    assert isinstance(F.location.snap_to_grid(0), gis.functions.SnapToGrid)
+    assert isinstance(F.location.transform(point.srid), gis.functions.Transform)
+    assert isinstance(F.location.translate(0, 0), gis.functions.Translate)
+
+    assert isinstance(F.location - point, gis.functions.Difference)
+    assert isinstance(F.location & point, gis.functions.Intersection)
+    assert isinstance(F.location ^ point, gis.functions.SymDifference)
+    assert isinstance(F.location | point, gis.functions.Union)
+
+    assert type(books).collect.__name__ == 'Collect'
+    assert type(books).extent.__name__ == 'Extent'
+    assert type(books).extent3d.__name__ == 'Extent3D'
+    assert type(books).make_line.__name__ == 'MakeLine'
+    assert type(books).union.__name__ == 'Union'
+    with pytest.raises(ValueError, match="Geospatial aggregates only allowed on geometry fields."):
+        books['id'].collect()

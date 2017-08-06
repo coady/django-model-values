@@ -4,10 +4,16 @@ import itertools
 import operator
 import types
 import django
+from django.core.exceptions import ImproperlyConfigured
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 from django.utils import six
 map = six.moves.map
+try:  # pragma: no cover
+    import django.contrib.gis.db.models.functions
+    import django.contrib.gis.db.models as gis
+except ImproperlyConfigured:
+    gis = None
 
 __version__ = '0.4'
 
@@ -26,10 +32,7 @@ def starmethod(lookup):
 
 
 class Lookup(object):
-    """Mixin for field lookups.
-
-    .. note:: Spatial lookups are experimental and may change in the future.
-    """
+    """Mixin for field lookups."""
     __ne__ = method('ne')
     __lt__ = method('lt')
     __le__ = method('lte')
@@ -148,6 +151,33 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         cast = method(functions.Cast)
         extract = method(functions.Extract)
         trunc = method(functions.Trunc)
+    if gis:  # pragma: no cover
+        area = property(gis.functions.Area)
+        geojson = method(gis.functions.AsGeoJSON)
+        gml = method(gis.functions.AsGML)
+        kml = method(gis.functions.AsKML)
+        svg = method(gis.functions.AsSVG)
+        bounding_circle = method(gis.functions.BoundingCircle)
+        centroid = property(gis.functions.Centroid)
+        __sub__ = method(gis.functions.Difference)
+        distance = method(gis.functions.Distance)
+        envelope = property(gis.functions.Envelope)
+        force_rhr = method(gis.functions.ForceRHR)
+        geohash = method(gis.functions.GeoHash)  # __hash__ requires an int
+        __and__ = method(gis.functions.Intersection)
+        make_valid = method(gis.functions.MakeValid)
+        mem_size = property(gis.functions.MemSize)
+        num_geometries = property(gis.functions.NumGeometries)
+        num_points = property(gis.functions.NumPoints)
+        perimeter = property(gis.functions.Perimeter)
+        point_on_surface = property(gis.functions.PointOnSurface)
+        reverse = method(gis.functions.Reverse)
+        scale = method(gis.functions.Scale)
+        snap_to_grid = method(gis.functions.SnapToGrid)
+        __xor__ = method(gis.functions.SymDifference)
+        transform = method(gis.functions.Transform)
+        translate = method(gis.functions.Translate)
+        __or__ = method(gis.functions.Union)
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
@@ -191,6 +221,12 @@ class QuerySet(models.QuerySet, Lookup):
     __truediv__ = __div__ = binary(operator.truediv)
     __mod__ = binary(operator.mod)
     __pow__ = binary(operator.pow)
+    if gis:  # pragma: no cover
+        collect = method(gis.Collect)
+        extent = method(gis.Extent)
+        extent3d = method(gis.Extent3D)
+        make_line = method(gis.MakeLine)
+        union = method(gis.Union)
 
     @property
     def _flat(self):
