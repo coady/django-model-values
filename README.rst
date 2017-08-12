@@ -63,7 +63,7 @@ Installation
 Dependencies
 =========================
 * Django 1.8+
-* Python 2.7, 3.3+
+* Python 2.7, 3.4+
 
 Tests
 =========================
@@ -73,16 +73,21 @@ Tests
 
 Changes
 =========================
+dev
+
+* ``F`` expressions operators ``any`` and ``all``
+* Spatial lookups and functions
+
 0.4
 
 * ``upsert`` method
-* django 1.9 database functions
+* Django 1.9 database functions
 * ``bulk_update`` supports additional fields
 
 0.3
 
 * Lookup methods and operators
-* F expressions and aggregation methods
+* ``F`` expressions and aggregation methods
 * Database functions
 * Conditional expressions for updates and annotations
 * Bulk updates and change detection

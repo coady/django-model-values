@@ -5,7 +5,7 @@ Lookup
 .. autoclass:: Lookup
    :members:
    :special-members:
-   :exclude-members: __weakref__
+   :exclude-members: __weakref__, search
 
    .. note:: Spatial lookups are experimental and may change in the future.
 
@@ -19,11 +19,6 @@ F
 
    .. note:: Spatial functions are experimental and may change in the future.
       See source for available functions if gis is configured.
-
-   .. method:: __or__
-
-      .. deprecated:: 0.5
-         Replaced by gis ``union``; use ``coalesce`` instead.
 
 QuerySet
 =============

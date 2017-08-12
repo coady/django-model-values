@@ -56,11 +56,11 @@ class Lookup(object):
     crosses = method('crosses')
     disjoint = method('disjoint')
     equals = method('equals')  # __eq__ is taken
-    intersects = method('intersects')  # __and__ is taken
+    intersects = method('intersects')  # __and__ is ambiguous
     relate = starmethod('relate')
     touches = method('touches')
-    __lshift__ = method('left')
-    __rshift__ = method('right')
+    __lshift__ = left = method('left')
+    __rshift__ = right = method('right')
     above = method('strictly_above')
     below = method('strictly_below')
 
@@ -159,12 +159,12 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         svg = method(gis.functions.AsSVG)
         bounding_circle = method(gis.functions.BoundingCircle)
         centroid = property(gis.functions.Centroid)
-        __sub__ = method(gis.functions.Difference)
+        difference = method(gis.functions.Difference)
         distance = method(gis.functions.Distance)
         envelope = property(gis.functions.Envelope)
         force_rhr = method(gis.functions.ForceRHR)
         geohash = method(gis.functions.GeoHash)  # __hash__ requires an int
-        __and__ = method(gis.functions.Intersection)
+        intersection = method(gis.functions.Intersection)
         make_valid = method(gis.functions.MakeValid)
         mem_size = property(gis.functions.MemSize)
         num_geometries = property(gis.functions.NumGeometries)
@@ -174,10 +174,10 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         reverse = method(gis.functions.Reverse)
         scale = method(gis.functions.Scale)
         snap_to_grid = method(gis.functions.SnapToGrid)
-        __xor__ = method(gis.functions.SymDifference)
+        symmetric_difference = method(gis.functions.SymDifference)
         transform = method(gis.functions.Transform)
         translate = method(gis.functions.Translate)
-        __or__ = method(gis.functions.Union)
+        union = method(gis.functions.Union)
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""

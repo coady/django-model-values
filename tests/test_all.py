@@ -208,8 +208,8 @@ def test_spatial_lookups():
     assert F.location.relate(point, '').children == [('location__relate', (point, ''))]
     assert F.location.touches(point).children == [('location__touches', point)]
 
-    assert (F.location << point).children == [('location__left', point)]
-    assert (F.location >> point).children == [('location__right', point)]
+    assert (F.location << point).children == F.location.left(point).children == [('location__left', point)]
+    assert (F.location >> point).children == F.location.right(point).children == [('location__right', point)]
     assert F.location.above(point).children == [('location__strictly_above', point)]
     assert F.location.below(point).children == [('location__strictly_below', point)]
 
@@ -242,10 +242,10 @@ def test_spatial_functions(books):
     assert isinstance(F.location.transform(point.srid), gis.functions.Transform)
     assert isinstance(F.location.translate(0, 0), gis.functions.Translate)
 
-    assert isinstance(F.location - point, gis.functions.Difference)
-    assert isinstance(F.location & point, gis.functions.Intersection)
-    assert isinstance(F.location ^ point, gis.functions.SymDifference)
-    assert isinstance(F.location | point, gis.functions.Union)
+    assert isinstance(F.location.difference(point), gis.functions.Difference)
+    assert isinstance(F.location.intersection(point), gis.functions.Intersection)
+    assert isinstance(F.location.symmetric_difference(point), gis.functions.SymDifference)
+    assert isinstance(F.location.union(point), gis.functions.Union)
 
     assert type(books).collect.__name__ == 'Collect'
     assert type(books).extent.__name__ == 'Extent'
