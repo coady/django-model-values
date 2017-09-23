@@ -185,7 +185,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
-        return models.Q(**{self.name + lookup: value})
+        return Q(**{self.name + lookup: value})
 
     def __getitem__(self, slc):
         """Return field ``Substr``."""
@@ -391,6 +391,11 @@ class Query(models.sql.Query):
             value, lookups[-1] = False, 'isnull'
         return super(Query, self).prepare_lookup_value(value, lookups, *args)
 
+    def build_lookup(self, lookups, lhs, rhs):
+        if rhs is None and lookups[-1:] == ['ne']:
+            rhs, lookups[-1] = False, 'isnull'
+        return super(Query, self).build_lookup(lookups, lhs, rhs)
+
 
 class Manager(models.Manager):
     def get_queryset(self):
@@ -443,7 +448,7 @@ class Manager(models.Manager):
         for pk in data:
             updates[data[pk]].append(pk)
         if conditional:
-            kwargs[field] = {F.pk__in == updates[value]: value for value in updates}
+            kwargs[field] = {F.pk__in == tuple(updates[value]): value for value in updates}
             return self.filter(pk__in=data).update(**kwargs)
         count = 0
         for value in updates:
@@ -468,3 +473,9 @@ class Case(models.Case):
         if 'default' not in extra and len(types) == 1 and types.issubset(self.types):
             extra.setdefault('output_field', self.types.get(*types)())
         super(Case, self).__init__(*cases, **extra)
+
+
+class Q(models.Q):
+    """Hasable ``Q``."""
+    def __hash__(self):
+        return hash((self.__class__, self.connector, self.negated, tuple(self.children)))

@@ -2,7 +2,6 @@ import django
 from django.db import models
 from django.db.models import functions
 from django.utils import timezone
-from django_dynamic_fixture import G
 import pytest
 from .models import Book
 from model_values import F, gis
@@ -13,9 +12,9 @@ pytestmark = pytest.mark.django_db
 @pytest.fixture
 def books():
     for quantity in (10, 10):
-        G(Book, author='A', quantity=quantity)
+        Book.objects.create(author='A', quantity=quantity)
     for quantity in (2, 1, 2):
-        G(Book, author='B', quantity=quantity)
+        Book.objects.create(author='B', quantity=quantity)
     return Book.objects.all()
 
 
@@ -92,7 +91,7 @@ def test_aggregation(books):
     assert isinstance(groups.std(), models.QuerySet)
     key, values = next(iter(books.values('title', 'last_modified').groupby('author', 'quantity')))
     assert key == ('A', 10)
-    assert all(value.title and value.last_modified for value in values)
+    assert sum((value[0] == value.title) and bool(value.last_modified) for value in values) == 2
 
     groups = books['quantity'].groupby(author=F.author.lower())
     assert dict(groups.sum()) == {'a': 20, 'b': 5}

@@ -44,14 +44,38 @@ Similarly for queries:
    books['rating']
 
 Column-oriented syntax is common in panel data layers, and the greater expressiveness cascades.
+``QuerySets`` also support aggregation and conditionals.
 
 .. code-block:: python
 
    books.values_list('rating', flat=True).filter(rating__gt=0)
    books['rating'] > 0
 
-To enable, instantiate the custom ``Manager`` in your models.
-``F`` expressions, aggregation, and conditionals are also supported.
+   books.aggregate(models.Avg('rating'))['rating__avg']
+   books['rating'].mean()
+
+``Managers`` provide a variety of efficient primary key based utilities.
+To enable, instantiate the ``Manager`` in your models.
+As with any custom ``Manager``, it doesn't have to be named ``objects``,
+but it is designed to be a 100% compatible replacement.
+
+.. code-block:: python
+
+   from model_values import Manager
+
+   class Book(models.Model):
+      ...
+      objects = Manager()
+
+``F`` expressions are also enhanced, and can be used directly without model changes.
+
+.. code-block:: python
+
+   from model_values import F
+
+   .filter(rating__gt=0, last_modified__range=(start, end))
+   .filter(F.rating > 0, F.last_modified.range(start, end))
+
 See `documentation`_ for more examples.
 
 Installation
@@ -77,6 +101,7 @@ dev
 
 * ``F`` expressions operators ``any`` and ``all``
 * Spatial lookups and functions
+* Django 2.0 support
 
 0.4
 
