@@ -185,7 +185,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
-        return Q(**{self.name + lookup: value})
+        return models.Q(**{self.name + lookup: value})
 
     def __getitem__(self, slc):
         """Return field ``Substr``."""
@@ -473,9 +473,3 @@ class Case(models.Case):
         if 'default' not in extra and len(types) == 1 and types.issubset(self.types):
             extra.setdefault('output_field', self.types.get(*types)())
         super(Case, self).__init__(*cases, **extra)
-
-
-class Q(models.Q):
-    """Hasable ``Q``."""
-    def __hash__(self):
-        return hash((self.__class__, self.connector, self.negated, tuple(self.children)))
