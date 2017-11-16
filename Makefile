@@ -10,11 +10,11 @@ html:
 	rst2$@.py README.rst docs/_build/README.$@
 
 dist: html
-	python setup.py sdist bdist_wheel
+	python3 setup.py sdist bdist_wheel
 	cd docs/_build/html && zip -r ../../../$@/docs.zip .
 
 check:
-	python setup.py $@ -mrs
+	python3 setup.py $@ -mrs
 	flake8
 	pytest-2.7 --cov
 	pytest --cov --cov-append --cov-fail-under=100

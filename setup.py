@@ -11,12 +11,12 @@ setup(
     license='Apache Software License',
     py_modules=['model_values'],
     install_requires=['django>=1.8'],
+    python_requires='~=2.7, >=3.4',
     tests_require=['pytest-django', 'pytest-cov'],
     keywords='values_list pandas column-oriented data mapper pattern orm',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Framework :: Django :: 1.8',
-        'Framework :: Django :: 1.10',
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Intended Audience :: Developers',
