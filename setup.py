@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='django-model-values',
-    version='0.4',
+    version='0.5',
     description='Taking the O out of ORM.',
     long_description=open('README.rst').read(),
     author='Aric Coady',

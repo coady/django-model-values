@@ -86,8 +86,8 @@ Installation
 
 Dependencies
 =========================
-* Django 1.8+
-* Python 2.7, 3.4+
+* Python ~=2.7, >=3.4
+* django ~=1.8, >=1.11
 
 Tests
 =========================
@@ -97,7 +97,7 @@ Tests
 
 Changes
 =========================
-dev
+0.5
 
 * ``F`` expressions operators ``any`` and ``all``
 * Spatial lookups and functions

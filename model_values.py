@@ -4,7 +4,6 @@ import itertools
 import operator
 import types
 import django
-from django.core.exceptions import ImproperlyConfigured
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 from django.utils import six
@@ -12,10 +11,10 @@ map = six.moves.map
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions
     import django.contrib.gis.db.models as gis
-except (ImportError, ImproperlyConfigured):
+except:
     gis = None
 
-__version__ = '0.4'
+__version__ = '0.5'
 
 
 def update_wrapper(wrapper, name):
