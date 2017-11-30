@@ -6,6 +6,8 @@
    :target: https://travis-ci.org/coady/django-model-values
 .. image:: https://img.shields.io/codecov/c/github/coady/django-model-values.svg
    :target: https://codecov.io/github/coady/django-model-values
+.. image:: https://readthedocs.org/projects/django-model-values/badge
+   :target: `documentation`_
 
 `Django`_ model utilities for encouraging direct data access instead of unnecessary object overhead.
 Implemented through compatible method and operator extensions to ``QuerySets`` and ``Managers``.
@@ -76,7 +78,7 @@ but it is designed to be a 100% compatible replacement.
    .filter(rating__gt=0, last_modified__range=(start, end))
    .filter(F.rating > 0, F.last_modified.range(start, end))
 
-See `documentation`_ for more examples.
+Read the `documentation`_.
 
 Installation
 =========================
@@ -124,4 +126,4 @@ Changes
 * Named tuples
 
 .. _django: https://docs.djangoproject.com
-.. _documentation: http://pythonhosted.org/django-model-values/
+.. _documentation: http://django-model-values.readthedocs.io

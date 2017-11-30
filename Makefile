@@ -11,7 +11,6 @@ html:
 
 dist: html
 	python3 setup.py sdist bdist_wheel
-	cd docs/_build/html && zip -r ../../../$@/docs.zip .
 
 check:
 	python3 setup.py $@ -mrs
