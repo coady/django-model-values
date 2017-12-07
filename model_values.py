@@ -43,7 +43,6 @@ class Lookup(object):
     istartswith = method('istartswith')
     endswith = method('endswith')
     iendswith = method('iendswith')
-    search = method('search')
     regex = method('regex')
     iregex = method('iregex')
     in_ = starmethod('in')
@@ -130,7 +129,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     """
     __pos__ = models.F.asc
     __neg__ = models.F.desc
-    __or__ = coalesce = method(functions.Coalesce)
+    coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
     length = method(functions.Length)  # __len__ requires an int
     lower = method(functions.Lower)

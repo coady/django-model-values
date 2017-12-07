@@ -5,7 +5,7 @@ Lookup
 .. autoclass:: Lookup
    :members:
    :special-members:
-   :exclude-members: __weakref__, search
+   :exclude-members: __weakref__
 
    .. note:: Spatial lookups are experimental and may change in the future.
 
@@ -15,7 +15,6 @@ F
    :show-inheritance:
    :members:
    :special-members:
-   :exclude-members: __or__
 
    .. note:: Spatial functions are experimental and may change in the future.
       See source for available functions if gis is configured.
