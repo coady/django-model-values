@@ -1,5 +1,5 @@
 .. image:: https://img.shields.io/pypi/v/django-model-values.svg
-   :target: https://pypi.python.org/pypi/django-model-values/
+   :target: https://pypi.org/project/django-model-values/
 .. image:: https://img.shields.io/pypi/pyversions/django-model-values.svg
 .. image:: https://img.shields.io/pypi/status/django-model-values.svg
 .. image:: https://img.shields.io/travis/coady/django-model-values.svg
@@ -88,8 +88,7 @@ Installation
 
 Dependencies
 =========================
-* Python ~=2.7, >=3.4
-* django ~=1.8, >=1.11
+* django >=1.8
 
 Tests
 =========================
