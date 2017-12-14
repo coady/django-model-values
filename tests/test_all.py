@@ -20,6 +20,7 @@ def books():
 
 def test_queryset(books):
     assert books.filter(id__ne=None).exists(5)
+    assert books and books.exists() and not books.exists(6)
     assert set(books['author']) == set(books[F.author]) == {'A', 'B'}
     assert dict(books[F.id, 'author']) == {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'B'}
 

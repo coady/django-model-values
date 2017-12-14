@@ -366,9 +366,9 @@ class QuerySet(models.QuerySet, Lookup):
 
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""
-        if self._result_cache is None and count != 1:
-            return len(self['pk'][:count]) >= count
-        return super(QuerySet, self).exists()
+        if count == 1:
+            return super(QuerySet, self).exists()
+        return len(self['pk'][:count] if self._result_cache is None else self) >= count
 
 
 @models.Field.register_lookup
