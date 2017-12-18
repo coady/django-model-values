@@ -149,6 +149,7 @@ def test_new_functions(books):
 def test_new_features(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
+    assert dict(books.groupby(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
 
 
 def test_lookups(books):

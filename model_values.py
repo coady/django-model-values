@@ -198,6 +198,10 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         """Count"""
         return models.Count(getattr(self, 'name', self), **extra)
 
+    def find(self, sub):
+        """Return ``StrIndex`` with ``str.find`` semantics."""
+        return functions.StrIndex(self, models.Value(sub)) - 1
+
 
 def method(func):
     return update_wrapper(lambda self: self.reduce(func), func.__name__)
