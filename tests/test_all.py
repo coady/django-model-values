@@ -130,13 +130,19 @@ def test_functions(books):
 
 
 @pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django 1.10+')
-def test_new_functions():
+def test_new_functions(books):
     assert isinstance(F.title.greatest('author'), functions.Greatest)
     assert isinstance(F.title.least('author'), functions.Least)
     assert F.now is functions.Now
     assert isinstance(F.quantity.cast(models.FloatField()), functions.Cast)
     assert isinstance(F.last_modified.extract('year'), functions.Extract)
     assert isinstance(F.last_modified.trunc('year'), functions.Trunc)
+
+    for name, func in F.lookups.items():
+        models.CharField.register_lookup(func, name)
+    assert books[F.author.length <= 1]
+    assert books[F.author.lower == 'a']
+    assert books[F.author.upper == 'A']
 
 
 def test_lookups(books):

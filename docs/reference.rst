@@ -19,6 +19,10 @@ F
    .. note:: Spatial functions are experimental and may change in the future.
       See source for available functions if gis is configured.
 
+   .. autoattribute:: lookups
+
+      mapping of potentially `registered lookups`_ to transform functions
+
 QuerySet
 =============
 .. autoclass:: QuerySet
@@ -40,3 +44,5 @@ classproperty
 =============
 .. autoclass:: classproperty
    :show-inheritance:
+
+.. _`registered lookups`: https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length

@@ -41,5 +41,5 @@ From there one can easily imagine other useful extensions.
 .. literalinclude:: ../tests/models.py
    :lines: 21-
 
-.. _`custom managers`: https://docs.djangoproject.com/en/1.9/topics/db/managers/#custom-managers
+.. _`custom managers`: https://docs.djangoproject.com/en/stable/topics/db/managers/#custom-managers
 .. _`django-model-utils'`: https://pypi.python.org/pypi/django-model-utils/

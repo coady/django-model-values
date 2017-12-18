@@ -127,18 +127,15 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
     """
+    lookups = dict(length=functions.Length, lower=functions.Lower, upper=functions.Upper)
     __pos__ = models.F.asc
     __neg__ = models.F.desc
     coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
-    length = method(functions.Length)  # __len__ requires an int
-    lower = method(functions.Lower)
-    upper = method(functions.Upper)
     min = method(models.Min)
     max = method(models.Max)
     sum = method(models.Sum)
     mean = method(models.Avg)
-    count = method(models.Count)
     var = method(models.Variance)
     std = method(models.StdDev)
     if django.VERSION >= (1, 9):
@@ -184,6 +181,10 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     def __eq__(self, value, lookup=''):
         """Return ``Q`` object with lookup."""
         return models.Q(**{self.name + lookup: value})
+
+    def __call__(self, *args, **extra):
+        name, _, func = self.name.rpartition('__')
+        return self.lookups[func](name, *args, **extra)
 
     def __getitem__(self, slc):
         """Return field ``Substr``."""
