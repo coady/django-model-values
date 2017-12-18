@@ -241,6 +241,8 @@ class QuerySet(models.QuerySet, Lookup):
         _flat = property(lambda self: getattr(self, 'flat', None),
                          lambda self, value: setattr(self, 'flat', bool(value)))
 
+    _named = {'named': True} if django.VERSION >= (2,) else {}
+
     def __getitem__(self, key):
         """Allow column access by field names (or ``F`` objects) and filtering by ``Q`` objects.
 
@@ -252,7 +254,7 @@ class QuerySet(models.QuerySet, Lookup):
         """
         if isinstance(key, tuple):
             fields = (field.name if isinstance(field, models.F) else field for field in key)
-            return self.values_list(*fields)
+            return self.values_list(*fields, **self._named)
         if isinstance(key, six.string_types):
             return self.values_list(key, flat=True)
         if isinstance(key, models.F):
@@ -282,8 +284,8 @@ class QuerySet(models.QuerySet, Lookup):
         size = len(self._groupby)
         rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
-        Values = collections.namedtuple('Values', self._fields)
-        getter = operator.itemgetter(size) if self._flat else lambda tup: Values(*tup[size:])
+        Row = collections.namedtuple('Row', self._fields)
+        getter = operator.itemgetter(size) if self._flat else lambda tup: Row(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
     def groupby(self, *fields, **annotations):
@@ -323,7 +325,7 @@ class QuerySet(models.QuerySet, Lookup):
         if hasattr(self, '_groupby'):
             return self.annotate(*funcs)
         names = (func.default_alias for func in funcs)
-        values = collections.namedtuple('Values', names)(**self.aggregate(*funcs))
+        values = collections.namedtuple('Row', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values
 
     def update(self, **kwargs):

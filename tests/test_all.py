@@ -129,7 +129,7 @@ def test_functions(books):
         F.title[:-10]
 
 
-@pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django 1.10+')
+@pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django >=1.10')
 def test_new_functions(books):
     assert isinstance(F.title.greatest('author'), functions.Greatest)
     assert isinstance(F.title.least('author'), functions.Least)
@@ -143,6 +143,12 @@ def test_new_functions(books):
     assert books[F.author.length <= 1]
     assert books[F.author.lower == 'a']
     assert books[F.author.upper == 'A']
+
+
+@pytest.mark.skipif(django.VERSION < (2,), reason='requires django >=2')
+def test_new_features(books):
+    row = books['id', 'author'].first()
+    assert (row.id, row.author) == row
 
 
 def test_lookups(books):
