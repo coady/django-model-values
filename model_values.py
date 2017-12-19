@@ -146,6 +146,18 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         cast = method(functions.Cast)
         extract = method(functions.Extract)
         trunc = method(functions.Trunc)
+    if django.VERSION >= (2,):
+        cume_dist = method(functions.CumeDist)
+        dense_rank = method(functions.DenseRank)
+        first_value = method(functions.FirstValue)
+        lag = method(functions.Lag)
+        last_value = method(functions.LastValue)
+        lead = method(functions.Lead)
+        nth_value = method(functions.NthValue)
+        ntile = staticmethod(functions.Ntile)
+        percent_rank = method(functions.PercentRank)
+        rank = method(functions.Rank)
+        row_number = method(functions.RowNumber)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)

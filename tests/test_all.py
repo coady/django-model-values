@@ -151,6 +151,18 @@ def test_new_features(books):
     assert (row.id, row.author) == row
     assert dict(books.groupby(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
 
+    assert isinstance(F.quantity.cume_dist(), functions.CumeDist)
+    assert isinstance(F.quantity.dense_rank(), functions.DenseRank)
+    assert isinstance(F.quantity.first_value(), functions.FirstValue)
+    assert isinstance(F.quantity.lag(), functions.Lag)
+    assert isinstance(F.quantity.last_value(), functions.LastValue)
+    assert isinstance(F.quantity.lead(), functions.Lead)
+    assert isinstance(F.quantity.nth_value(), functions.NthValue)
+    assert F.ntile is functions.Ntile
+    assert isinstance(F.quantity.percent_rank(), functions.PercentRank)
+    assert isinstance(F.quantity.rank(), functions.Rank)
+    assert isinstance(F.quantity.row_number(), functions.RowNumber)
+
 
 def test_lookups(books):
     assert books[F.last_modified.year == timezone.now().year].count() == 5
