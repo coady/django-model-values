@@ -4,7 +4,7 @@ from django.db.models import functions
 from django.utils import timezone
 import pytest
 from .models import Book
-from model_values import F, gis
+from model_values import Case, F, gis
 
 pytestmark = pytest.mark.django_db
 
@@ -101,6 +101,10 @@ def test_aggregation(books):
     assert dict(counts[F('count') > 2]) == {'b': 3}
     groups = books.groupby(amount={F.quantity < 10: 'low', F.quantity >= 10: 'high'})
     assert dict(groups.value_counts()) == {'low': 3, 'high': 2}
+    groups = books.groupby(amount=Case({F.quantity < 10: 'low'}, default='high'))
+    assert dict(groups.value_counts()) == {'low': 3, 'high': 2}
+    with pytest.raises(Exception):
+        Case({models.Q(): None}).output_field
 
 
 def test_functions(books):

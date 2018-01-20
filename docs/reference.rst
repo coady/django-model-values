@@ -40,6 +40,16 @@ Manager
    :members:
    :special-members:
 
+Case
+=============
+.. autoclass:: Case
+   :show-inheritance:
+   :members:
+
+   .. autoattribute:: types
+
+      mapping of types to output fields
+
 classproperty
 =============
 .. autoclass:: classproperty

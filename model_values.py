@@ -349,7 +349,7 @@ class QuerySet(models.QuerySet, Lookup):
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
         """
-        kwargs.update((field, Case(value, default=field)) for field, value in kwargs.items()
+        kwargs.update((field, Case(value, default=F(field))) for field, value in kwargs.items()
                       if isinstance(value, collections.Mapping))
         return super(QuerySet, self).update(**kwargs)
 
@@ -481,12 +481,19 @@ class classproperty(property):
 
 
 class Case(models.Case):
-    """``Case`` expression from mapping of when conditionals."""
+    """``Case`` expression from mapping of when conditionals.
+
+    :param conds: ``{Q_obj: value, ...}``
+    :param default: optional default value or ``F`` object
+    :param output_field: optional field defaults to registered ``types``
+    """
     types = {str: models.CharField, int: models.IntegerField, float: models.FloatField, bool: models.BooleanField}
 
     def __init__(self, conds, **extra):
         cases = (models.When(cond, models.Value(conds[cond])) for cond in conds)
         types = set(map(type, conds.values()))
-        if 'default' not in extra and len(types) == 1 and types.issubset(self.types):
+        if len(types) == 1 and types.issubset(self.types):
             extra.setdefault('output_field', self.types.get(*types)())
+        if isinstance(extra.get('default'), tuple(self.types)):
+            extra['default'] = models.Value(extra['default'])
         super(Case, self).__init__(*cases, **extra)
