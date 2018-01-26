@@ -131,6 +131,8 @@ def test_functions(books):
     assert isinstance(F.title[:10], functions.Substr)
     with pytest.raises(AssertionError):
         F.title[:-10]
+    with pytest.raises(AttributeError):
+        F.name
 
 
 @pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django >=1.10')

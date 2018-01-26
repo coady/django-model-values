@@ -103,6 +103,8 @@ class method(functools.partial):
 
 class MetaF(type):
     def __getattr__(cls, name):
+        if name == 'name':
+            raise AttributeError("'name' is a reserved attribute")
         return cls(name)
 
     def any(cls, exprs):
@@ -117,15 +119,19 @@ class MetaF(type):
 class F(six.with_metaclass(MetaF, models.F, Lookup)):
     """Create ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
 
-    ``F.user.created`` == ``F('user__created')``
+    ``F`` creation supported as attributes:
+    ``F.user`` == ``F('user')``,
+    ``F.user.created`` == ``F('user__created')``.
 
-    ``F.user.created >= ...`` == ``Q(user__created__gte=...)``
+    ``Q`` lookups supported as methods or operators:
+    ``F.text.iexact(...)`` == ``Q(text__iexact=...)``,
+    ``F.user.created >= ...`` == ``Q(user__created__gte=...)``.
 
-    ``F.user.created.min()`` == ``Min('user__created')``
+    ``Func`` objects also supported as methods:
+    ``F.user.created.min()`` == ``Min('user__created')``.
 
-    ``-F.user.created`` == ``F('user__created').desc()``
-
-    ``F.text.iexact(...)`` == ``Q(text__iexact=...)``
+    ``OrderBy`` objects supported as operators:
+    ``-F.user.created`` == ``F('user__created').desc()``.
     """
     lookups = dict(length=functions.Length, lower=functions.Lower, upper=functions.Upper)
     __pos__ = models.F.asc

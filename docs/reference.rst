@@ -7,7 +7,7 @@ Lookup
    :special-members:
    :exclude-members: __weakref__
 
-   .. note:: Spatial lookups are experimental and may change in the future.
+   .. note:: Spatial lookups require `gis`_ to be enabled.
 
 F
 =============
@@ -16,8 +16,10 @@ F
    :members:
    :special-members:
 
-   .. note:: Spatial functions are experimental and may change in the future.
-      See source for available functions if gis is configured.
+   .. note:: Since attributes are used for constructing `F`_ objects, there may be collisions between field names and methods.
+      For example, ``name`` is a reserved attribute, but the usual constructor can still be used: ``F('name')``.
+
+   .. note:: See source for available spatial functions if `gis`_ is configured.
 
    .. autoattribute:: lookups
 
@@ -30,8 +32,7 @@ QuerySet
    :members:
    :special-members:
 
-   .. note:: Spatial aggregate functions are experimental and may change in the future.
-      See source for available functions if gis is configured.
+   .. note:: See source for available aggregate spatial functions if `gis`_ is configured.
 
 Manager
 =============
@@ -56,3 +57,4 @@ classproperty
    :show-inheritance:
 
 .. _`registered lookups`: https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length
+.. _`gis`: https://docs.djangoproject.com/en/stable/ref/contrib/gis/
