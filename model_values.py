@@ -94,11 +94,17 @@ class Lookup(object):
 
 
 class method(functools.partial):
-    def __init__(self, func):
+    def __init__(self, func, *args):
         self.__doc__ = func.__doc__ or func.__name__
 
     def __get__(self, instance, owner):
         return self if instance is None else types.MethodType(self, instance)
+
+
+def transform(lookup, func, value):
+    field, expr = func.source_expressions
+    expr = expr if isinstance(expr, models.F) else expr.value
+    return field.__eq__((expr, value), '__' + lookup)
 
 
 class MetaF(type):
@@ -173,7 +179,6 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         bounding_circle = method(gis.functions.BoundingCircle)
         centroid = property(gis.functions.Centroid)
         difference = method(gis.functions.Difference)
-        distance = method(gis.functions.Distance)
         envelope = property(gis.functions.Envelope)
         force_rhr = method(gis.functions.ForceRHR)
         geohash = method(gis.functions.GeoHash)  # __hash__ requires an int
@@ -191,6 +196,14 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         transform = method(gis.functions.Transform)
         translate = method(gis.functions.Translate)
         union = method(gis.functions.Union)
+
+        @method
+        class distance(gis.functions.Distance):
+            """Return ``Distance`` with support for lookups: <, <=, >, >=."""
+            __lt__ = method(transform, 'distance_lt')
+            __le__ = method(transform, 'distance_lte')
+            __gt__ = method(transform, 'distance_gt')
+            __ge__ = method(transform, 'distance_gte')
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
@@ -213,7 +226,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     @method
     def count(self='*', **extra):
-        """Count"""
+        """Return ``Count`` with optional field."""
         return models.Count(getattr(self, 'name', self), **extra)
 
     def find(self, sub):

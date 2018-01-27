@@ -256,7 +256,6 @@ def test_spatial_functions(books):
     assert isinstance(F.location.svg(), gis.functions.AsSVG)
     assert isinstance(F.location.bounding_circle(), gis.functions.BoundingCircle)
     assert isinstance(F.location.centroid, gis.functions.Centroid)
-    assert isinstance(F.location.distance(point), gis.functions.Distance)
     assert isinstance(F.location.envelope, gis.functions.Envelope)
     assert isinstance(F.location.force_rhr(), gis.functions.ForceRHR)
     assert isinstance(F.location.geohash(), gis.functions.GeoHash)
@@ -271,6 +270,15 @@ def test_spatial_functions(books):
     assert isinstance(F.location.snap_to_grid(0), gis.functions.SnapToGrid)
     assert isinstance(F.location.transform(point.srid), gis.functions.Transform)
     assert isinstance(F.location.translate(0, 0), gis.functions.Translate)
+
+    dist = F.location.distance(point)
+    assert isinstance(dist, gis.functions.Distance)
+    fields, items = zip(*F.all([(dist < 0), (dist <= 0), (dist > 0), (dist >= 0)]).children)
+    assert fields == ('location__distance_lt', 'location__distance_lte',
+                      'location__distance_gt', 'location__distance_gte')
+    assert items == ((point, 0),) * 4
+    (field, values), = (F.location.distance('field') > 0).children
+    assert values == (F.field, 0)
 
     assert isinstance(F.location.difference(point), gis.functions.Difference)
     assert isinstance(F.location.intersection(point), gis.functions.Intersection)
