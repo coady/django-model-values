@@ -321,13 +321,15 @@ class QuerySet(models.QuerySet, Lookup):
         return qs
 
     def annotate(self, *args, **kwargs):
-        """Annotate extended to also handle mapping values, as a case expression.
+        """Annotate extended to also handle mapping values, as a `Case`_ expression.
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
+
+        As a provisional feature, an optional ``default`` key may be specified.
         """
         if hasattr(self, '_groupby'):
             self = self[self._groupby]
-        kwargs.update((field, Case(value)) for field, value in kwargs.items()
+        kwargs.update((field, Case.defaultdict(value)) for field, value in kwargs.items()
                       if isinstance(value, collections.Mapping))
         qs = super(QuerySet, self).annotate(*args, **kwargs)
         if args or kwargs:
@@ -351,7 +353,7 @@ class QuerySet(models.QuerySet, Lookup):
         return values[0] if self._flat else values
 
     def update(self, **kwargs):
-        """Update extended to also handle mapping values, as a case expression.
+        """Update extended to also handle mapping values, as a `Case`_ expression.
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
         """
@@ -486,6 +488,10 @@ class classproperty(property):
         return self.fget(owner)
 
 
+def Value(value):
+    return value if isinstance(value, models.F) else models.Value(value)
+
+
 class Case(models.Case):
     """``Case`` expression from mapping of when conditionals.
 
@@ -495,11 +501,14 @@ class Case(models.Case):
     """
     types = {str: models.CharField, int: models.IntegerField, float: models.FloatField, bool: models.BooleanField}
 
-    def __init__(self, conds, **extra):
-        cases = (models.When(cond, models.Value(conds[cond])) for cond in conds)
+    def __init__(self, conds, default=None, **extra):
+        cases = (models.When(cond, Value(conds[cond])) for cond in conds)
         types = set(map(type, conds.values()))
         if len(types) == 1 and types.issubset(self.types):
             extra.setdefault('output_field', self.types.get(*types)())
-        if isinstance(extra.get('default'), tuple(self.types)):
-            extra['default'] = models.Value(extra['default'])
-        super(Case, self).__init__(*cases, **extra)
+        super(Case, self).__init__(*cases, default=Value(default), **extra)
+
+    @classmethod
+    def defaultdict(cls, conds):
+        conds = dict(conds)
+        return cls(conds, default=conds.pop('default', None))
