@@ -42,4 +42,4 @@ From there one can easily imagine other useful extensions.
    :lines: 21-
 
 .. _`custom managers`: https://docs.djangoproject.com/en/stable/topics/db/managers/#custom-managers
-.. _`django-model-utils'`: https://pypi.python.org/pypi/django-model-utils/
+.. _`django-model-utils'`: https://pypi.org/project/django-model-utils/

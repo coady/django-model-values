@@ -227,7 +227,7 @@ Indices and tables
 .. _pandas: http://pandas.pydata.org
 .. _`custom manager`: https://docs.djangoproject.com/en/stable/topics/db/managers/#custom-managers
 .. _`django's own docs`: https://docs.djangoproject.com/en/stable/ref/models/querysets/#update
-.. _`django-model-utils`: https://pypi.python.org/pypi/django-model-utils/
+.. _`django-model-utils`: https://pypi.org/project/django-model-utils/
 
 .. rubric:: Footnotes
 

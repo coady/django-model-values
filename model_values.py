@@ -229,9 +229,9 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         """Return ``Count`` with optional field."""
         return models.Count(getattr(self, 'name', self), **extra)
 
-    def find(self, sub):
+    def find(self, sub, **extra):
         """Return ``StrIndex`` with ``str.find`` semantics."""
-        return functions.StrIndex(self, models.Value(sub)) - 1
+        return functions.StrIndex(self, Value(sub), **extra) - 1
 
 
 def method(func):
@@ -304,8 +304,8 @@ class QuerySet(models.QuerySet, Lookup):
 
     def __eq__(self, value, lookup=''):
         """Return `QuerySet`_ filtered by comparison to given value."""
-        lookups = (field + lookup for field in self._fields)
-        return self.filter(**dict.fromkeys(lookups, value))
+        field, = self._fields
+        return self.filter(**{field + lookup: value})
 
     def __contains__(self, value):
         """Return whether value is present using ``exists``."""

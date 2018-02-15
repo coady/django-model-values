@@ -4,7 +4,7 @@ from django.db.models import functions
 from django.utils import timezone
 import pytest
 from .models import Book
-from model_values import Case, F, gis
+from model_values import Case, F, gis, transform
 
 pytestmark = pytest.mark.django_db
 
@@ -133,6 +133,8 @@ def test_functions(books):
         F.title[:-10]
     with pytest.raises(AttributeError):
         F.name
+    (field, values), = transform('op', F.author.coalesce('title'), None).children
+    assert field == 'author__op' and values == (F.title, None)
 
 
 @pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django >=1.10')
