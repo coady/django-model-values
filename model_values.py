@@ -11,7 +11,7 @@ map = six.moves.map
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions
     import django.contrib.gis.db.models as gis
-except:
+except:  # pragma: no cover
     gis = None
 
 __version__ = '0.5.1'
@@ -150,14 +150,12 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     mean = method(models.Avg)
     var = method(models.Variance)
     std = method(models.StdDev)
-    if django.VERSION >= (1, 9):
-        greatest = method(functions.Greatest)
-        least = method(functions.Least)
-        now = staticmethod(functions.Now)
-    if django.VERSION >= (1, 10):
-        cast = method(functions.Cast)
-        extract = method(functions.Extract)
-        trunc = method(functions.Trunc)
+    greatest = method(functions.Greatest)
+    least = method(functions.Least)
+    now = staticmethod(functions.Now)
+    cast = method(functions.Cast)
+    extract = method(functions.Extract)
+    trunc = method(functions.Trunc)
     if django.VERSION >= (2,):
         cume_dist = method(functions.CumeDist)
         dense_rank = method(functions.DenseRank)
@@ -271,10 +269,6 @@ class QuerySet(models.QuerySet, Lookup):
         classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
         if issubclass(self._iterable_class, classes):
             self._iterable_class = classes[not value]
-
-    if django.VERSION < (1, 9):
-        _flat = property(lambda self: getattr(self, 'flat', None),
-                         lambda self, value: setattr(self, 'flat', bool(value)))
 
     _named = {'named': True} if django.VERSION >= (2,) else {}
 

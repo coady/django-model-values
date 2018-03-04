@@ -88,7 +88,7 @@ Installation
 
 Dependencies
 =========================
-* django >=1.8
+* django >=1.11
 
 Tests
 =========================

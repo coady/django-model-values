@@ -136,9 +136,6 @@ def test_functions(books):
     (field, values), = transform('op', F.author.coalesce('title'), None).children
     assert field == 'author__op' and values == (F.title, None)
 
-
-@pytest.mark.skipif(django.VERSION < (1, 10), reason='requires django >=1.10')
-def test_new_functions(books):
     assert isinstance(F.title.greatest('author'), functions.Greatest)
     assert isinstance(F.title.least('author'), functions.Least)
     assert F.now is functions.Now
@@ -279,8 +276,8 @@ def test_spatial_functions(books):
     assert fields == ('location__distance_lt', 'location__distance_lte',
                       'location__distance_gt', 'location__distance_gte')
     assert items == ((point, 0),) * 4
-    (field, values), = (F.location.distance('field') > 0).children
-    assert values == (F.field, 0)
+    (field, values), = (F.location.distance(point) > 0).children
+    assert values == (point, 0)
 
     assert isinstance(F.location.difference(point), gis.functions.Difference)
     assert isinstance(F.location.intersection(point), gis.functions.Intersection)

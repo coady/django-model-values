@@ -7,14 +7,11 @@ python:
   - 3.6
 
 env:
-  - DJANGO="django<1.9"
   - DJANGO="django<2"
   - DJANGO="django"
 
 matrix:
   exclude:
-    - python: 3.6
-      env: DJANGO="django<1.9"
     - python: 2.7
       env: DJANGO="django"
 
