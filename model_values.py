@@ -168,6 +168,12 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         percent_rank = method(functions.PercentRank)
         rank = method(functions.Rank)
         row_number = method(functions.RowNumber)
+    if django.VERSION >= (2, 1):
+        lookups.update(chr=functions.Chr, ord=functions.Ord)
+        strip = method(functions.Trim)
+        lstrip = method(functions.LTrim)
+        rstrip = method(functions.RTrim)
+        repeat = method(functions.Repeat)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)
@@ -216,10 +222,13 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         return self.lookups[func](name, *args, **extra)
 
     def __getitem__(self, slc):
-        """Return field ``Substr``."""
+        """Return field ``Substr`` or ``Right``."""
+        assert (slc.stop or 0) >= 0 and slc.step is None
         start = slc.start or 0
-        size = slc.stop and slc.stop - start
-        assert start >= 0 and (size is None or size >= 0) and slc.step is None
+        if start < 0:
+            assert slc.stop is None
+            return functions.Right(self, -start)
+        size = slc.stop and max(slc.stop - start, 0)
         return functions.Substr(self, start + 1, size)
 
     @method
@@ -230,6 +239,18 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     def find(self, sub, **extra):
         """Return ``StrIndex`` with ``str.find`` semantics."""
         return functions.StrIndex(self, Value(sub), **extra) - 1
+
+    def replace(self, old, new='', **extra):
+        """Return ``Replace`` with wrapped values."""
+        return functions.Replace(self, Value(old), Value(new), **extra)
+
+    def ljust(self, width, fill=' ', **extra):
+        """Return ``LPad`` with wrapped values."""
+        return functions.LPad(self, width, Value(fill), **extra)
+
+    def rjust(self, width, fill=' ', **extra):
+        """Return ``RPad`` with wrapped values."""
+        return functions.RPad(self, width, Value(fill), **extra)
 
 
 def method(func):

@@ -8,11 +8,16 @@ python:
 
 env:
   - DJANGO="django<2"
+  - DJANGO="django<2.1"
   - DJANGO="django"
 
 matrix:
   exclude:
     - python: 2.7
+      env: DJANGO="django<2.1"
+    - python: 2.7
+      env: DJANGO="django"
+    - python: 3.4
       env: DJANGO="django"
 
 install:

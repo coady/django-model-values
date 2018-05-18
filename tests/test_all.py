@@ -151,7 +151,7 @@ def test_functions(books):
 
 
 @pytest.mark.skipif(django.VERSION < (2,), reason='requires django >=2')
-def test_new_features(books):
+def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
     assert dict(books.groupby(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
@@ -167,6 +167,24 @@ def test_new_features(books):
     assert isinstance(F.quantity.percent_rank(), functions.PercentRank)
     assert isinstance(F.quantity.rank(), functions.Rank)
     assert isinstance(F.quantity.row_number(), functions.RowNumber)
+
+
+@pytest.mark.skipif(django.VERSION < (2, 1), reason='requires django >=2.1')
+def test_2_1():
+    assert (F.quantity.chr == '').children == [('quantity__chr', '')]
+    assert isinstance(F.quantity.chr(), functions.Chr)
+    assert (F.author.ord == 0).children == [('author__ord', 0)]
+    assert isinstance(F.author.ord(), functions.Ord)
+
+    assert isinstance(F.title[-10:], functions.Right)
+    assert isinstance(F.author.replace('A', 'B'), functions.Replace)
+    assert isinstance(F.author.repeat(3), functions.Repeat)
+
+    assert isinstance(F.title.strip(), functions.Trim)
+    assert isinstance(F.title.lstrip(), functions.LTrim)
+    assert isinstance(F.title.rstrip(), functions.RTrim)
+    assert isinstance(F.author.ljust(1), functions.LPad)
+    assert isinstance(F.author.rjust(1), functions.RPad)
 
 
 def test_lookups(books):

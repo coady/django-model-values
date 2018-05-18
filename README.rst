@@ -98,6 +98,14 @@ Tests
 
 Changes
 =========================
+dev
+
+* Transform functions
+* Named tuples
+* Window functions
+* Distance lookups
+* Django 2.1 functions
+
 0.5
 
 * ``F`` expressions operators ``any`` and ``all``
