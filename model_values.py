@@ -123,7 +123,7 @@ class MetaF(type):
 
 
 class F(six.with_metaclass(MetaF, models.F, Lookup)):
-    """Create ``F``, ``Q``, ``Func``, and ``OrderBy`` objects with expressions.
+    """Create ``F``, ``Q``, and ``Func`` objects with expressions.
 
     ``F`` creation supported as attributes:
     ``F.user`` == ``F('user')``,
@@ -135,13 +135,8 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
     ``Func`` objects also supported as methods:
     ``F.user.created.min()`` == ``Min('user__created')``.
-
-    ``OrderBy`` objects supported as operators:
-    ``-F.user.created`` == ``F('user__created').desc()``.
     """
     lookups = dict(length=functions.Length, lower=functions.Lower, upper=functions.Upper)
-    __pos__ = models.F.asc
-    __neg__ = models.F.desc
     coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
     min = method(models.Min)
@@ -329,6 +324,7 @@ class QuerySet(models.QuerySet, Lookup):
         return value in iter(self)
 
     def __iter__(self):
+        """Iteration extended to support :meth:`groupby`."""
         if not hasattr(self, '_groupby'):
             return super(QuerySet, self).__iter__()
         size = len(self._groupby)
@@ -369,7 +365,7 @@ class QuerySet(models.QuerySet, Lookup):
         return self.annotate(**{alias: F.count()})
 
     def reduce(self, *funcs):
-        """Return aggregated values, or an annotated `QuerySet`_ if ``groupby`` is in use.
+        """Return aggregated values, or an annotated `QuerySet`_ if :meth:`groupby` is in use.
 
         :param funcs: aggregation function classes
         """

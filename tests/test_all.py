@@ -197,10 +197,6 @@ def test_lookups(books):
     assert str(F.count(distinct=True)) == "Count('*', distinct=True)"
     assert isinstance(F.quantity.var(sample=True), models.Variance)
     assert isinstance(F.quantity.std(sample=True), models.StdDev)
-    ordering = -F.user.created
-    assert ordering.expression.name == 'user__created' and ordering.descending
-    ordering = +F.user.created
-    assert ordering.expression.name == 'user__created' and not ordering.descending
     exprs = list(map(F.author.contains, 'AB'))
     assert str(F.any(exprs)) == "(OR: ('author__contains', 'A'), ('author__contains', 'B'))"
     assert str(F.all(exprs)) == "(AND: ('author__contains', 'A'), ('author__contains', 'B'))"
