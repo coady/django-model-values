@@ -36,6 +36,8 @@ def test_queryset(books):
     assert quant and 10 in quant
     assert books[0] in books.all()
     assert ('A', 10) in books['author', 'quantity']
+    assert list(quant.sort_values()) == [1, 2, 2, 10, 10]
+    assert list(quant.sort_values(reverse=True)) == [10, 10, 2, 2, 1]
 
     now = timezone.now()
     assert books.filter(author='B').modify({'last_modified': now}, quantity=2) == 1

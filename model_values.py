@@ -338,7 +338,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Return a grouped `QuerySet`_.
 
         The queryset is iterable in the same manner as ``itertools.groupby``.
-        Additionally the ``reduce`` functions will return annotated querysets.
+        Additionally the :meth:`reduce` functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
         qs._groupby = fields + tuple(annotations)
@@ -363,6 +363,11 @@ class QuerySet(models.QuerySet, Lookup):
     def value_counts(self, alias='count'):
         """Return annotated value counts."""
         return self.annotate(**{alias: F.count()})
+
+    def sort_values(self, reverse=False):
+        """Return `QuerySet`_ ordered by selected values."""
+        qs = self.order_by(*self._fields)
+        return qs.reverse() if reverse else qs
 
     def reduce(self, *funcs):
         """Return aggregated values, or an annotated `QuerySet`_ if :meth:`groupby` is in use.
