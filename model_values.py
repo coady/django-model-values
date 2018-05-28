@@ -541,3 +541,22 @@ class Case(models.Case):
     def defaultdict(cls, conds):
         conds = dict(conds)
         return cls(conds, default=conds.pop('default', None))
+
+
+def EnumField(enum, display=None, **options):
+    """Return a ``CharField`` or ``IntegerField`` with choices from given enum.
+
+    By default, enum names and values are used as db values and display labels respectively,
+    returning a ``CharField`` with computed ``max_length``.
+
+    :param display: optional callable to transform enum names to display labels,
+         thereby using enum values as db values and also supporting integers.
+    """
+    choices = tuple((choice.name, choice.value) for choice in enum)
+    if display is not None:
+        choices = tuple((choice.value, display(choice.name)) for choice in enum)
+    try:
+        max_length = max(map(len, dict(choices)))
+    except TypeError:
+        return models.IntegerField(choices=choices, **options)
+    return models.CharField(max_length=max_length, choices=choices, **options)

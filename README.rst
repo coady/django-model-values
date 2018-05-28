@@ -105,6 +105,7 @@ dev
 * Window functions
 * Distance lookups
 * Django 2.1 functions
+* ``EnumField``
 
 0.5
 

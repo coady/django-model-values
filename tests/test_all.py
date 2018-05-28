@@ -4,7 +4,7 @@ from django.db.models import functions
 from django.utils import timezone
 import pytest
 from .models import Book
-from model_values import Case, F, gis, transform
+from model_values import Case, EnumField, F, gis, transform
 
 pytestmark = pytest.mark.django_db
 
@@ -307,3 +307,21 @@ def test_spatial_functions(books):
     assert type(books).union.__name__ == 'Union'
     with pytest.raises(ValueError, match="Geospatial aggregates only allowed on geometry fields."):
         books['id'].collect()
+
+
+def test_enum():
+    enum = pytest.importorskip('enum')
+
+    @EnumField
+    class gender(enum.Enum):
+        M = 'Male'
+        F = 'Female'
+    assert gender.max_length == 1
+    assert dict(gender.choices) == {'M': 'Male', 'F': 'Female'}
+
+    class Gender(enum.Enum):
+        MALE = 0
+        FEMALE = 1
+    gender = EnumField(Gender, str.title)
+    assert isinstance(gender, models.IntegerField)
+    assert dict(gender.choices) == {0: 'Male', 1: 'Female'}

@@ -56,5 +56,9 @@ classproperty
 .. autoclass:: classproperty
    :show-inheritance:
 
+EnumField
+=============
+.. autofunction:: EnumField
+
 .. _`registered lookups`: https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length
 .. _`gis`: https://docs.djangoproject.com/en/stable/ref/contrib/gis/
