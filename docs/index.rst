@@ -205,7 +205,7 @@ See also `bulk_changed and bulk_update <reference.html#manager>`_ for efficient 
 
 *The Good*::
 
-   qs.groupby(amount={F.quantity < 10: 'low', F.quantity >= 10: 'high'}).value_counts()
+   qs.items(amount={F.quantity < 10: 'low', F.quantity >= 10: 'high'}).value_counts()
 
    qs.update(quantity={F.author == author: quantity for author, quantity in items})
 

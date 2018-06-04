@@ -3,6 +3,7 @@ import functools
 import itertools
 import operator
 import types
+import warnings
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -280,12 +281,6 @@ class QuerySet(models.QuerySet, Lookup):
     def _flat(self):
         return issubclass(self._iterable_class, models.query.FlatValuesListIterable)
 
-    @_flat.setter
-    def _flat(self, value):
-        classes = models.query.FlatValuesListIterable, models.query.ValuesListIterable
-        if issubclass(self._iterable_class, classes):
-            self._iterable_class = classes[not value]
-
     _named = {'named': True} if django.VERSION >= (2,) else {}
 
     def __getitem__(self, key):
@@ -334,6 +329,10 @@ class QuerySet(models.QuerySet, Lookup):
         getter = operator.itemgetter(size) if self._flat else lambda tup: Row(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
+    def items(self, *fields, **annotations):
+        """Return annotated ``values_list``."""
+        return self.annotate(**annotations)[fields + tuple(annotations)]
+
     def groupby(self, *fields, **annotations):
         """Return a grouped `QuerySet`_.
 
@@ -351,18 +350,16 @@ class QuerySet(models.QuerySet, Lookup):
 
         As a provisional feature, an optional ``default`` key may be specified.
         """
-        if hasattr(self, '_groupby'):
-            self = self[self._groupby]
         kwargs.update((field, Case.defaultdict(value)) for field, value in kwargs.items()
                       if isinstance(value, collections.Mapping))
-        qs = super(QuerySet, self).annotate(*args, **kwargs)
-        if args or kwargs:
-            qs._flat = False
-        return qs
+        return super(QuerySet, self).annotate(*args, **kwargs)
 
     def value_counts(self, alias='count'):
         """Return annotated value counts."""
-        return self.annotate(**{alias: F.count()})
+        if hasattr(self, '_groupby'):
+            warnings.warn("use annotated `items`_  instead of a grouped queryset", DeprecationWarning)
+            self = self[self._groupby]
+        return self.items(*self._fields, **{alias: F.count()})
 
     def sort_values(self, reverse=False):
         """Return `QuerySet`_ ordered by selected values."""
@@ -376,7 +373,7 @@ class QuerySet(models.QuerySet, Lookup):
         """
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
-            return self.annotate(*funcs)
+            return self[self._groupby].annotate(*funcs)
         names = (func.default_alias for func in funcs)
         values = collections.namedtuple('Row', names)(**self.aggregate(*funcs))
         return values[0] if self._flat else values

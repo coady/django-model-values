@@ -23,6 +23,7 @@ def test_queryset(books):
     assert books and books.exists() and not books.exists(6)
     assert set(books['author']) == set(books[F.author]) == {'A', 'B'}
     assert dict(books[F.id, 'author']) == {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'B'}
+    assert dict(books.items('id', alias=F.author.lower())) == {1: 'a', 2: 'a', 3: 'b', 4: 'b', 5: 'b'}
 
     assert len(books['quantity'] < 2) == 1
     assert len(books['quantity'] <= 2) == 3
@@ -71,9 +72,7 @@ def test_manager(books):
 
 
 def test_aggregation(books):
-    assert books.values('author').annotate(models.Max('quantity'))
-    assert set(books['author', ].annotate()) == {('A',), ('B',)}
-    assert dict(books['author'].annotate(models.Max('quantity'))) == {'A': 10, 'B': 2}
+    assert set(books['author'].annotate(models.Max('quantity'))) == {'A', 'B'}
     assert dict(books['author'].value_counts()) == {'A': 2, 'B': 3}
 
     values = books['author', 'quantity'].reduce(models.Max, models.Min)
@@ -98,13 +97,14 @@ def test_aggregation(books):
 
     groups = books['quantity'].groupby(author=F.author.lower())
     assert dict(groups.sum()) == {'a': 20, 'b': 5}
-    counts = books.groupby(alias=F.author.lower()).value_counts()
+    counts = books.items(alias=F.author.lower()).value_counts()
     assert dict(counts) == {'a': 2, 'b': 3}
     assert dict(counts[F('count') > 2]) == {'b': 3}
-    groups = books.groupby(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high'})
-    assert dict(groups.value_counts()) == {'low': 1, None: 2, 'high': 2}
+    amounts = books.items(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high'})
+    assert dict(amounts.value_counts()) == {'low': 1, None: 2, 'high': 2}
     groups = books.groupby(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high', 'default': 'medium'})
-    assert dict(groups.value_counts()) == {'low': 1, 'medium': 2, 'high': 2}
+    with pytest.warns(DeprecationWarning):
+        assert dict(groups.value_counts()) == {'low': 1, 'medium': 2, 'high': 2}
     with pytest.raises(Exception):
         Case({models.Q(): None}).output_field
 
@@ -156,7 +156,7 @@ def test_functions(books):
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
-    assert dict(books.groupby(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
+    assert dict(books.items(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
 
     assert isinstance(F.quantity.cume_dist(), functions.CumeDist)
     assert isinstance(F.quantity.dense_rank(), functions.DenseRank)

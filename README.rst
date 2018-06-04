@@ -106,6 +106,7 @@ dev
 * Distance lookups
 * Django 2.1 functions
 * ``EnumField``
+* Annotated ``items``
 
 0.5
 
