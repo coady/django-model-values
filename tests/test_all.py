@@ -23,7 +23,8 @@ def test_queryset(books):
     assert books and books.exists() and not books.exists(6)
     assert set(books['author']) == set(books[F.author]) == {'A', 'B'}
     assert dict(books[F.id, 'author']) == {1: 'A', 2: 'A', 3: 'B', 4: 'B', 5: 'B'}
-    assert dict(books.items('id', alias=F.author.lower())) == {1: 'a', 2: 'a', 3: 'b', 4: 'b', 5: 'b'}
+    assert set(books[F.author.lower()]) == {'a', 'b'}
+    assert dict(books['id', F.author.lower()]) == {1: 'a', 2: 'a', 3: 'b', 4: 'b', 5: 'b'}
 
     assert len(books['quantity'] < 2) == 1
     assert len(books['quantity'] <= 2) == 3
@@ -97,10 +98,10 @@ def test_aggregation(books):
 
     groups = books['quantity'].groupby(author=F.author.lower())
     assert dict(groups.sum()) == {'a': 20, 'b': 5}
-    counts = books.items(alias=F.author.lower()).value_counts()
+    counts = books[F.author.lower()].value_counts()
     assert dict(counts) == {'a': 2, 'b': 3}
     assert dict(counts[F('count') > 2]) == {'b': 3}
-    amounts = books.items(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high'})
+    amounts = books[{F.quantity <= 1: 'low', F.quantity >= 10: 'high'}]
     assert dict(amounts.value_counts()) == {'low': 1, None: 2, 'high': 2}
     groups = books.groupby(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high', 'default': 'medium'})
     with pytest.warns(DeprecationWarning):
@@ -156,7 +157,7 @@ def test_functions(books):
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
-    assert dict(books.items(index=F.author.find('A')).value_counts()) == {-1: 3, 0: 2}
+    assert dict(books[F.author.find('A')].value_counts()) == {-1: 3, 0: 2}
 
     assert isinstance(F.quantity.cume_dist(), functions.CumeDist)
     assert isinstance(F.quantity.dense_rank(), functions.DenseRank)

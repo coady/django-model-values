@@ -284,7 +284,7 @@ class QuerySet(models.QuerySet, Lookup):
     _named = {'named': True} if django.VERSION >= (2,) else {}
 
     def __getitem__(self, key):
-        """Allow column access by field names (or ``F`` objects) and filtering by ``Q`` objects.
+        """Allow column access by field names, expressions, or ``F`` objects and filtering by ``Q`` objects.
 
         ``qs[field]`` returns flat ``values_list``
 
@@ -293,12 +293,10 @@ class QuerySet(models.QuerySet, Lookup):
         ``qs[Q_obj]`` returns filtered `QuerySet`_
         """
         if isinstance(key, tuple):
-            fields = (field.name if isinstance(field, models.F) else field for field in key)
-            return self.values_list(*fields, **self._named)
-        if isinstance(key, six.string_types):
+            return self.values_list(*map(extract, key), **self._named)
+        key = extract(key)
+        if isinstance(key, six.string_types + (models.Expression,)):
             return self.values_list(key, flat=True)
-        if isinstance(key, models.F):
-            return self.values_list(key.name, flat=True)
         if isinstance(key, models.Q):
             return self.filter(key)
         return super(QuerySet, self).__getitem__(key)
@@ -357,7 +355,7 @@ class QuerySet(models.QuerySet, Lookup):
     def value_counts(self, alias='count'):
         """Return annotated value counts."""
         if hasattr(self, '_groupby'):
-            warnings.warn("use annotated `items`_  instead of a grouped queryset", DeprecationWarning)
+            warnings.warn("value_counts implicitly groups by fields or expressions", DeprecationWarning)
             self = self[self._groupby]
         return self.items(*self._fields, **{alias: F.count()})
 
@@ -516,6 +514,11 @@ class classproperty(property):
 
 def Value(value):
     return value if isinstance(value, models.F) else models.Value(value)
+
+
+def extract(field):
+    return field.name if isinstance(field, models.F) else \
+        Case.defaultdict(field) if isinstance(field, collections.Mapping) else field
 
 
 class Case(models.Case):
