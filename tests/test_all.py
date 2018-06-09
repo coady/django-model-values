@@ -76,8 +76,7 @@ def test_aggregation(books):
     assert set(books['author'].annotate(models.Max('quantity'))) == {'A', 'B'}
     assert dict(books['author'].value_counts()) == {'A': 2, 'B': 3}
 
-    values = books['author', 'quantity'].reduce(models.Max, models.Min)
-    assert values.author__max == 'B' and values.quantity__min == 1 and values == ('B', 1)
+    assert books['author', 'quantity'].reduce(models.Max, models.Min) == ('B', 1)
     assert books['author', 'quantity'].min() == ('A', 1)
     assert books['quantity'].min() == 1
     assert books['quantity'].max() == 10
@@ -93,8 +92,7 @@ def test_aggregation(books):
     assert isinstance(groups.var(), models.QuerySet)
     assert isinstance(groups.std(), models.QuerySet)
     key, values = next(iter(books.values('title', 'last_modified').groupby('author', 'quantity')))
-    assert key == ('A', 10)
-    assert sum((value[0] == value.title) and bool(value.last_modified) for value in values) == 2
+    assert key == ('A', 10) and next(values)[0] == ''
 
     groups = books['quantity'].groupby(author=F.author.lower())
     assert dict(groups.sum()) == {'a': 20, 'b': 5}
@@ -108,6 +106,11 @@ def test_aggregation(books):
         assert dict(groups.value_counts()) == {'low': 1, 'medium': 2, 'high': 2}
     with pytest.raises(Exception):
         Case({models.Q(): None}).output_field
+
+    expr = books.values_list(F.quantity * -1)
+    assert type(expr.sum()) is tuple
+    key, values = next(iter(expr.groupby('author')))
+    assert set(map(type, values)) == {tuple}
 
 
 def test_functions(books):
@@ -157,6 +160,10 @@ def test_functions(books):
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
+    row = books['author', ].min()
+    assert (row.author__min,) == row
+    key, values = next(iter(books['quantity', ].groupby('author')))
+    assert next(values).quantity
     assert dict(books[F.author.find('A')].value_counts()) == {-1: 3, 0: 2}
 
     assert isinstance(F.quantity.cume_dist(), functions.CumeDist)

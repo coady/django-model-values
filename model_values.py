@@ -281,19 +281,22 @@ class QuerySet(models.QuerySet, Lookup):
     def _flat(self):
         return issubclass(self._iterable_class, models.query.FlatValuesListIterable)
 
-    _named = {'named': True} if django.VERSION >= (2,) else {}
+    @property
+    def _named(self):
+        return issubclass(self._iterable_class, getattr(models.query, 'NamedValuesListIterable', ()))
 
     def __getitem__(self, key):
-        """Allow column access by field names, expressions, or ``F`` objects and filtering by ``Q`` objects.
+        """Allow column access by field names, expressions, or ``F`` objects.
 
         ``qs[field]`` returns flat ``values_list``
 
         ``qs[field, ...]`` returns tupled ``values_list``
 
-        ``qs[Q_obj]`` returns filtered `QuerySet`_
+        ``qs[Q_obj]`` provisionally returns filtered `QuerySet`_
         """
         if isinstance(key, tuple):
-            return self.values_list(*map(extract, key), **self._named)
+            kwargs = {'named': True} if django.VERSION >= (2,) else {}
+            return self.values_list(*map(extract, key), **kwargs)
         key = extract(key)
         if isinstance(key, six.string_types + (models.Expression,)):
             return self.values_list(key, flat=True)
@@ -323,8 +326,10 @@ class QuerySet(models.QuerySet, Lookup):
         size = len(self._groupby)
         rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
-        Row = collections.namedtuple('Row', self._fields)
-        getter = operator.itemgetter(size) if self._flat else lambda tup: Row(*tup[size:])
+        getter = operator.itemgetter(size if self._flat else slice(size, None))
+        if self._named:
+            Row = collections.namedtuple('Row', self._fields)
+            getter = lambda tup: Row(*tup[size:])  # noqa
         return ((key, map(getter, values)) for key, values in groups)
 
     def items(self, *fields, **annotations):
@@ -372,9 +377,11 @@ class QuerySet(models.QuerySet, Lookup):
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
             return self[self._groupby].annotate(*funcs)
-        names = (func.default_alias for func in funcs)
-        values = collections.namedtuple('Row', names)(**self.aggregate(*funcs))
-        return values[0] if self._flat else values
+        names = [func.default_alias for func in funcs]
+        row = self.aggregate(*funcs)
+        if self._named:
+            return collections.namedtuple('Row', names)(**row)
+        return row[names[0]] if self._flat else tuple(map(row.__getitem__, names))
 
     def update(self, **kwargs):
         """Update extended to also handle mapping values, as a `Case`_ expression.
