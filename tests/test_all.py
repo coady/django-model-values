@@ -296,10 +296,10 @@ def test_spatial_functions(books):
 
     dist = F.location.distance(point)
     assert isinstance(dist, gis.functions.Distance)
-    fields, items = zip(*F.all([(dist < 0), (dist <= 0), (dist > 0), (dist >= 0)]).children)
+    fields, items = zip(*F.all([(dist < 0), (dist <= 0), (dist > 0), (dist >= 0), dist.within(0)]).children)
     assert fields == ('location__distance_lt', 'location__distance_lte',
-                      'location__distance_gt', 'location__distance_gte')
-    assert items == ((point, 0),) * 4
+                      'location__distance_gt', 'location__distance_gte', 'location__dwithin')
+    assert items == ((point, 0),) * 5
     (field, values), = (F.location.distance(point) > 0).children
     assert values == (point, 0)
 

@@ -199,11 +199,12 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
 
         @method
         class distance(gis.functions.Distance):
-            """Return ``Distance`` with support for lookups: <, <=, >, >=."""
+            """Return ``Distance`` with support for lookups: <, <=, >, >=, within."""
             __lt__ = method(transform, 'distance_lt')
             __le__ = method(transform, 'distance_lte')
             __gt__ = method(transform, 'distance_gt')
             __ge__ = method(transform, 'distance_gte')
+            within = method(transform, 'dwithin')
 
     def __getattr__(self, name):
         """Return new `F`_ object with chained attribute."""
