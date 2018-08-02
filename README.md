@@ -3,7 +3,7 @@
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
 [![image](https://img.shields.io/travis/coady/django-model-values.svg)](https://travis-ci.org/coady/django-model-values)
 [![image](https://img.shields.io/codecov/c/github/coady/django-model-values.svg)](https://codecov.io/github/coady/django-model-values)
-[![image](https://readthedocs.org/projects/django-model-values/badge)](%60documentation%60_)
+[![image](https://readthedocs.org/projects/django-model-values/badge)](https://django-model-values.readthedocs.io)
 
 [Django](https://docs.djangoproject.com) model utilities for encouraging
 direct data access instead of unnecessary object overhead. Implemented
@@ -65,8 +65,8 @@ be a 100% compatible replacement.
 from model_values import Manager
 
 class Book(models.Model):
-   ...
-   objects = Manager()
+    ...
+    objects = Manager()
 ```
 
 `F` expressions are also enhanced, and can be used directly without
@@ -79,7 +79,7 @@ from model_values import F
 .filter(F.rating > 0, F.last_modified.range(start, end))
 ```
 
-Read the [documentation](http://django-model-values.readthedocs.io).
+Read the [documentation](https://django-model-values.readthedocs.io).
 
 # Installation
 
@@ -94,7 +94,7 @@ Read the [documentation](http://django-model-values.readthedocs.io).
     $ pytest [--cov]
 
 # Changes
-dev
+0.6
 * Transform functions
 * Named tuples
 * Window functions
