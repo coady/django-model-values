@@ -5,6 +5,8 @@
 [![image](https://img.shields.io/travis/coady/django-model-values.svg)](https://travis-ci.org/coady/django-model-values)
 [![image](https://img.shields.io/codecov/c/github/coady/django-model-values.svg)](https://codecov.io/github/coady/django-model-values)
 [![image](https://readthedocs.org/projects/django-model-values/badge)](https://django-model-values.readthedocs.io)
+[![image](https://requires.io/github/coady/django-model-values/requirements.svg)](https://requires.io/github/coady/django-model-values/requirements/)
+[![image](https://api.codeclimate.com/v1/badges/908dc0b46fdda69109ce/maintainability)](https://codeclimate.com/github/coady/django-model-values/maintainability)
 
 [Django](https://docs.djangoproject.com) model utilities for encouraging
 direct data access instead of unnecessary object overhead. Implemented
@@ -79,8 +81,6 @@ from model_values import F
 .filter(rating__gt=0, last_modified__range=(start, end))
 .filter(F.rating > 0, F.last_modified.range(start, end))
 ```
-
-Read the [documentation](https://django-model-values.readthedocs.io).
 
 # Installation
 
