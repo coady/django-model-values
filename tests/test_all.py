@@ -180,6 +180,11 @@ def test_2(books):
     assert isinstance(F.quantity.rank(), functions.Rank)
     assert isinstance(F.quantity.row_number(), functions.RowNumber)
 
+    point = 'POINT(0 0)'
+    if gis:
+        assert isinstance(F.location.azimuth(point), gis.functions.Azimuth)
+        assert isinstance(F.location.line_locate_point(point), gis.functions.LineLocatePoint)
+
 
 @pytest.mark.skipif(django.VERSION < (2, 1), reason='requires django >=2.1')
 def test_2_1():
@@ -197,6 +202,9 @@ def test_2_1():
     assert isinstance(F.title.rstrip(), functions.RTrim)
     assert isinstance(F.author.ljust(1), functions.LPad)
     assert isinstance(F.author.rjust(1), functions.RPad)
+
+    if gis:
+        assert isinstance(F.location.force_polygon_cw(), gis.functions.ForcePolygonCW)
 
 
 def test_lookups(books):

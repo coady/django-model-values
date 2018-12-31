@@ -164,12 +164,17 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         percent_rank = method(functions.PercentRank)
         rank = method(functions.Rank)
         row_number = method(functions.RowNumber)
+        if gis:  # pragma: no cover
+            azimuth = method(gis.functions.Azimuth)
+            line_locate_point = method(gis.functions.LineLocatePoint)
     if django.VERSION >= (2, 1):
         lookups.update(chr=functions.Chr, ord=functions.Ord)
         strip = method(functions.Trim)
         lstrip = method(functions.LTrim)
         rstrip = method(functions.RTrim)
         repeat = method(functions.Repeat)
+        if gis:  # pragma: no cover
+            force_polygon_cw = method(gis.functions.ForcePolygonCW)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)
