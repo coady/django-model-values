@@ -42,17 +42,19 @@ def test_queryset(books):
     assert list(quant.sort_values(reverse=True)) == [10, 10, 2, 2, 1]
 
     now = timezone.now()
-    assert books.filter(author='B').modify({'last_modified': now}, quantity=2) == 1
+    assert books.filter(author='B').change({'last_modified': now}, quantity=2) == 1
     assert len(books['last_modified'] == now) == 1
-    assert books.filter(author='B').modify({'last_modified': timezone.now()}, quantity=2) == 0
+    with pytest.warns(DeprecationWarning):
+        assert books.filter(author='B').modify({'last_modified': timezone.now()}, quantity=2) == 0
     assert len(books['last_modified'] == now) == 1
     books['quantity'] = {F.author == 'B': 3}
     assert set(books['quantity']) == {3, 10}
-    assert books.upsert({'quantity': 0}, pk=1) == 1
-    assert books.upsert(pk=0) == 0  # simulates race condition
-    book = books.upsert({'quantity': F.quantity + 1}, pk=0)
+    assert Book.objects.upsert({'quantity': 0}, pk=1) == 1
+    assert Book.objects.upsert(pk=0) == 0  # simulates race condition
+    book = Book.objects.upsert({'quantity': F.quantity + 1}, pk=0)
     assert book.pk == 0 and book.quantity == 1
-    assert books.upsert({'quantity': F.quantity + 1}, pk=0) == 1
+    with pytest.warns(DeprecationWarning):
+        assert books.upsert({'quantity': F.quantity + 1}, pk=0) == 1
     assert books['quantity'].get(pk=0) == 2
     with pytest.raises(TypeError, match='int()'):
         books['quantity'] = {}
@@ -104,8 +106,6 @@ def test_aggregation(books):
     amounts = books[{F.quantity <= 1: 'low', F.quantity >= 10: 'high'}]
     assert dict(amounts.value_counts()) == {'low': 1, None: 2, 'high': 2}
     groups = books.groupby(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high', 'default': 'medium'})
-    with pytest.warns(DeprecationWarning):
-        assert dict(groups.value_counts()) == {'low': 1, 'medium': 2, 'high': 2}
     with pytest.raises(Exception):
         Case({models.Q(): None}).output_field
 

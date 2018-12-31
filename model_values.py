@@ -364,9 +364,6 @@ class QuerySet(models.QuerySet, Lookup):
 
     def value_counts(self, alias='count'):
         """Return annotated value counts."""
-        if hasattr(self, '_groupby'):
-            warnings.warn("value_counts implicitly groups by fields or expressions", DeprecationWarning)
-            self = self[self._groupby]
         return self.items(*self._fields, **{alias: F.count()})
 
     def sort_values(self, reverse=False):
@@ -396,35 +393,18 @@ class QuerySet(models.QuerySet, Lookup):
         kwargs.update((field, Case(value, default=F(field))) for field, value in kwargs.items() if Case.isa(value))
         return super(QuerySet, self).update(**kwargs)
 
-    def modify(self, defaults=(), **kwargs):
+    def change(self, defaults={}, **kwargs):
         """Update and return number of rows that actually changed.
 
         For triggering on-change logic without fetching first.
 
-        ``if qs.modify(status=...):`` status actually changed
+        ``if qs.change(status=...):`` status actually changed
 
-        ``qs.modify({'last_modified': now}, status=...)`` last_modified only updated if status updated
+        ``qs.change({'last_modified': now}, status=...)`` last_modified only updated if status updated
 
         :param defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
-
-    def upsert(self, defaults={}, **kwargs):
-        """Update or insert returning number of rows or created object; faster and safer than ``update_or_create``.
-
-        Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
-
-        :param defaults: optional mapping which will be updated, as with ``update_or_create``.
-        """
-        lookup, params = self._extract_model_params(defaults, **kwargs)
-        params.update((field, value.rhs.value) for field, value in params.items()
-                      if isinstance(value, models.expressions.CombinedExpression))
-        update = getattr(self.filter(**lookup), 'update' if defaults else 'count')
-        try:
-            with transaction.atomic():
-                return update(**defaults) or self.create(**params)
-        except IntegrityError:
-            return update(**defaults)
 
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""
@@ -476,6 +456,22 @@ class Manager(models.Manager):
         """Return whether primary key is present using ``exists``."""
         return self[pk].exists()
 
+    def upsert(self, defaults={}, **kwargs):
+        """Update or insert returning number of rows or created object; faster and safer than ``update_or_create``.
+
+        Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
+
+        :param defaults: optional mapping which will be updated, as with ``update_or_create``.
+        """
+        update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
+        kwargs.update((field, value.rhs.value if isinstance(value, models.expressions.CombinedExpression) else value)
+                      for field, value in defaults.items())
+        try:
+            with transaction.atomic():
+                return update(**defaults) or self.create(**kwargs)
+        except IntegrityError:
+            return update(**defaults)
+
     def changed(self, pk, **kwargs):
         """Return mapping of fields and values which differ in the db.
 
@@ -515,6 +511,17 @@ class Manager(models.Manager):
             kwargs[field] = value
             count += self.filter(pk__in=updates[value]).update(**kwargs)
         return count
+
+
+def deprecated(func, msg):
+    def wrapper(self):
+        warnings.warn(msg, DeprecationWarning)
+        return func.__get__(self, type(self))
+    return property(wrapper)
+
+
+QuerySet.upsert = deprecated(Manager.__dict__['upsert'], "moved to Manager")
+QuerySet.modify = deprecated(QuerySet.change, "renamed 'change'")
 
 
 class classproperty(property):

@@ -84,7 +84,7 @@ And this can be generalized with a little inspiration from ``{get,update}_or_cre
 
 *The Good*::
 
-   changed = Book.objects[pk].modify({'pubdate': today}, publisher=publisher)
+   changed = Book.objects[pk].change({'pubdate': today}, publisher=publisher)
 
 Selects
 ^^^^^^^^^^^^
