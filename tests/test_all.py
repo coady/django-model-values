@@ -54,6 +54,8 @@ def test_queryset(books):
     assert book.pk == 0 and book.quantity == 1
     assert books.upsert({'quantity': F.quantity + 1}, pk=0) == 1
     assert books['quantity'].get(pk=0) == 2
+    with pytest.raises(TypeError, match='int()'):
+        books['quantity'] = {}
 
 
 def test_manager(books):

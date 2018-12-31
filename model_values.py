@@ -354,8 +354,7 @@ class QuerySet(models.QuerySet, Lookup):
 
         As a provisional feature, an optional ``default`` key may be specified.
         """
-        kwargs.update((field, Case.defaultdict(value)) for field, value in kwargs.items()
-                      if isinstance(value, collections.Mapping))
+        kwargs.update((field, Case.defaultdict(value)) for field, value in kwargs.items() if Case.isa(value))
         return super(QuerySet, self).annotate(*args, **kwargs)
 
     def value_counts(self, alias='count'):
@@ -389,8 +388,7 @@ class QuerySet(models.QuerySet, Lookup):
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
         """
-        kwargs.update((field, Case(value, default=F(field))) for field, value in kwargs.items()
-                      if isinstance(value, collections.Mapping))
+        kwargs.update((field, Case(value, default=F(field))) for field, value in kwargs.items() if Case.isa(value))
         return super(QuerySet, self).update(**kwargs)
 
     def modify(self, defaults=(), **kwargs):
@@ -525,8 +523,7 @@ def Value(value):
 
 
 def extract(field):
-    return field.name if isinstance(field, models.F) else \
-        Case.defaultdict(field) if isinstance(field, collections.Mapping) else field
+    return field.name if isinstance(field, models.F) else Case.defaultdict(field) if Case.isa(field) else field
 
 
 class Case(models.Case):
@@ -549,6 +546,10 @@ class Case(models.Case):
     def defaultdict(cls, conds):
         conds = dict(conds)
         return cls(conds, default=conds.pop('default', None))
+
+    @classmethod
+    def isa(cls, value):
+        return isinstance(value, collections.Mapping) and any(isinstance(key, models.Q) for key in value)
 
 
 def EnumField(enum, display=None, **options):
