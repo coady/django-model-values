@@ -95,7 +95,7 @@ from model_values import F
 # Changes
 dev
 * Update related methods moved with deprecation warnings
-* Extensible change detection
+* Extensible change detection and updates
 
 0.6
 * Transform functions

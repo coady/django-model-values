@@ -424,6 +424,16 @@ class QuerySet(models.QuerySet, Lookup):
             return super(QuerySet, self).exists()
         return len(self['pk'][:count] if self._result_cache is None else self) >= count
 
+    @property
+    def modify(self):
+        warnings.warn("renamed 'change'", DeprecationWarning)
+        return self.change
+
+    @property
+    def upsert(self):
+        warnings.warn("moved to Manager", DeprecationWarning)
+        return Manager.upsert.__get__(self, None)
+
 
 @models.Field.register_lookup
 class NotEqual(models.Lookup):
@@ -498,40 +508,33 @@ class Manager(models.Manager):
         rows = self.filter(F(key).isin(data))[key, field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
-    def bulk_update(self, field, data, changed=False, conditional=False, **kwargs):
-        """Update with a minimal number of queries, by inverting the data to use ``pk__in``.
+    def bulk_change(self, field, data, key='pk', conditional=False, **kwargs):
+        """Update changed rows with a minimal number of queries, by inverting the data to use ``pk__in``.
 
+        :param field: value column
         :param data: ``{pk: value, ...}``
-        :param changed: execute select query first to update only rows which differ;
-            more efficient if the expected percentage of changed rows is relatively small
-        :param conditional: execute a single query with a conditional expression;
-            may be more efficient if the number of rows is large (but bounded)
+        :param key: unique key column
+        :param conditional: execute select query and single conditional update;
+            may be more efficient if the percentage of changed rows is relatively small
         :param kwargs: additional fields to be updated
         """
-        if changed:
-            data = {pk: data[pk] for pk in self.bulk_changed(field, data)}
+        if conditional:
+            data = {pk: data[pk] for pk in self.bulk_changed(field, data, key)}
         updates = collections.defaultdict(list)
         for pk in data:
             updates[data[pk]].append(pk)
         if conditional:
-            kwargs[field] = {F.pk__in == tuple(updates[value]): value for value in updates}
-            return self.filter(pk__in=data).update(**kwargs)
+            kwargs[field] = {F(key).isin(tuple(updates[value])): value for value in updates}
+            return self.filter(F(key).isin(data)).update(**kwargs)
         count = 0
         for value in updates:
             kwargs[field] = value
-            count += self.filter(pk__in=updates[value]).update(**kwargs)
+            count += self.filter((F(field) != value) & F(key).isin(updates[value])).update(**kwargs)
         return count
 
-
-def deprecated(func, msg):
-    def wrapper(self):
-        warnings.warn(msg, DeprecationWarning)
-        return func.__get__(self, type(self))
-    return property(wrapper)
-
-
-QuerySet.upsert = deprecated(Manager.__dict__['upsert'], "moved to Manager")
-QuerySet.modify = deprecated(QuerySet.change, "renamed 'change'")
+    def bulk_update(self, field, data, changed=False, conditional=False, **kwargs):
+        warnings.warn("renamed 'bulk_change'", DeprecationWarning)
+        return self.bulk_change(field, data, conditional=conditional, **kwargs)
 
 
 class classproperty(property):
