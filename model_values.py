@@ -46,7 +46,7 @@ class Lookup(object):
     iendswith = method('iendswith')
     regex = method('regex')
     iregex = method('iregex')
-    in_ = starmethod('in')
+    isin = method('in')
     range = starmethod('range')
     # spatial lookups
     contained = method('contained')
@@ -62,6 +62,10 @@ class Lookup(object):
     __rshift__ = right = method('right')
     above = method('strictly_above')
     below = method('strictly_below')
+
+    def in_(self, *values):
+        warnings.warn("renamed 'isin'", DeprecationWarning)
+        return self.isin(values)
 
     @property
     def is_valid(self):

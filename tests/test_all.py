@@ -222,7 +222,9 @@ def test_lookups(books):
     assert str(F.all(exprs)) == "(AND: ('author__contains', 'A'), ('author__contains', 'B'))"
 
     authors = books['author']
-    assert set(authors.in_('A', 'B')) == {'A', 'B'}
+    with pytest.warns(DeprecationWarning):
+        assert set(authors.in_('A', 'B')) == {'A', 'B'}
+    assert set(authors.isin('AB')) == {'A', 'B'}
     assert set(authors.iexact('a')) == {'A'}
     assert set(authors.contains('A')) == {'A'}
     assert set(authors.icontains('a')) == {'A'}
