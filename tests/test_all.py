@@ -64,14 +64,16 @@ def test_manager(books):
     assert 1 in Book.objects
     assert Book.objects[1]['id'].first() == 1
     assert Book.objects.bulk_changed('quantity', {3: 2, 4: 2, 5: 2}) == {4: 1}
+    assert Book.objects.bulk_changed('quantity', {'A': 5}, key='author') == {'A': 10}
     now = timezone.now()
     assert Book.objects.bulk_update('quantity', {3: 2, 4: 2}, changed=True, last_modified=now) == 1
     timestamps = dict(books.filter(quantity=2)['id', 'last_modified'])
     assert len(timestamps) == 3 and timestamps[3] < timestamps[5] < timestamps[4] == now
     assert Book.objects.bulk_update('quantity', {3: 2, 4: 3}, conditional=True) == 2
     assert set(books.filter(quantity=2)['id']) == {3, 5}
-    assert Book.objects.changed(1, quantity=5) == {'quantity': 10}
-    assert Book.objects.changed(1, quantity=10) == {}
+    assert Book.objects[1].changed(quantity=5) == {'quantity': 10}
+    with pytest.warns(DeprecationWarning):
+        assert Book.objects.changed(1, quantity=10) == {}
     del Book.objects[1]
     assert 1 not in Book.objects
 

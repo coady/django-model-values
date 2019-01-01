@@ -1,6 +1,7 @@
 [![image](https://img.shields.io/pypi/v/django-model-values.svg)](https://pypi.org/project/django-model-values/)
 ![image](https://img.shields.io/pypi/pyversions/django-model-values.svg)
 ![image](https://img.shields.io/pypi/djversions/django-model-values.svg)
+[![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
 [![image](https://img.shields.io/travis/coady/django-model-values.svg)](https://travis-ci.org/coady/django-model-values)
 [![image](https://img.shields.io/codecov/c/github/coady/django-model-values.svg)](https://codecov.io/github/coady/django-model-values)
@@ -92,6 +93,10 @@ from model_values import F
     $ pytest [--cov]
 
 # Changes
+dev
+* Update related methods moved with deprecation warnings
+* Extensible change detection
+
 0.6
 * Transform functions
 * Named tuples

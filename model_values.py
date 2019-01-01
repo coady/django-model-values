@@ -410,6 +410,14 @@ class QuerySet(models.QuerySet, Lookup):
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
+    def changed(self, **kwargs):
+        """Return first mapping of fields and values which differ in the db.
+
+        Also efficient enough to be used in boolean contexts, instead of ``exists``.
+        """
+        row = self.exclude(**kwargs).values(*kwargs).first() or {}
+        return {field: value for field, value in row.items() if value != kwargs[field]}
+
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""
         if count == 1:
@@ -477,19 +485,17 @@ class Manager(models.Manager):
             return update(**defaults)
 
     def changed(self, pk, **kwargs):
-        """Return mapping of fields and values which differ in the db.
+        warnings.warn("moved to QuerySet", DeprecationWarning)
+        return self[pk].changed(**kwargs)
 
-        Also efficient enough to be used in boolean contexts, instead of ``exists``.
-        """
-        row = self[pk].exclude(**kwargs).values(*kwargs).first() or {}
-        return {field: value for field, value in row.items() if value != kwargs[field]}
-
-    def bulk_changed(self, field, data):
+    def bulk_changed(self, field, data, key='pk'):
         """Return mapping of values which differ in the db.
 
+        :param field: value column
         :param data: ``{pk: value, ...}``
+        :param key: unique key column
         """
-        rows = self.filter(pk__in=data)['pk', field].iterator()
+        rows = self.filter(F(key).isin(data))[key, field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
     def bulk_update(self, field, data, changed=False, conditional=False, **kwargs):

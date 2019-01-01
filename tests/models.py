@@ -19,7 +19,7 @@ class Book(models.Model):
         return type(self).objects[self.pk]
 
     def changed(self, **kwargs):
-        return type(self).objects.changed(self.pk, **kwargs)
+        return self.object.changed(**kwargs)
 
     def update(self, **kwargs):
         for name in kwargs:
