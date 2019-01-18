@@ -8,7 +8,7 @@ python:
 
 env:
   - DJANGO="django<2"
-  - DJANGO="django<2.1"
+  - DJANGO="django<2.2"
   - DJANGO="django"
 
 matrix:

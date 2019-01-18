@@ -1,5 +1,5 @@
 [![image](https://img.shields.io/pypi/v/django-model-values.svg)](https://pypi.org/project/django-model-values/)
-![image](https://img.shields.io/pypi/pyversions/django-model-values.svg)
+[![image](https://img.shields.io/pypi/pyversions/django-model-values.svg)](https://python3statement.org)
 ![image](https://img.shields.io/pypi/djversions/django-model-values.svg)
 [![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
@@ -96,6 +96,7 @@ from model_values import F
 dev
 * Update related methods moved with deprecation warnings
 * Extensible change detection and updates
+* Django 2.2 functions
 
 0.6
 * Transform functions

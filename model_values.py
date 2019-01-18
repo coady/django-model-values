@@ -1,6 +1,7 @@
 import collections
 import functools
 import itertools
+import math
 import operator
 import types
 import warnings
@@ -106,6 +107,10 @@ class method(functools.partial):
         return self if instance is None else types.MethodType(self, instance)
 
 
+def binary(func):
+    return method(func), lambda *args: func(*args[::-1])
+
+
 def transform(lookup, func, value):
     field, expr = func.source_expressions
     expr = expr if isinstance(expr, models.F) else expr.value
@@ -179,6 +184,28 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         repeat = method(functions.Repeat)
         if gis:  # pragma: no cover
             force_polygon_cw = method(gis.functions.ForcePolygonCW)
+    if django.VERSION >= (2, 2):
+        nullif = method(functions.NullIf)
+        __reversed__ = method(functions.Reverse)
+        __abs__ = method(functions.Abs)
+        acos = method(functions.ACos)
+        asin = method(functions.ASin)
+        atan = method(functions.ATan)
+        atan2 = method(functions.ATan2)
+        __ceil__ = method(functions.Ceil)
+        cos = method(functions.Cos)
+        cot = method(functions.Cot)
+        degrees = method(functions.Degrees)
+        exp = method(functions.Exp)
+        __floor__ = method(functions.Floor)
+        __mod__, __rmod__ = binary(functions.Mod)
+        pi = functions.Pi()
+        __pow__, __rpow__ = binary(functions.Power)
+        radians = method(functions.Radians)
+        __round__ = method(functions.Round)
+        sin = method(functions.Sin)
+        sqrt = method(functions.Sqrt)
+        tan = method(functions.Tan)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)
@@ -189,7 +216,6 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         centroid = property(gis.functions.Centroid)
         difference = method(gis.functions.Difference)
         envelope = property(gis.functions.Envelope)
-        force_rhr = method(gis.functions.ForceRHR)
         geohash = method(gis.functions.GeoHash)  # __hash__ requires an int
         intersection = method(gis.functions.Intersection)
         make_valid = method(gis.functions.MakeValid)
@@ -257,6 +283,10 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     def rjust(self, width, fill=' ', **extra):
         """Return ``RPad`` with wrapped values."""
         return functions.RPad(self, width, Value(fill), **extra)
+
+    def log(self, base=math.e, **extra):
+        """Return ``Log``, by default ``Ln``."""
+        return functions.Log(self, base, **extra)
 
 
 def method(func):

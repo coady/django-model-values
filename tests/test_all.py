@@ -1,3 +1,4 @@
+import math
 import django
 from django.db import models
 from django.db.models import functions
@@ -210,13 +211,42 @@ def test_2_1():
         assert isinstance(F.location.force_polygon_cw(), gis.functions.ForcePolygonCW)
 
 
+@pytest.mark.skipif(django.VERSION < (2, 2), reason='requires django >=2.2')
+def test_2_2():
+    assert isinstance(F.x.nullif('y'), functions.NullIf)
+    assert isinstance(reversed(F.x), functions.Reverse)
+    assert isinstance(abs(F.x), functions.Abs)
+    assert isinstance(F.x.acos(), functions.ACos)
+    assert isinstance(F.x.asin(), functions.ASin)
+    assert isinstance(F.x.atan(), functions.ATan)
+    assert isinstance(F.x.atan2('y'), functions.ATan2)
+    assert isinstance(math.ceil(F.x), functions.Ceil)
+    assert isinstance(F.x.cos(), functions.Cos)
+    assert isinstance(F.x.cot(), functions.Cot)
+    assert isinstance(F.x.degrees(), functions.Degrees)
+    assert isinstance(F.x.exp(), functions.Exp)
+    assert isinstance(math.floor(F.x), functions.Floor)
+    assert isinstance(F.x.log(), functions.Log)
+    assert isinstance(F.x.log(2), functions.Log)
+    assert isinstance(F.x % 2, functions.Mod)
+    assert isinstance(2 % F.x, functions.Mod)
+    assert isinstance(F.pi, functions.Pi)
+    assert isinstance(F.x ** 2, functions.Power)
+    assert isinstance(2 ** F.x, functions.Power)
+    assert isinstance(F.x.radians(), functions.Radians)
+    assert isinstance(round(F.x), functions.Round)
+    assert isinstance(F.x.sin(), functions.Sin)
+    assert isinstance(F.x.sqrt(), functions.Sqrt)
+    assert isinstance(F.x.tan(), functions.Tan)
+
+
 def test_lookups(books):
     assert books[F.last_modified.year == timezone.now().year].count() == 5
     assert isinstance(F.quantity.min(), models.Min)
     assert isinstance(F.quantity.max(), models.Max)
     assert isinstance(F.quantity.sum(), models.Sum)
     assert isinstance(F.quantity.mean(), models.Avg)
-    assert str(F.quantity.count()) == "Count(F(quantity), distinct=False)"
+    assert str(F.quantity.count()).startswith('Count(F(quantity)')
     assert str(F.count(distinct=True)) == "Count('*', distinct=True)"
     assert isinstance(F.quantity.var(sample=True), models.Variance)
     assert isinstance(F.quantity.std(sample=True), models.StdDev)
@@ -295,7 +325,6 @@ def test_spatial_functions(books):
     assert isinstance(F.location.bounding_circle(), gis.functions.BoundingCircle)
     assert isinstance(F.location.centroid, gis.functions.Centroid)
     assert isinstance(F.location.envelope, gis.functions.Envelope)
-    assert isinstance(F.location.force_rhr(), gis.functions.ForceRHR)
     assert isinstance(F.location.geohash(), gis.functions.GeoHash)
     assert isinstance(F.location.make_valid(), gis.functions.MakeValid)
     assert isinstance(F.location.mem_size, gis.functions.MemSize)

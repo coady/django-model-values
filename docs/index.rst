@@ -181,7 +181,7 @@ Note they can be used directly even without a custom manager.
 Conditionals
 ^^^^^^^^^^^^
 Annotations and updates with ``Case`` and ``When`` expressions.
-See also `bulk_changed and bulk_update <reference.html#manager>`_ for efficient bulk operations on primary keys.
+See also `bulk_changed and bulk_change <reference.html#manager>`_ for efficient bulk operations on primary keys.
 
 *The Bad*::
 
