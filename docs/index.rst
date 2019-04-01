@@ -96,7 +96,7 @@ Both are common syntax in panel data layers.
 
    {book.pk: book.name for book in qs}
 
-   (book.name for book in qs.filter(name_isnull=False))
+   (book.name for book in qs.filter(name__isnull=False))
 
    if qs.filter(author=author):
 

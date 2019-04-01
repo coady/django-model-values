@@ -93,7 +93,7 @@ from model_values import F
     $ pytest [--cov]
 
 # Changes
-dev
+1.0
 * Update related methods moved with deprecation warnings
 * Extensible change detection and updates
 * Django 2.2 functions
