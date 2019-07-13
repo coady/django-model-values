@@ -8,6 +8,7 @@
 [![image](https://readthedocs.org/projects/django-model-values/badge)](https://django-model-values.readthedocs.io)
 [![image](https://requires.io/github/coady/django-model-values/requirements.svg)](https://requires.io/github/coady/django-model-values/requirements/)
 [![image](https://api.codeclimate.com/v1/badges/908dc0b46fdda69109ce/maintainability)](https://codeclimate.com/github/coady/django-model-values/maintainability)
+[![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://pypi.org/project/black/)
 
 [Django](https://docs.djangoproject.com) model utilities for encouraging
 direct data access instead of unnecessary object overhead. Implemented

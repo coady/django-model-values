@@ -8,6 +8,7 @@ import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 from django.utils import six
+
 map = six.moves.map
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions
@@ -33,6 +34,7 @@ def starmethod(lookup):
 
 class Lookup(object):
     """Mixin for field lookups."""
+
     __ne__ = method('ne')
     __lt__ = method('lt')
     __le__ = method('lte')
@@ -141,6 +143,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     ``Func`` objects also supported as methods:
     ``F.user.created.min()`` == ``Min('user__created')``.
     """
+
     lookups = dict(length=functions.Length, lower=functions.Lower, upper=functions.Upper)
     coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
@@ -230,6 +233,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         @method
         class distance(gis.functions.Distance):
             """Return ``Distance`` with support for lookups: <, <=, >, >=, within."""
+
             __lt__ = method(transform, 'distance_lt')
             __le__ = method(transform, 'distance_lte')
             __gt__ = method(transform, 'distance_gt')
@@ -453,6 +457,7 @@ class QuerySet(models.QuerySet, Lookup):
 @models.Field.register_lookup
 class NotEqual(models.Lookup):
     """Missing != operator."""
+
     lookup_name = 'ne'
 
     def as_sql(self, *args):
@@ -463,6 +468,7 @@ class NotEqual(models.Lookup):
 
 class Query(models.sql.Query):
     """Allow __ne=None lookup."""
+
     def prepare_lookup_value(self, value, lookups, *args):
         if value is None and lookups[-1:] == ['ne']:
             value, lookups[-1] = False, 'isnull'
@@ -501,8 +507,10 @@ class Manager(models.Manager):
         :param defaults: optional mapping which will be updated, as with ``update_or_create``.
         """
         update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
-        kwargs.update((field, value.rhs.value if isinstance(value, models.expressions.CombinedExpression) else value)
-                      for field, value in defaults.items())
+        kwargs.update(
+            (field, value.rhs.value if isinstance(value, models.expressions.CombinedExpression) else value)
+            for field, value in defaults.items()
+        )
         try:
             with transaction.atomic():
                 return update(**defaults) or self.create(**kwargs)
@@ -546,6 +554,7 @@ class Manager(models.Manager):
 
 class classproperty(property):
     """A property bound to a class."""
+
     def __get__(self, instance, owner):
         return self.fget(owner)
 
@@ -565,6 +574,7 @@ class Case(models.Case):
     :param default: optional default value or ``F`` object
     :param output_field: optional field defaults to registered ``types``
     """
+
     types = {str: models.CharField, int: models.IntegerField, float: models.FloatField, bool: models.BooleanField}
 
     def __init__(self, conds, default=None, **extra):

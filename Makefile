@@ -13,6 +13,7 @@ dist: html
 
 check:
 	python3 setup.py $@ -ms
+	black -q --check .
 	flake8
 	pytest-2.7 --cov
 	pytest --cov --cov-append --cov-fail-under=100

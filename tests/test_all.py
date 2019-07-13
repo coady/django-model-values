@@ -157,9 +157,9 @@ def test_functions(books):
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
-    row = books['author', ].min()
+    row = books['author',].min()
     assert (row.author__min,) == row
-    key, values = next(iter(books['quantity', ].groupby('author')))
+    key, values = next(iter(books['quantity',].groupby('author')))
     assert next(values).quantity
     assert dict(books[F.author.find('A')].value_counts()) == {-1: 3, 0: 2}
 
@@ -304,6 +304,7 @@ def test_spatial_lookups():
 @pytest.mark.skipif(not gis, reason='requires spatial lib')
 def test_spatial_functions(books):
     from django.contrib.gis.geos import Point
+
     point = Point(0, 0, srid=4326)
 
     assert isinstance(F.location.area, gis.functions.Area)
@@ -330,8 +331,13 @@ def test_spatial_functions(books):
     dist = F.location.distance(point)
     assert isinstance(dist, gis.functions.Distance)
     fields, items = zip(*F.all([(dist < 0), (dist <= 0), (dist > 0), (dist >= 0), dist.within(0)]).children)
-    assert fields == ('location__distance_lt', 'location__distance_lte',
-                      'location__distance_gt', 'location__distance_gte', 'location__dwithin')
+    assert fields == (
+        'location__distance_lt',
+        'location__distance_lte',
+        'location__distance_gt',
+        'location__distance_gte',
+        'location__dwithin',
+    )
     assert items == ((point, 0),) * 5
     (field, values), = (F.location.distance(point) > 0).children
     assert values == (point, 0)
@@ -357,12 +363,14 @@ def test_enum():
     class gender(enum.Enum):
         M = 'Male'
         F = 'Female'
+
     assert gender.max_length == 1
     assert dict(gender.choices) == {'M': 'Male', 'F': 'Female'}
 
     class Gender(enum.Enum):
         MALE = 0
         FEMALE = 1
+
     gender = EnumField(Gender, str.title)
     assert isinstance(gender, models.IntegerField)
     assert dict(gender.choices) == {0: 'Male', 1: 'Female'}
