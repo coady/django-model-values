@@ -4,7 +4,6 @@ import itertools
 import math
 import operator
 import types
-import warnings
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -64,10 +63,6 @@ class Lookup(object):
     above = method('strictly_above')
     below = method('strictly_below')
 
-    def in_(self, *values):
-        warnings.warn("renamed 'isin'", DeprecationWarning)
-        return self.isin(values)
-
     @property
     def is_valid(self):
         """Whether field `isvalid`."""
@@ -119,8 +114,8 @@ def transform(lookup, func, value):
 
 class MetaF(type):
     def __getattr__(cls, name):
-        if name == 'name':
-            raise AttributeError("'name' is a reserved attribute")
+        if name in ('name', '__slots__'):
+            raise AttributeError("'{}' is a reserved attribute".format(name))
         return cls(name)
 
     def any(cls, exprs):
@@ -452,17 +447,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Return whether there are at least the specified number of rows."""
         if count == 1:
             return super(QuerySet, self).exists()
-        return len(self['pk'][:count] if self._result_cache is None else self) >= count
-
-    @property
-    def modify(self):
-        warnings.warn("renamed 'change'", DeprecationWarning)
-        return self.change
-
-    @property
-    def upsert(self):
-        warnings.warn("moved to Manager", DeprecationWarning)
-        return Manager.upsert.__get__(self, None)
+        return (self[:count].count() if self._result_cache is None else len(self)) >= count
 
 
 @models.Field.register_lookup
@@ -524,10 +509,6 @@ class Manager(models.Manager):
         except IntegrityError:
             return update(**defaults)
 
-    def changed(self, pk, **kwargs):
-        warnings.warn("moved to QuerySet", DeprecationWarning)
-        return self[pk].changed(**kwargs)
-
     def bulk_changed(self, field, data, key='pk'):
         """Return mapping of values which differ in the db.
 
@@ -561,10 +542,6 @@ class Manager(models.Manager):
             kwargs[field] = value
             count += self.filter((F(field) != value) & F(key).isin(updates[value])).update(**kwargs)
         return count
-
-    def bulk_update(self, field, data, changed=False, conditional=False, **kwargs):
-        warnings.warn("renamed 'bulk_change'", DeprecationWarning)
-        return self.bulk_change(field, data, conditional=conditional, **kwargs)
 
 
 class classproperty(property):

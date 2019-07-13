@@ -45,18 +45,12 @@ def test_queryset(books):
     now = timezone.now()
     assert books.filter(author='B').change({'last_modified': now}, quantity=2) == 1
     assert len(books['last_modified'] == now) == 1
-    with pytest.warns(DeprecationWarning):
-        assert books.filter(author='B').modify({'last_modified': timezone.now()}, quantity=2) == 0
-    assert len(books['last_modified'] == now) == 1
     books['quantity'] = {F.author == 'B': 3}
     assert set(books['quantity']) == {3, 10}
     assert Book.objects.upsert({'quantity': 0}, pk=1) == 1
     assert Book.objects.upsert(pk=0) == 0  # simulates race condition
     book = Book.objects.upsert({'quantity': F.quantity + 1}, pk=0)
     assert book.pk == 0 and book.quantity == 1
-    with pytest.warns(DeprecationWarning):
-        assert books.upsert({'quantity': F.quantity + 1}, pk=0) == 1
-    assert books['quantity'].get(pk=0) == 2
     with pytest.raises(TypeError, match='int()'):
         books['quantity'] = {}
 
@@ -67,15 +61,12 @@ def test_manager(books):
     assert Book.objects.bulk_changed('quantity', {3: 2, 4: 2, 5: 2}) == {4: 1}
     assert Book.objects.bulk_changed('quantity', {'A': 5}, key='author') == {'A': 10}
     now = timezone.now()
-    with pytest.warns(DeprecationWarning):
-        assert Book.objects.bulk_update('quantity', {3: 2, 4: 2}, changed=True, last_modified=now) == 1
+    assert Book.objects.bulk_change('quantity', {3: 2, 4: 2}, last_modified=now) == 1
     timestamps = dict(books.filter(quantity=2)['id', 'last_modified'])
     assert len(timestamps) == 3 and timestamps[3] < timestamps[5] < timestamps[4] == now
     assert Book.objects.bulk_change('quantity', {3: 2, 4: 3}, key='id', conditional=True) == 1
     assert set(books.filter(quantity=2)['id']) == {3, 5}
     assert Book.objects[1].changed(quantity=5) == {'quantity': 10}
-    with pytest.warns(DeprecationWarning):
-        assert Book.objects.changed(1, quantity=10) == {}
     del Book.objects[1]
     assert 1 not in Book.objects
 
@@ -255,8 +246,6 @@ def test_lookups(books):
     assert str(F.all(exprs)) == "(AND: ('author__contains', 'A'), ('author__contains', 'B'))"
 
     authors = books['author']
-    with pytest.warns(DeprecationWarning):
-        assert set(authors.in_('A', 'B')) == {'A', 'B'}
     assert set(authors.isin('AB')) == {'A', 'B'}
     assert set(authors.iexact('a')) == {'A'}
     assert set(authors.contains('A')) == {'A'}
