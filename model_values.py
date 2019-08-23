@@ -16,6 +16,11 @@ try:  # pragma: no cover
 except Exception:  # pragma: no cover
     gis = None
 
+try:
+    from typing import Mapping
+except ImportError:
+    from collections import Mapping
+
 __version__ = '1.0'
 
 
@@ -591,7 +596,7 @@ class Case(models.Case):
 
     @classmethod
     def isa(cls, value):
-        return isinstance(value, collections.Mapping) and any(isinstance(key, models.Q) for key in value)
+        return isinstance(value, Mapping) and any(isinstance(key, models.Q) for key in value)
 
 
 def EnumField(enum, display=None, **options):
