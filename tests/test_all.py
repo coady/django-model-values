@@ -51,7 +51,7 @@ def test_queryset(books):
     assert Book.objects.upsert(pk=0) == 0  # simulates race condition
     book = Book.objects.upsert({'quantity': F.quantity + 1}, pk=0)
     assert book.pk == 0 and book.quantity == 1
-    with pytest.raises(TypeError, match='int()'):
+    with pytest.raises(TypeError):
         books['quantity'] = {}
 
 
@@ -229,6 +229,17 @@ def test_2_2():
     assert isinstance(F.x.sin(), functions.Sin)
     assert isinstance(F.x.sqrt(), functions.Sqrt)
     assert isinstance(F.x.tan(), functions.Tan)
+
+
+@pytest.mark.skipif(django.VERSION < (3,), reason='requires django >=3')
+def test_3():
+    assert isinstance(F.x.sign(), functions.Sign)
+    assert isinstance(F.x.md5(), functions.MD5)
+    assert isinstance(F.x.sha1(), functions.SHA1)
+    assert isinstance(F.x.sha224(), functions.SHA224)
+    assert isinstance(F.x.sha256(), functions.SHA256)
+    assert isinstance(F.x.sha384(), functions.SHA384)
+    assert isinstance(F.x.sha512(), functions.SHA512)
 
 
 def test_lookups(books):

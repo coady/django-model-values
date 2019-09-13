@@ -7,7 +7,7 @@ import types
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
-from django.utils import six
+import six
 
 map = six.moves.map
 try:  # pragma: no cover
@@ -209,6 +209,14 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         sin = method(functions.Sin)
         sqrt = method(functions.Sqrt)
         tan = method(functions.Tan)
+    if django.VERSION >= (3,):
+        sign = method(functions.Sign)
+        md5 = method(functions.MD5)
+        sha1 = method(functions.SHA1)
+        sha224 = method(functions.SHA224)
+        sha256 = method(functions.SHA256)
+        sha384 = method(functions.SHA384)
+        sha512 = method(functions.SHA512)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)

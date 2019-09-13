@@ -2,19 +2,22 @@ dist: xenial
 language: python
 
 python:
-  - 3.5
   - 3.6
   - 3.7
 
 env:
   - DJANGO="django<2"
-  - DJANGO="django<2.2"
+  - DJANGO="django<3"
   - DJANGO="django"
 
 matrix:
   include:
     - python: 2.7
       env: DJANGO="django<2"
+    - python: 3.5
+      env: DJANGO="django<2"
+    - python: 3.5
+      env: DJANGO="django<3"
 
 install:
   - pip install --pre $DJANGO
