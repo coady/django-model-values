@@ -362,7 +362,7 @@ class QuerySet(models.QuerySet, Lookup):
 
     def __eq__(self, value, lookup=''):
         """Return `QuerySet`_ filtered by comparison to given value."""
-        field, = self._fields
+        (field,) = self._fields
         return self.filter(**{field + lookup: value})
 
     def __contains__(self, value):
@@ -405,7 +405,9 @@ class QuerySet(models.QuerySet, Lookup):
 
         As a provisional feature, an optional ``default`` key may be specified.
         """
-        kwargs.update((field, Case.defaultdict(value)) for field, value in kwargs.items() if Case.isa(value))
+        for field, value in kwargs.items():
+            if Case.isa(value):
+                kwargs[field] = Case.defaultdict(value)
         return super(QuerySet, self).annotate(*args, **kwargs)
 
     def value_counts(self, alias='count'):
@@ -436,7 +438,9 @@ class QuerySet(models.QuerySet, Lookup):
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
         """
-        kwargs.update((field, Case(value, default=F(field))) for field, value in kwargs.items() if Case.isa(value))
+        for field, value in kwargs.items():
+            if Case.isa(value):
+                kwargs[field] = Case(value, default=F(field))
         return super(QuerySet, self).update(**kwargs)
 
     def change(self, defaults={}, **kwargs):
@@ -513,17 +517,17 @@ class Manager(models.Manager):
         return self[pk].exists()
 
     def upsert(self, defaults={}, **kwargs):
-        """Update or insert returning number of rows or created object; faster and safer than ``update_or_create``.
+        """Update or insert returning number of rows or created object.
 
+        Faster and safer than ``update_or_create``.
         Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
 
         :param defaults: optional mapping which will be updated, as with ``update_or_create``.
         """
         update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
-        kwargs.update(
-            (field, value.rhs.value if isinstance(value, models.expressions.CombinedExpression) else value)
-            for field, value in defaults.items()
-        )
+        for field, value in defaults.items():
+            expr = isinstance(value, models.expressions.CombinedExpression)
+            kwargs[field] = value.rhs.value if expr else value
         try:
             with transaction.atomic():
                 return update(**defaults) or self.create(**kwargs)
@@ -577,7 +581,9 @@ def Value(value):
 
 
 def extract(field):
-    return field.name if isinstance(field, models.F) else Case.defaultdict(field) if Case.isa(field) else field
+    if isinstance(field, models.F):
+        return field.name
+    return Case.defaultdict(field) if Case.isa(field) else field
 
 
 class Case(models.Case):
@@ -588,7 +594,12 @@ class Case(models.Case):
     :param output_field: optional field defaults to registered ``types``
     """
 
-    types = {str: models.CharField, int: models.IntegerField, float: models.FloatField, bool: models.BooleanField}
+    types = {
+        str: models.CharField,
+        int: models.IntegerField,
+        float: models.FloatField,
+        bool: models.BooleanField,
+    }
 
     def __init__(self, conds, default=None, **extra):
         cases = (models.When(cond, Value(conds[cond])) for cond in conds)

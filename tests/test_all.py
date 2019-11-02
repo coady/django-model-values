@@ -136,7 +136,7 @@ def test_functions(books):
         F.title[:-10]
     with pytest.raises(AttributeError):
         F.name
-    (field, values), = transform('op', F.author.coalesce('title'), None).children
+    ((field, values),) = transform('op', F.author.coalesce('title'), None).children
     assert field == 'author__op' and values == (F.title, None)
 
     assert isinstance(F.title.greatest('author'), functions.Greatest)
@@ -350,7 +350,7 @@ def test_spatial_functions(books):
         'location__dwithin',
     )
     assert items == ((point, 0),) * 5
-    (field, values), = (F.location.distance(point) > 0).children
+    ((field, values),) = (F.location.distance(point) > 0).children
     assert values == (point, 0)
 
     assert isinstance(F.location.difference(point), gis.functions.Difference)
