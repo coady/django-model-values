@@ -18,10 +18,10 @@ except Exception:  # pragma: no cover
 
 try:
     from typing import Mapping
-except ImportError:
+except ImportError:  # pragma: no cover
     from collections import Mapping
 
-__version__ = '1.0'
+__version__ = '1.1'
 
 
 def update_wrapper(wrapper, name):

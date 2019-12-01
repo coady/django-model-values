@@ -94,7 +94,7 @@ from model_values import F
     $ pytest [--cov]
 
 # Changes
-dev
+1.1
 * Django 3 support
 
 1.0
