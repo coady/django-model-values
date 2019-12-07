@@ -4,22 +4,16 @@ import itertools
 import math
 import operator
 import types
+from typing import Mapping
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
-import six
 
-map = six.moves.map
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions
     import django.contrib.gis.db.models as gis
 except Exception:  # pragma: no cover
     gis = None
-
-try:
-    from typing import Mapping
-except ImportError:  # pragma: no cover
-    from collections import Mapping
 
 __version__ = '1.1'
 
@@ -37,7 +31,7 @@ def starmethod(lookup):
     return update_wrapper(lambda self, *values: self.__eq__(values, '__' + lookup), lookup)
 
 
-class Lookup(object):
+class Lookup:
     """Mixin for field lookups."""
 
     __ne__ = method('ne')
@@ -134,7 +128,7 @@ class MetaF(type):
         return functools.reduce(operator.and_, exprs)
 
 
-class F(six.with_metaclass(MetaF, models.F, Lookup)):
+class F(models.F, Lookup, metaclass=MetaF):
     """Create ``F``, ``Q``, and ``Func`` objects with expressions.
 
     ``F`` creation supported as attributes:
@@ -164,7 +158,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
     cast = method(functions.Cast)
     extract = method(functions.Extract)
     trunc = method(functions.Trunc)
-    if django.VERSION >= (2,):
+    if django.VERSION >= (2,):  # pragma: no branch
         cume_dist = method(functions.CumeDist)
         dense_rank = method(functions.DenseRank)
         first_value = method(functions.FirstValue)
@@ -179,7 +173,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         if gis:  # pragma: no cover
             azimuth = method(gis.functions.Azimuth)
             line_locate_point = method(gis.functions.LineLocatePoint)
-    if django.VERSION >= (2, 1):
+    if django.VERSION >= (2, 1):  # pragma: no branch
         lookups.update(chr=functions.Chr, ord=functions.Ord)
         strip = method(functions.Trim)
         lstrip = method(functions.LTrim)
@@ -187,7 +181,7 @@ class F(six.with_metaclass(MetaF, models.F, Lookup)):
         repeat = method(functions.Repeat)
         if gis:  # pragma: no cover
             force_polygon_cw = method(gis.functions.ForcePolygonCW)
-    if django.VERSION >= (2, 2):
+    if django.VERSION >= (2, 2):  # pragma: no branch
         nullif = method(functions.NullIf)
         __reversed__ = method(functions.Reverse)
         __abs__ = method(functions.Abs)
@@ -350,11 +344,11 @@ class QuerySet(models.QuerySet, Lookup):
             kwargs = {'named': True} if django.VERSION >= (2,) else {}
             return self.values_list(*map(extract, key), **kwargs)
         key = extract(key)
-        if isinstance(key, six.string_types + (models.Expression,)):
+        if isinstance(key, (str, models.Expression)):
             return self.values_list(key, flat=True)
         if isinstance(key, models.Q):
             return self.filter(key)
-        return super(QuerySet, self).__getitem__(key)
+        return super().__getitem__(key)
 
     def __setitem__(self, key, value):
         """Update a single column."""
@@ -374,7 +368,7 @@ class QuerySet(models.QuerySet, Lookup):
     def __iter__(self):
         """Iteration extended to support :meth:`groupby`."""
         if not hasattr(self, '_groupby'):
-            return super(QuerySet, self).__iter__()
+            return super().__iter__()
         size = len(self._groupby)
         rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
@@ -408,7 +402,7 @@ class QuerySet(models.QuerySet, Lookup):
         for field, value in kwargs.items():
             if Case.isa(value):
                 kwargs[field] = Case.defaultdict(value)
-        return super(QuerySet, self).annotate(*args, **kwargs)
+        return super().annotate(*args, **kwargs)
 
     def value_counts(self, alias='count'):
         """Return annotated value counts."""
@@ -441,7 +435,7 @@ class QuerySet(models.QuerySet, Lookup):
         for field, value in kwargs.items():
             if Case.isa(value):
                 kwargs[field] = Case(value, default=F(field))
-        return super(QuerySet, self).update(**kwargs)
+        return super().update(**kwargs)
 
     def change(self, defaults={}, **kwargs):
         """Update and return number of rows that actually changed.
@@ -467,7 +461,7 @@ class QuerySet(models.QuerySet, Lookup):
     def exists(self, count=1):
         """Return whether there are at least the specified number of rows."""
         if count == 1:
-            return super(QuerySet, self).exists()
+            return super().exists()
         return (self[:count].count() if self._result_cache is None else len(self)) >= count
 
 
@@ -486,15 +480,15 @@ class NotEqual(models.Lookup):
 class Query(models.sql.Query):
     """Allow __ne=None lookup."""
 
-    def prepare_lookup_value(self, value, lookups, *args):
+    def prepare_lookup_value(self, value, lookups, *args):  # pragma: no cover
         if value is None and lookups[-1:] == ['ne']:
             value, lookups[-1] = False, 'isnull'
-        return super(Query, self).prepare_lookup_value(value, lookups, *args)
+        return super().prepare_lookup_value(value, lookups, *args)
 
     def build_lookup(self, lookups, lhs, rhs):
         if rhs is None and lookups[-1:] == ['ne']:
             rhs, lookups[-1] = False, 'isnull'
-        return super(Query, self).build_lookup(lookups, lhs, rhs)
+        return super().build_lookup(lookups, lhs, rhs)
 
 
 class Manager(models.Manager):
@@ -606,7 +600,7 @@ class Case(models.Case):
         types = set(map(type, conds.values()))
         if len(types) == 1 and types.issubset(self.types):
             extra.setdefault('output_field', self.types.get(*types)())
-        super(Case, self).__init__(*cases, default=Value(default), **extra)
+        super().__init__(*cases, default=Value(default), **extra)
 
     @classmethod
     def defaultdict(cls, conds):

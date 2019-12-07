@@ -1,5 +1,5 @@
 [![image](https://img.shields.io/pypi/v/django-model-values.svg)](https://pypi.org/project/django-model-values/)
-[![image](https://img.shields.io/pypi/pyversions/django-model-values.svg)](https://python3statement.org)
+![image](https://img.shields.io/pypi/pyversions/django-model-values.svg)
 ![image](https://img.shields.io/pypi/djversions/django-model-values.svg)
 [![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
@@ -94,6 +94,9 @@ from model_values import F
     $ pytest [--cov]
 
 # Changes
+dev
+* Python 3 required
+
 1.1
 * Django 3 support
 
