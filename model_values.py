@@ -4,7 +4,7 @@ import itertools
 import math
 import operator
 import types
-from typing import Mapping
+from typing import Callable, Iterable, Mapping
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -23,46 +23,48 @@ def update_wrapper(wrapper, name):
     return wrapper
 
 
-def method(lookup):
+def eq(lookup):
     return update_wrapper(lambda self, value: self.__eq__(value, '__' + lookup), lookup)
-
-
-def starmethod(lookup):
-    return update_wrapper(lambda self, *values: self.__eq__(values, '__' + lookup), lookup)
 
 
 class Lookup:
     """Mixin for field lookups."""
 
-    __ne__ = method('ne')
-    __lt__ = method('lt')
-    __le__ = method('lte')
-    __gt__ = method('gt')
-    __ge__ = method('gte')
-    iexact = method('iexact')
-    icontains = method('icontains')
-    startswith = method('startswith')
-    istartswith = method('istartswith')
-    endswith = method('endswith')
-    iendswith = method('iendswith')
-    regex = method('regex')
-    iregex = method('iregex')
-    isin = method('in')
-    range = starmethod('range')
+    __ne__ = eq('ne')
+    __lt__ = eq('lt')
+    __le__ = eq('lte')
+    __gt__ = eq('gt')
+    __ge__ = eq('gte')
+    iexact = eq('iexact')
+    icontains = eq('icontains')
+    startswith = eq('startswith')
+    istartswith = eq('istartswith')
+    endswith = eq('endswith')
+    iendswith = eq('iendswith')
+    regex = eq('regex')
+    iregex = eq('iregex')
+    isin = eq('in')
     # spatial lookups
-    contained = method('contained')
-    coveredby = method('coveredby')
-    covers = method('covers')
-    crosses = method('crosses')
-    disjoint = method('disjoint')
-    equals = method('equals')  # __eq__ is taken
-    intersects = method('intersects')  # __and__ is ambiguous
-    relate = starmethod('relate')
-    touches = method('touches')
-    __lshift__ = left = method('left')
-    __rshift__ = right = method('right')
-    above = method('strictly_above')
-    below = method('strictly_below')
+    contained = eq('contained')
+    coveredby = eq('coveredby')
+    covers = eq('covers')
+    crosses = eq('crosses')
+    disjoint = eq('disjoint')
+    equals = eq('equals')  # __eq__ is taken
+    intersects = eq('intersects')  # __and__ is ambiguous
+    touches = eq('touches')
+    __lshift__ = left = eq('left')
+    __rshift__ = right = eq('right')
+    above = eq('strictly_above')
+    below = eq('strictly_below')
+
+    def range(self, *values):
+        """range"""
+        return self.__eq__(values, '__range')
+
+    def relate(self, *values):
+        """relate"""
+        return self.__eq__(values, '__relate')
 
     @property
     def is_valid(self):
@@ -103,10 +105,6 @@ class method(functools.partial):
         return self if instance is None else types.MethodType(self, instance)
 
 
-def binary(func):
-    return method(func), lambda *args: func(*args[::-1])
-
-
 def transform(lookup, func, value):
     field, expr = func.source_expressions
     expr = expr if isinstance(expr, models.F) else expr.value
@@ -114,16 +112,16 @@ def transform(lookup, func, value):
 
 
 class MetaF(type):
-    def __getattr__(cls, name):
+    def __getattr__(cls, name: str) -> 'F':
         if name in ('name', '__slots__'):
             raise AttributeError("'{}' is a reserved attribute".format(name))
         return cls(name)
 
-    def any(cls, exprs):
+    def any(cls, exprs: Iterable) -> 'F':
         """Return ``Q`` OR object."""
         return functools.reduce(operator.or_, exprs)
 
-    def all(cls, exprs):
+    def all(cls, exprs: Iterable) -> 'F':
         """Return ``Q`` AND object."""
         return functools.reduce(operator.and_, exprs)
 
@@ -195,9 +193,9 @@ class F(models.F, Lookup, metaclass=MetaF):
         degrees = method(functions.Degrees)
         exp = method(functions.Exp)
         __floor__ = method(functions.Floor)
-        __mod__, __rmod__ = binary(functions.Mod)
+        __mod__ = method(functions.Mod)
         pi = functions.Pi()
-        __pow__, __rpow__ = binary(functions.Power)
+        __pow__ = method(functions.Power)
         radians = method(functions.Radians)
         __round__ = method(functions.Round)
         sin = method(functions.Sin)
@@ -247,19 +245,19 @@ class F(models.F, Lookup, metaclass=MetaF):
             __ge__ = method(transform, 'distance_gte')
             within = method(transform, 'dwithin')
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> 'F':
         """Return new `F`_ object with chained attribute."""
         return type(self)('{}__{}'.format(self.name, name))
 
-    def __eq__(self, value, lookup=''):
+    def __eq__(self, value, lookup: str = '') -> models.Q:
         """Return ``Q`` object with lookup."""
         return models.Q(**{self.name + lookup: value})
 
-    def __call__(self, *args, **extra):
+    def __call__(self, *args, **extra) -> models.Func:
         name, _, func = self.name.rpartition('__')
         return self.lookups[func](name, *args, **extra)
 
-    def __getitem__(self, slc):
+    def __getitem__(self, slc: slice) -> models.Func:
         """Return field ``Substr`` or ``Right``."""
         assert (slc.stop or 0) >= 0 and slc.step is None
         start = slc.start or 0
@@ -269,59 +267,65 @@ class F(models.F, Lookup, metaclass=MetaF):
         size = slc.stop and max(slc.stop - start, 0)
         return functions.Substr(self, start + 1, size)
 
+    def __rmod__(self, value):
+        return functions.Mod(value, self)
+
+    def __rpow__(self, value):
+        return functions.Power(value, self)
+
     @method
     def count(self='*', **extra):
         """Return ``Count`` with optional field."""
         return models.Count(getattr(self, 'name', self), **extra)
 
-    def find(self, sub, **extra):
+    def find(self, sub, **extra) -> models.Expression:
         """Return ``StrIndex`` with ``str.find`` semantics."""
         return functions.StrIndex(self, Value(sub), **extra) - 1
 
-    def replace(self, old, new='', **extra):
+    def replace(self, old, new='', **extra) -> functions.Replace:
         """Return ``Replace`` with wrapped values."""
         return functions.Replace(self, Value(old), Value(new), **extra)
 
-    def ljust(self, width, fill=' ', **extra):
+    def ljust(self, width: int, fill=' ', **extra) -> functions.LPad:
         """Return ``LPad`` with wrapped values."""
         return functions.LPad(self, width, Value(fill), **extra)
 
-    def rjust(self, width, fill=' ', **extra):
+    def rjust(self, width: int, fill=' ', **extra) -> functions.RPad:
         """Return ``RPad`` with wrapped values."""
         return functions.RPad(self, width, Value(fill), **extra)
 
-    def log(self, base=math.e, **extra):
+    def log(self, base=math.e, **extra) -> functions.Log:
         """Return ``Log``, by default ``Ln``."""
         return functions.Log(self, base, **extra)
 
 
-def method(func):
+def reduce(func):
     return update_wrapper(lambda self: self.reduce(func), func.__name__)
 
 
-def binary(func):
+def field(func):
     return update_wrapper(lambda self, value: func(models.F(*self._fields), value), func.__name__)
 
 
 class QuerySet(models.QuerySet, Lookup):
-    min = method(models.Min)
-    max = method(models.Max)
-    sum = method(models.Sum)
-    mean = method(models.Avg)
-    var = method(models.Variance)
-    std = method(models.StdDev)
-    __add__ = binary(operator.add)
-    __sub__ = binary(operator.sub)
-    __mul__ = binary(operator.mul)
-    __truediv__ = __div__ = binary(operator.truediv)
-    __mod__ = binary(operator.mod)
-    __pow__ = binary(operator.pow)
+    min = reduce(models.Min)
+    max = reduce(models.Max)
+    sum = reduce(models.Sum)
+    mean = reduce(models.Avg)
+    var = reduce(models.Variance)
+    std = reduce(models.StdDev)
+    __add__ = field(operator.add)
+    __sub__ = field(operator.sub)
+    __mul__ = field(operator.mul)
+    __truediv__ = field(operator.truediv)
+    __mod__ = field(operator.mod)
+    __pow__ = field(operator.pow)
     if gis:  # pragma: no cover
-        collect = method(gis.Collect)
-        extent = method(gis.Extent)
-        extent3d = method(gis.Extent3D)
-        make_line = method(gis.MakeLine)
-        union = method(gis.Union)
+        collect = reduce(gis.Collect)
+        extent = reduce(gis.Extent)
+        extent3d = reduce(gis.Extent3D)
+        make_line = reduce(gis.MakeLine)
+        union = reduce(gis.Union)
 
     @property
     def _flat(self):
@@ -354,7 +358,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Update a single column."""
         self.update(**{key: value})
 
-    def __eq__(self, value, lookup=''):
+    def __eq__(self, value, lookup: str = '') -> 'QuerySet':
         """Return `QuerySet`_ filtered by comparison to given value."""
         (field,) = self._fields
         return self.filter(**{field + lookup: value})
@@ -378,11 +382,11 @@ class QuerySet(models.QuerySet, Lookup):
             getter = lambda tup: Row(*tup[size:])  # noqa
         return ((key, map(getter, values)) for key, values in groups)
 
-    def items(self, *fields, **annotations):
+    def items(self, *fields, **annotations) -> 'QuerySet':
         """Return annotated ``values_list``."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
-    def groupby(self, *fields, **annotations):
+    def groupby(self, *fields, **annotations) -> 'QuerySet':
         """Return a grouped `QuerySet`_.
 
         The queryset is iterable in the same manner as ``itertools.groupby``.
@@ -392,7 +396,7 @@ class QuerySet(models.QuerySet, Lookup):
         qs._groupby = fields + tuple(annotations)
         return qs
 
-    def annotate(self, *args, **kwargs):
+    def annotate(self, *args, **kwargs) -> 'QuerySet':
         """Annotate extended to also handle mapping values, as a `Case`_ expression.
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
@@ -404,11 +408,11 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().annotate(*args, **kwargs)
 
-    def value_counts(self, alias='count'):
+    def value_counts(self, alias: str = 'count') -> 'QuerySet':
         """Return annotated value counts."""
         return self.items(*self._fields, **{alias: F.count()})
 
-    def sort_values(self, reverse=False):
+    def sort_values(self, reverse=False) -> 'QuerySet':
         """Return `QuerySet`_ ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
@@ -427,7 +431,7 @@ class QuerySet(models.QuerySet, Lookup):
             return collections.namedtuple('Row', names)(**row)
         return row[names[0]] if self._flat else tuple(map(row.__getitem__, names))
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> int:
         """Update extended to also handle mapping values, as a `Case`_ expression.
 
         :param kwargs: ``field={Q_obj: value, ...}, ...``
@@ -437,7 +441,7 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case(value, default=F(field))
         return super().update(**kwargs)
 
-    def change(self, defaults={}, **kwargs):
+    def change(self, defaults={}, **kwargs) -> int:
         """Update and return number of rows that actually changed.
 
         For triggering on-change logic without fetching first.
@@ -450,7 +454,7 @@ class QuerySet(models.QuerySet, Lookup):
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
-    def changed(self, **kwargs):
+    def changed(self, **kwargs) -> dict:
         """Return first mapping of fields and values which differ in the db.
 
         Also efficient enough to be used in boolean contexts, instead of ``exists``.
@@ -458,7 +462,7 @@ class QuerySet(models.QuerySet, Lookup):
         row = self.exclude(**kwargs).values(*kwargs).first() or {}
         return {field: value for field, value in row.items() if value != kwargs[field]}
 
-    def exists(self, count=1):
+    def exists(self, count: int = 1) -> bool:
         """Return whether there are at least the specified number of rows."""
         if count == 1:
             return super().exists()
@@ -495,7 +499,7 @@ class Manager(models.Manager):
     def get_queryset(self):
         return QuerySet(self.model, Query(self.model), self._db, self._hints)
 
-    def __getitem__(self, pk):
+    def __getitem__(self, pk) -> QuerySet:
         """Return `QuerySet`_ which matches primary key.
 
         To encourage direct db access, instead of always using get and save.
@@ -528,7 +532,7 @@ class Manager(models.Manager):
         except IntegrityError:
             return update(**defaults)
 
-    def bulk_changed(self, field, data, key='pk'):
+    def bulk_changed(self, field, data: Mapping, key: str = 'pk') -> dict:
         """Return mapping of values which differ in the db.
 
         :param field: value column
@@ -612,7 +616,7 @@ class Case(models.Case):
         return isinstance(value, Mapping) and any(isinstance(key, models.Q) for key in value)
 
 
-def EnumField(enum, display=None, **options):
+def EnumField(enum, display: Callable = None, **options) -> models.Field:
     """Return a ``CharField`` or ``IntegerField`` with choices from given enum.
 
     By default, enum names and values are used as db values and display labels respectively,
