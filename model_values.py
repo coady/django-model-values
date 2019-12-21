@@ -4,7 +4,7 @@ import itertools
 import math
 import operator
 import types
-from typing import Callable, Iterable, Mapping
+from typing import Callable, Iterable, Mapping, Union
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -117,11 +117,11 @@ class MetaF(type):
             raise AttributeError("'{}' is a reserved attribute".format(name))
         return cls(name)
 
-    def any(cls, exprs: Iterable) -> 'F':
+    def any(cls, exprs: Iterable[models.Q]) -> models.Q:
         """Return ``Q`` OR object."""
         return functools.reduce(operator.or_, exprs)
 
-    def all(cls, exprs: Iterable) -> 'F':
+    def all(cls, exprs: Iterable[models.Q]) -> models.Q:
         """Return ``Q`` AND object."""
         return functools.reduce(operator.and_, exprs)
 
@@ -282,19 +282,19 @@ class F(models.F, Lookup, metaclass=MetaF):
         """Return ``StrIndex`` with ``str.find`` semantics."""
         return functions.StrIndex(self, Value(sub), **extra) - 1
 
-    def replace(self, old, new='', **extra) -> functions.Replace:
+    def replace(self, old, new='', **extra) -> models.Func:
         """Return ``Replace`` with wrapped values."""
         return functions.Replace(self, Value(old), Value(new), **extra)
 
-    def ljust(self, width: int, fill=' ', **extra) -> functions.LPad:
+    def ljust(self, width: int, fill=' ', **extra) -> models.Func:
         """Return ``LPad`` with wrapped values."""
         return functions.LPad(self, width, Value(fill), **extra)
 
-    def rjust(self, width: int, fill=' ', **extra) -> functions.RPad:
+    def rjust(self, width: int, fill=' ', **extra) -> models.Func:
         """Return ``RPad`` with wrapped values."""
         return functions.RPad(self, width, Value(fill), **extra)
 
-    def log(self, base=math.e, **extra) -> functions.Log:
+    def log(self, base=math.e, **extra) -> models.Func:
         """Return ``Log``, by default ``Ln``."""
         return functions.Log(self, base, **extra)
 
@@ -441,7 +441,7 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case(value, default=F(field))
         return super().update(**kwargs)
 
-    def change(self, defaults={}, **kwargs) -> int:
+    def change(self, defaults: Mapping = {}, **kwargs) -> int:
         """Update and return number of rows that actually changed.
 
         For triggering on-change logic without fetching first.
@@ -514,7 +514,7 @@ class Manager(models.Manager):
         """Return whether primary key is present using ``exists``."""
         return self[pk].exists()
 
-    def upsert(self, defaults={}, **kwargs):
+    def upsert(self, defaults: Mapping = {}, **kwargs) -> Union[int, models.Model]:
         """Update or insert returning number of rows or created object.
 
         Faster and safer than ``update_or_create``.
@@ -542,7 +542,7 @@ class Manager(models.Manager):
         rows = self.filter(F(key).isin(data))[key, field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
-    def bulk_change(self, field, data, key='pk', conditional=False, **kwargs):
+    def bulk_change(self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs) -> int:
         """Update changed rows with a minimal number of queries, by inverting the data to use ``pk__in``.
 
         :param field: value column
@@ -554,7 +554,7 @@ class Manager(models.Manager):
         """
         if conditional:
             data = {pk: data[pk] for pk in self.bulk_changed(field, data, key)}
-        updates = collections.defaultdict(list)
+        updates = collections.defaultdict(list)  # type: dict
         for pk in data:
             updates[data[pk]].append(pk)
         if conditional:
