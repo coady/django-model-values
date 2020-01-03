@@ -136,6 +136,10 @@ def test_functions(books):
         F.title[:-10]
     with pytest.raises(AttributeError):
         F.name
+    with pytest.raises(TypeError):
+        iter(F.title)
+    assert hash(F.title)
+    assert not (F.author == models.F('title'))
     ((field, values),) = transform('op', F.author.coalesce('title'), None).children
     assert field == 'author__op' and values == (F.title, None)
 

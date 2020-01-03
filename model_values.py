@@ -251,11 +251,18 @@ class F(models.F, Lookup, metaclass=MetaF):
 
     def __eq__(self, value, lookup: str = '') -> models.Q:
         """Return ``Q`` object with lookup."""
+        if not lookup and type(value) is models.F:
+            return self.name == value.name
         return models.Q(**{self.name + lookup: value})
+
+    __hash__ = models.F.__hash__
 
     def __call__(self, *args, **extra) -> models.Func:
         name, _, func = self.name.rpartition('__')
         return self.lookups[func](name, *args, **extra)
+
+    def __iter__(self):
+        raise TypeError("'F' object is not iterable")
 
     def __getitem__(self, slc: slice) -> models.Func:
         """Return field ``Substr`` or ``Right``."""
