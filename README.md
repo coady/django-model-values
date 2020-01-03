@@ -87,16 +87,21 @@ from model_values import F
 
 # Installation
 
-    $ pip install django-model-values
+```console
+% pip install django-model-values
+```
 
 # Tests
 100% branch coverage.
 
-    $ pytest [--cov]
+```console
+% pytest [--cov]
+```
 
 # Changes
 dev
 * Python 3 required
+* Django >=2.2 required
 
 1.1
 * Django 3 support

@@ -141,7 +141,13 @@ class F(models.F, Lookup, metaclass=MetaF):
     ``F.user.created.min()`` == ``Min('user__created')``.
     """
 
-    lookups = dict(length=functions.Length, lower=functions.Lower, upper=functions.Upper)
+    lookups = dict(
+        length=functions.Length,
+        lower=functions.Lower,
+        upper=functions.Upper,
+        chr=functions.Chr,
+        ord=functions.Ord,
+    )
     coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
     min = method(models.Min)
@@ -156,51 +162,42 @@ class F(models.F, Lookup, metaclass=MetaF):
     cast = method(functions.Cast)
     extract = method(functions.Extract)
     trunc = method(functions.Trunc)
-    if django.VERSION >= (2,):  # pragma: no branch
-        cume_dist = method(functions.CumeDist)
-        dense_rank = method(functions.DenseRank)
-        first_value = method(functions.FirstValue)
-        lag = method(functions.Lag)
-        last_value = method(functions.LastValue)
-        lead = method(functions.Lead)
-        nth_value = method(functions.NthValue)
-        ntile = staticmethod(functions.Ntile)
-        percent_rank = method(functions.PercentRank)
-        rank = method(functions.Rank)
-        row_number = method(functions.RowNumber)
-        if gis:  # pragma: no cover
-            azimuth = method(gis.functions.Azimuth)
-            line_locate_point = method(gis.functions.LineLocatePoint)
-    if django.VERSION >= (2, 1):  # pragma: no branch
-        lookups.update(chr=functions.Chr, ord=functions.Ord)
-        strip = method(functions.Trim)
-        lstrip = method(functions.LTrim)
-        rstrip = method(functions.RTrim)
-        repeat = method(functions.Repeat)
-        if gis:  # pragma: no cover
-            force_polygon_cw = method(gis.functions.ForcePolygonCW)
-    if django.VERSION >= (2, 2):  # pragma: no branch
-        nullif = method(functions.NullIf)
-        __reversed__ = method(functions.Reverse)
-        __abs__ = method(functions.Abs)
-        acos = method(functions.ACos)
-        asin = method(functions.ASin)
-        atan = method(functions.ATan)
-        atan2 = method(functions.ATan2)
-        __ceil__ = method(functions.Ceil)
-        cos = method(functions.Cos)
-        cot = method(functions.Cot)
-        degrees = method(functions.Degrees)
-        exp = method(functions.Exp)
-        __floor__ = method(functions.Floor)
-        __mod__ = method(functions.Mod)
-        pi = functions.Pi()
-        __pow__ = method(functions.Power)
-        radians = method(functions.Radians)
-        __round__ = method(functions.Round)
-        sin = method(functions.Sin)
-        sqrt = method(functions.Sqrt)
-        tan = method(functions.Tan)
+    cume_dist = method(functions.CumeDist)
+    dense_rank = method(functions.DenseRank)
+    first_value = method(functions.FirstValue)
+    lag = method(functions.Lag)
+    last_value = method(functions.LastValue)
+    lead = method(functions.Lead)
+    nth_value = method(functions.NthValue)
+    ntile = staticmethod(functions.Ntile)
+    percent_rank = method(functions.PercentRank)
+    rank = method(functions.Rank)
+    row_number = method(functions.RowNumber)
+    strip = method(functions.Trim)
+    lstrip = method(functions.LTrim)
+    rstrip = method(functions.RTrim)
+    repeat = method(functions.Repeat)
+    nullif = method(functions.NullIf)
+    __reversed__ = method(functions.Reverse)
+    __abs__ = method(functions.Abs)
+    acos = method(functions.ACos)
+    asin = method(functions.ASin)
+    atan = method(functions.ATan)
+    atan2 = method(functions.ATan2)
+    __ceil__ = method(functions.Ceil)
+    cos = method(functions.Cos)
+    cot = method(functions.Cot)
+    degrees = method(functions.Degrees)
+    exp = method(functions.Exp)
+    __floor__ = method(functions.Floor)
+    __mod__ = method(functions.Mod)
+    pi = functions.Pi()
+    __pow__ = method(functions.Power)
+    radians = method(functions.Radians)
+    __round__ = method(functions.Round)
+    sin = method(functions.Sin)
+    sqrt = method(functions.Sqrt)
+    tan = method(functions.Tan)
     if django.VERSION >= (3,):
         sign = method(functions.Sign)
         md5 = method(functions.MD5)
@@ -234,6 +231,9 @@ class F(models.F, Lookup, metaclass=MetaF):
         transform = method(gis.functions.Transform)
         translate = method(gis.functions.Translate)
         union = method(gis.functions.Union)
+        azimuth = method(gis.functions.Azimuth)
+        line_locate_point = method(gis.functions.LineLocatePoint)
+        force_polygon_cw = method(gis.functions.ForcePolygonCW)
 
         @method
         class distance(gis.functions.Distance):
@@ -340,7 +340,7 @@ class QuerySet(models.QuerySet, Lookup):
 
     @property
     def _named(self):
-        return issubclass(self._iterable_class, getattr(models.query, 'NamedValuesListIterable', ()))
+        return issubclass(self._iterable_class, models.query.NamedValuesListIterable)
 
     def __getitem__(self, key):
         """Allow column access by field names, expressions, or ``F`` objects.
@@ -352,8 +352,7 @@ class QuerySet(models.QuerySet, Lookup):
         ``qs[Q_obj]`` provisionally returns filtered `QuerySet`_
         """
         if isinstance(key, tuple):
-            kwargs = {'named': True} if django.VERSION >= (2,) else {}
-            return self.values_list(*map(extract, key), **kwargs)
+            return self.values_list(*map(extract, key), named=True)
         key = extract(key)
         if isinstance(key, (str, models.Expression)):
             return self.values_list(key, flat=True)
@@ -490,11 +489,6 @@ class NotEqual(models.Lookup):
 
 class Query(models.sql.Query):
     """Allow __ne=None lookup."""
-
-    def prepare_lookup_value(self, value, lookups, *args):  # pragma: no cover
-        if value is None and lookups[-1:] == ['ne']:
-            value, lookups[-1] = False, 'isnull'
-        return super().prepare_lookup_value(value, lookups, *args)
 
     def build_lookup(self, lookups, lhs, rhs):
         if rhs is None and lookups[-1:] == ['ne']:
