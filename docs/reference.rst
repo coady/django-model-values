@@ -21,7 +21,7 @@ F
 
    .. note:: See source for available spatial functions if `gis`_ is configured.
 
-   .. autoattribute:: lookups
+   .. attribute:: lookups
 
       mapping of potentially `registered lookups`_ to transform functions
 

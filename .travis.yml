@@ -10,8 +10,6 @@ env:
 
 matrix:
   include:
-    - python: 3.5
-      env: DJANGO="django<3"
     - python: 3.8
       env: DJANGO="django"
 

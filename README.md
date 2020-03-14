@@ -86,7 +86,6 @@ from model_values import F
 ```
 
 # Installation
-
 ```console
 % pip install django-model-values
 ```
@@ -100,7 +99,7 @@ from model_values import F
 
 # Changes
 dev
-* Python 3 required
+* Python >=3.6 required
 * Django >=2.2 required
 
 1.1

@@ -77,7 +77,9 @@ class Lookup:
         :param properly: `contains_properly`
         :param bb: bounding box, `bbcontains`
         """
-        return self.__eq__(value, '__{}contains{}'.format('bb' * bool(bb), '_properly' * bool(properly)))
+        properly = '_properly' * bool(properly)
+        bb = 'bb' * bool(bb)
+        return self.__eq__(value, f'__{bb}contains{properly}')
 
     def overlaps(self, geom, position='', bb=False):
         """Return whether field `overlaps` with geometry .
@@ -85,7 +87,8 @@ class Lookup:
         :param position: `overlaps_{left, right, above, below}`
         :param bb: bounding box, `bboverlaps`
         """
-        return self.__eq__(geom, '__{}overlaps_{}'.format('bb' * bool(bb), position).rstrip('_'))
+        bb = 'bb' * bool(bb)
+        return self.__eq__(geom, f'__{bb}overlaps_{position}'.rstrip('_'))
 
     def within(self, geom, distance=None):
         """Return whether field is `within` geometry.
@@ -114,7 +117,7 @@ def transform(lookup, func, value):
 class MetaF(type):
     def __getattr__(cls, name: str) -> 'F':
         if name in ('name', '__slots__'):
-            raise AttributeError("'{}' is a reserved attribute".format(name))
+            raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
 
     def any(cls, exprs: Iterable[models.Q]) -> models.Q:
@@ -484,7 +487,7 @@ class NotEqual(models.Lookup):
     def as_sql(self, *args):
         lhs, lhs_params = self.process_lhs(*args)
         rhs, rhs_params = self.process_rhs(*args)
-        return '{} <> {}'.format(lhs, rhs), lhs_params + rhs_params
+        return f'{lhs} <> {rhs}', (lhs_params + rhs_params)
 
 
 class Query(models.sql.Query):
