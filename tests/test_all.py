@@ -126,6 +126,7 @@ def test_functions(books):
     book['quantity'] **= 2
     assert book['quantity'].first() == 9
 
+    assert (F.author != None) == models.Q(author__isnull=False)  # noqa: E711
     assert isinstance(F.coalesce('author', 'title'), functions.Coalesce)
     assert isinstance(F.author.concat('title'), functions.Concat)
     assert isinstance(F.author.length(), functions.Length)
@@ -157,7 +158,6 @@ def test_functions(books):
     assert books[F.author.upper == 'A']
 
 
-@pytest.mark.skipif(django.VERSION < (2,), reason='requires django >=2')
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
@@ -185,7 +185,6 @@ def test_2(books):
         assert isinstance(F.location.line_locate_point(point), gis.functions.LineLocatePoint)
 
 
-@pytest.mark.skipif(django.VERSION < (2, 1), reason='requires django >=2.1')
 def test_2_1():
     assert (F.quantity.chr == '').children == [('quantity__chr', '')]
     assert isinstance(F.quantity.chr(), functions.Chr)
@@ -206,7 +205,6 @@ def test_2_1():
         assert isinstance(F.location.force_polygon_cw(), gis.functions.ForcePolygonCW)
 
 
-@pytest.mark.skipif(django.VERSION < (2, 2), reason='requires django >=2.2')
 def test_2_2():
     assert isinstance(F.x.nullif('y'), functions.NullIf)
     assert isinstance(reversed(F.x), functions.Reverse)

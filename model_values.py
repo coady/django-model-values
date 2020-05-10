@@ -258,6 +258,12 @@ class F(models.F, Lookup, metaclass=MetaF):
             return self.name == value.name
         return models.Q(**{self.name + lookup: value})
 
+    def __ne__(self, value) -> models.Q:
+        """Allow __ne=None lookup without custom queryset."""
+        if value is None:
+            return self.__eq__(False, '__isnull')
+        return self.__eq__(value, '__ne')
+
     __hash__ = models.F.__hash__
 
     def __call__(self, *args, **extra) -> models.Func:
