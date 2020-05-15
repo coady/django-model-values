@@ -11,7 +11,7 @@ Django recommends model methods for row-level functionality,
 and `custom managers`_ for table-level functionality.
 That's fine if the custom managers are reused across models,
 but often they're just custom filters, and specific to a model.
-As evidenced by `django-model-utils'`_ ``QueryManager`` and ``PassThroughManager``.
+As evidenced by `django-model-utils'`_ ``QueryManager``.
 
 There's a simpler way to achieve the same end: a model ``classmethod``.
 In some cases a profileration of classmethods is an anti-pattern, but in this case functions won't suffice.
