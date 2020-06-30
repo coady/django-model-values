@@ -12,7 +12,7 @@ env:
 
 install:
   - pip install --pre $DJANGO
-  - pip install pytest-django pytest-cov codecov
+  - pip install pytest-cov pytest-django codecov
 
 script:
   - pytest -v --cov

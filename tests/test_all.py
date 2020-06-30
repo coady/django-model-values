@@ -232,6 +232,19 @@ def test_2_2():
     assert isinstance(F.x.sqrt(), functions.Sqrt)
     assert isinstance(F.x.tan(), functions.Tan)
 
+    assert isinstance(F.x.acos, F)
+    assert isinstance(F.x.asin, F)
+    assert isinstance(F.x.atan, F)
+    assert isinstance(F.x.atan2, F)
+    assert isinstance(F.x.cos, F)
+    assert isinstance(F.x.cot, F)
+    assert isinstance(F.x.degrees, F)
+    assert isinstance(F.x.exp, F)
+    assert isinstance(F.x.radians, F)
+    assert isinstance(F.x.sin, F)
+    assert isinstance(F.x.sqrt, F)
+    assert isinstance(F.x.tan, F)
+
 
 @pytest.mark.skipif(django.VERSION < (3,), reason='requires django >=3')
 def test_3():
@@ -242,6 +255,9 @@ def test_3():
     assert isinstance(F.x.sha256(), functions.SHA256)
     assert isinstance(F.x.sha384(), functions.SHA384)
     assert isinstance(F.x.sha512(), functions.SHA512)
+
+    assert isinstance(F.x.sign, F)
+    assert isinstance(F.x.md5, F)
 
 
 def test_lookups(books):
