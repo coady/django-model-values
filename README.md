@@ -98,7 +98,7 @@ from model_values import F
 ```
 
 # Changes
-dev
+1.2
 * Python >=3.6 required
 * Django >=2.2 required
 
