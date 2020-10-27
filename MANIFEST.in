@@ -1,3 +1,0 @@
-include LICENSE.txt pyproject.toml
-recursive-include tests *.py
-recursive-include docs Makefile *.py *.rst

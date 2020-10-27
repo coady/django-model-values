@@ -74,8 +74,9 @@ class Lookup:
     def contains(self, value, properly=False, bb=False):
         """Return whether field `contains` the value.  Options apply only to geom fields.
 
-        :param properly: `contains_properly`
-        :param bb: bounding box, `bbcontains`
+        Args:
+            properly: `contains_properly`
+            bb: bounding box, `bbcontains`
         """
         properly = '_properly' * bool(properly)
         bb = 'bb' * bool(bb)
@@ -84,8 +85,9 @@ class Lookup:
     def overlaps(self, geom, position='', bb=False):
         """Return whether field `overlaps` with geometry .
 
-        :param position: `overlaps_{left, right, above, below}`
-        :param bb: bounding box, `bboverlaps`
+        Args:
+            position: `overlaps_{left, right, above, below}`
+            bb: bounding box, `bboverlaps`
         """
         bb = 'bb' * bool(bb)
         return self.__eq__(geom, f'__{bb}overlaps_{position}'.rstrip('_'))
@@ -93,7 +95,8 @@ class Lookup:
     def within(self, geom, distance=None):
         """Return whether field is `within` geometry.
 
-        :param distance: `dwithin`
+        Args:
+            distance: `dwithin`
         """
         if distance is None:
             return self.__eq__(geom, '__within')
@@ -116,7 +119,7 @@ def transform(lookup, func, value):
 
 class MetaF(type):
     def __getattr__(cls, name: str) -> 'F':
-        if name in ('name', '__slots__'):
+        if name in ('name', '__slots__', '__wrapped__'):
             raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
 
@@ -413,7 +416,8 @@ class QuerySet(models.QuerySet, Lookup):
     def annotate(self, *args, **kwargs) -> 'QuerySet':
         """Annotate extended to also handle mapping values, as a `Case`_ expression.
 
-        :param kwargs: ``field={Q_obj: value, ...}, ...``
+        Args:
+            **kwargs: ``field={Q_obj: value, ...}, ...``
 
         As a provisional feature, an optional ``default`` key may be specified.
         """
@@ -434,7 +438,8 @@ class QuerySet(models.QuerySet, Lookup):
     def reduce(self, *funcs):
         """Return aggregated values, or an annotated `QuerySet`_ if :meth:`groupby` is in use.
 
-        :param funcs: aggregation function classes
+        Args:
+            *funcs: aggregation function classes
         """
         funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
@@ -448,7 +453,8 @@ class QuerySet(models.QuerySet, Lookup):
     def update(self, **kwargs) -> int:
         """Update extended to also handle mapping values, as a `Case`_ expression.
 
-        :param kwargs: ``field={Q_obj: value, ...}, ...``
+        Args:
+            **kwargs: ``field={Q_obj: value, ...}, ...``
         """
         for field, value in kwargs.items():
             if Case.isa(value):
@@ -464,7 +470,8 @@ class QuerySet(models.QuerySet, Lookup):
 
         ``qs.change({'last_modified': now}, status=...)`` last_modified only updated if status updated
 
-        :param defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
+        Args:
+            defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
@@ -529,7 +536,8 @@ class Manager(models.Manager):
         Faster and safer than ``update_or_create``.
         Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
 
-        :param defaults: optional mapping which will be updated, as with ``update_or_create``.
+        Args:
+            defaults: optional mapping which will be updated, as with ``update_or_create``.
         """
         update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
         for field, value in defaults.items():
@@ -544,9 +552,10 @@ class Manager(models.Manager):
     def bulk_changed(self, field, data: Mapping, key: str = 'pk') -> dict:
         """Return mapping of values which differ in the db.
 
-        :param field: value column
-        :param data: ``{pk: value, ...}``
-        :param key: unique key column
+        Args:
+            field: value column
+            data: ``{pk: value, ...}``
+            key: unique key column
         """
         rows = self.filter(F(key).isin(data))[key, field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
@@ -554,12 +563,13 @@ class Manager(models.Manager):
     def bulk_change(self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs) -> int:
         """Update changed rows with a minimal number of queries, by inverting the data to use ``pk__in``.
 
-        :param field: value column
-        :param data: ``{pk: value, ...}``
-        :param key: unique key column
-        :param conditional: execute select query and single conditional update;
+        Args:
+            field: value column
+            data: ``{pk: value, ...}``
+            key: unique key column
+            conditional: execute select query and single conditional update;
             may be more efficient if the percentage of changed rows is relatively small
-        :param kwargs: additional fields to be updated
+            **kwargs: additional fields to be updated
         """
         if conditional:
             data = {pk: data[pk] for pk in self.bulk_changed(field, data, key)}
@@ -596,9 +606,10 @@ def extract(field):
 class Case(models.Case):
     """``Case`` expression from mapping of when conditionals.
 
-    :param conds: ``{Q_obj: value, ...}``
-    :param default: optional default value or ``F`` object
-    :param output_field: optional field defaults to registered ``types``
+    Args:
+        conds: ``{Q_obj: value, ...}``
+        default: optional default value or ``F`` object
+        output_field: optional field defaults to registered ``types``
     """
 
     types = {
@@ -631,8 +642,9 @@ def EnumField(enum, display: Callable = None, **options) -> models.Field:
     By default, enum names and values are used as db values and display labels respectively,
     returning a ``CharField`` with computed ``max_length``.
 
-    :param display: optional callable to transform enum names to display labels,
-         thereby using enum values as db values and also supporting integers.
+    Args:
+        display: optional callable to transform enum names to display labels,
+            thereby using enum values as db values and also supporting integers.
     """
     choices = tuple((choice.name, choice.value) for choice in enum)
     if display is not None:

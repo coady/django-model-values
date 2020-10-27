@@ -161,9 +161,9 @@ def test_functions(books):
 def test_2(books):
     row = books['id', 'author'].first()
     assert (row.id, row.author) == row
-    row = books['author',].min()
+    row = books[('author',)].min()
     assert (row.author__min,) == row
-    key, values = next(iter(books['quantity',].groupby('author')))
+    key, values = next(iter(books[('quantity',)].groupby('author')))
     assert next(values).quantity
     assert dict(books[F.author.find('A')].value_counts()) == {-1: 3, 0: 2}
 

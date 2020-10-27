@@ -3,9 +3,8 @@
 ![image](https://img.shields.io/pypi/djversions/django-model-values.svg)
 [![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
-[![image](https://img.shields.io/travis/coady/django-model-values.svg)](https://travis-ci.org/coady/django-model-values)
+[![image](https://github.com/coady/django-model-values/workflows/build/badge.svg)](https://github.com/coady/django-model-values/actions)
 [![image](https://img.shields.io/codecov/c/github/coady/django-model-values.svg)](https://codecov.io/github/coady/django-model-values)
-[![image](https://readthedocs.org/projects/django-model-values/badge)](https://django-model-values.readthedocs.io)
 [![image](https://requires.io/github/coady/django-model-values/requirements.svg)](https://requires.io/github/coady/django-model-values/requirements/)
 [![image](https://api.codeclimate.com/v1/badges/908dc0b46fdda69109ce/maintainability)](https://codeclimate.com/github/coady/django-model-values/maintainability)
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://pypi.org/project/black/)
@@ -20,7 +19,7 @@ The goal is to provide elegant syntactic support for best practices in
 using Django's ORM. Specifically avoiding the inefficiencies and race
 conditions associated with always using objects.
 
-# Usage
+## Usage
 
 Typical model usage is verbose, inefficient, and incorrect.
 
@@ -85,32 +84,36 @@ from model_values import F
 .filter(F.rating > 0, F.last_modified.range(start, end))
 ```
 
-# Installation
+## Installation
 ```console
 % pip install django-model-values
 ```
 
-# Tests
+## Tests
 100% branch coverage.
 
 ```console
 % pytest [--cov]
 ```
 
-# Changes
+## Changes
 1.2
+
 * Python >=3.6 required
 * Django >=2.2 required
 
 1.1
+
 * Django 3 support
 
 1.0
+
 * Update related methods moved with deprecation warnings
 * Extensible change detection and updates
 * Django 2.2 functions
 
 0.6
+
 * Transform functions
 * Named tuples
 * Window functions
@@ -121,16 +124,19 @@ from model_values import F
 * Expressions in column selection
 
 0.5
+
 * `F` expressions operators `any` and `all`
 * Spatial lookups and functions
 * Django 2.0 support
 
 0.4
+
 * `upsert` method
 * Django 1.9 database functions
 * `bulk_update` supports additional fields
 
 0.3
+
 * Lookup methods and operators
 * `F` expressions and aggregation methods
 * Database functions
@@ -138,6 +144,7 @@ from model_values import F
 * Bulk updates and change detection
 
 0.2
+
 * Change detection
 * Groupby functionality
 * Named tuples
