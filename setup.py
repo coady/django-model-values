@@ -11,7 +11,9 @@ setup(
     url='https://github.com/coady/django-model-values',
     project_urls={'Documentation': 'https://coady.github.io/django-model-values'},
     license='Apache Software License',
-    py_modules=['model_values'],
+    packages=['model_values'],
+    package_data={'model_values': ['py.typed']},
+    zip_safe=False,
     install_requires=['django>=2.2'],
     python_requires='>=3.6',
     tests_require=['pytest-django', 'pytest-cov'],
@@ -31,5 +33,6 @@ setup(
         'Programming Language :: Python :: 3.9',
         'Topic :: Database :: Database Engines/Servers',
         'Topic :: Software Development :: Libraries :: Python Modules',
+        'Typing :: Typed',
     ],
 )

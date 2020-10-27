@@ -34,7 +34,7 @@ jobs:
         pip install black flake8 mypy
         black --check .
         flake8
-        mypy -p django-model-values
+        mypy -p model_values
 
   docs:
     runs-on: ubuntu-latest
