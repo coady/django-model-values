@@ -1,9 +1,11 @@
-all: check
-	mkdocs build
-
 check:
-	python3 setup.py $@ -ms
-	black -q --check .
+	pytest --cov
+
+lint:
+	python3 setup.py check -ms
+	black --check .
 	flake8
 	mypy -p model_values
-	pytest --cov --cov-fail-under=100
+
+html:
+	PYTHONPATH=$(PWD):$(PYTHONPATH) mkdocs build

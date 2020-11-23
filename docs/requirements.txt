@@ -1,2 +1,3 @@
+django
 mkdocs-material
 mkdocstrings

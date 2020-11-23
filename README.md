@@ -4,9 +4,8 @@
 [![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
 [![image](https://github.com/coady/django-model-values/workflows/build/badge.svg)](https://github.com/coady/django-model-values/actions)
-[![image](https://img.shields.io/codecov/c/github/coady/django-model-values.svg)](https://codecov.io/github/coady/django-model-values)
-[![image](https://requires.io/github/coady/django-model-values/requirements.svg)](https://requires.io/github/coady/django-model-values/requirements/)
-[![image](https://api.codeclimate.com/v1/badges/908dc0b46fdda69109ce/maintainability)](https://codeclimate.com/github/coady/django-model-values/maintainability)
+[![image](https://codecov.io/gh/coady/django-model-values/branch/main/graph/badge.svg)](https://codecov.io/gh/coady/django-model-values/)
+[![image](https://github.com/coady/django-model-values/workflows/codeql/badge.svg)](https://github.com/coady/django-model-values/security/code-scanning)
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://pypi.org/project/black/)
 [![image](http://mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
