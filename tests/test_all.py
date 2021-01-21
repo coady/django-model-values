@@ -98,9 +98,10 @@ def test_aggregation(books):
     counts = books[F.author.lower()].value_counts()
     assert dict(counts) == {'a': 2, 'b': 3}
     assert dict(counts[F('count') > 2]) == {'b': 3}
-    amounts = books[{F.quantity <= 1: 'low', F.quantity >= 10: 'high'}]
-    assert dict(amounts.value_counts()) == {'low': 1, None: 2, 'high': 2}
-    groups = books.groupby(amount={F.quantity <= 1: 'low', F.quantity >= 10: 'high', 'default': 'medium'})
+    case = {F.quantity <= 1: 'low', F.quantity >= 10: 'high'}
+    assert dict(books[case].value_counts()) == {'low': 1, None: 2, 'high': 2}
+    case['default'] = 'medium'
+    assert set(books.items(amount=case)) == {('low',), ('medium',), ('high',)}
     with pytest.raises(Exception):
         Case({models.Q(): None}).output_field
 
@@ -258,6 +259,17 @@ def test_3():
 
     assert isinstance(F.x.sign, F)
     assert isinstance(F.x.md5, F)
+
+
+@pytest.mark.skipif(django.VERSION < (3, 2), reason='requires django >=3.2')
+def test_3_2(books):
+    assert isinstance(F.x.collate('nocase'), functions.Collate)
+    assert isinstance(F.json(), functions.JSONObject)
+    assert isinstance(F.random(), functions.Random)
+
+    case = {F.quantity <= 1: 'low', F.quantity >= 10: 'high', 'default': 'medium'}
+    assert list(books.alias(amount=case).order_by('amount')['quantity']) == [10, 10, 1, 2, 2]
+    assert books.alias(name=F.author.lower()).annotate(name=F('name'))
 
 
 def test_lookups(books):

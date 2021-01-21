@@ -204,13 +204,17 @@ class F(models.F, Lookup, metaclass=MetaF):
     pi = functions.Pi()
     __pow__ = method(functions.Power)
     __round__ = method(functions.Round)
-    if django.VERSION >= (3,):
+    if django.VERSION >= (3,):  # pragma: no branch
         lookups.update(sign=functions.Sign, md5=functions.MD5)
         sha1 = method(functions.SHA1)
         sha224 = method(functions.SHA224)
         sha256 = method(functions.SHA256)
         sha384 = method(functions.SHA384)
         sha512 = method(functions.SHA512)
+    if django.VERSION >= (3, 2):
+        collate = method(functions.Collate)
+        json = staticmethod(functions.JSONObject)
+        random = staticmethod(functions.Random)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)
@@ -426,6 +430,17 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().annotate(*args, **kwargs)
 
+    def alias(self, *args, **kwargs) -> 'QuerySet':
+        """Alias extended to also handle mapping values, as a `Case`_ expression.
+
+        Args:
+            **kwargs: ``field={Q_obj: value, ...}, ...``
+        """
+        for field, value in kwargs.items():
+            if Case.isa(value):
+                kwargs[field] = Case.defaultdict(value)
+        return super().alias(*args, **kwargs)
+
     def value_counts(self, alias: str = 'count') -> 'QuerySet':
         """Return annotated value counts."""
         return self.items(*self._fields, **{alias: F.count()})
@@ -619,12 +634,12 @@ class Case(models.Case):
         bool: models.BooleanField,
     }
 
-    def __init__(self, conds, default=None, **extra):
+    def __new__(cls, conds, default=None, **extra):
         cases = (models.When(cond, Value(conds[cond])) for cond in conds)
         types = set(map(type, conds.values()))
-        if len(types) == 1 and types.issubset(self.types):
-            extra.setdefault('output_field', self.types.get(*types)())
-        super().__init__(*cases, default=Value(default), **extra)
+        if len(types) == 1 and types.issubset(cls.types):
+            extra.setdefault('output_field', cls.types.get(*types)())
+        return models.Case(*cases, default=Value(default), **extra)
 
     @classmethod
     def defaultdict(cls, conds):
