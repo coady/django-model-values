@@ -145,6 +145,11 @@ class F(models.F, Lookup, metaclass=MetaF):
 
     ``Func`` objects also supported as methods:
     ``F.user.created.min()`` == ``Min('user__created')``.
+
+    Some ``Func`` objects can also be transformed into lookups,
+    if [registered](https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length):
+    ``F.text.length()`` == ``Length(F(text))``,
+    ``F.text.length > 0`` == ``Q(text__length__gt=0)``.
     """
 
     lookups = dict(
@@ -255,8 +260,8 @@ class F(models.F, Lookup, metaclass=MetaF):
             within = method(transform, 'dwithin')
 
     def __getattr__(self, name: str) -> 'F':
-        """Return new `F`_ object with chained attribute."""
-        return type(self)('{}__{}'.format(self.name, name))
+        """Return new [F][model_values.F] object with chained attribute."""
+        return type(self)(f'{self.name}__{name}')
 
     def __eq__(self, value, lookup: str = '') -> models.Q:
         """Return ``Q`` object with lookup."""
@@ -364,7 +369,7 @@ class QuerySet(models.QuerySet, Lookup):
 
         ``qs[field, ...]`` returns tupled ``values_list``
 
-        ``qs[Q_obj]`` provisionally returns filtered `QuerySet`_
+        ``qs[Q_obj]`` provisionally returns filtered [QuerySet][model_values.QuerySet]
         """
         if isinstance(key, tuple):
             return self.values_list(*map(extract, key), named=True)
@@ -380,7 +385,7 @@ class QuerySet(models.QuerySet, Lookup):
         self.update(**{key: value})
 
     def __eq__(self, value, lookup: str = '') -> 'QuerySet':
-        """Return `QuerySet`_ filtered by comparison to given value."""
+        """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
         (field,) = self._fields
         return self.filter(**{field + lookup: value})
 
@@ -391,7 +396,7 @@ class QuerySet(models.QuerySet, Lookup):
         return value in iter(self)
 
     def __iter__(self):
-        """Iteration extended to support :meth:`groupby`."""
+        """Iteration extended to support [groupby][model_values.QuerySet.groupby]."""
         if not hasattr(self, '_groupby'):
             return super().__iter__()
         size = len(self._groupby)
@@ -408,17 +413,17 @@ class QuerySet(models.QuerySet, Lookup):
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
     def groupby(self, *fields, **annotations) -> 'QuerySet':
-        """Return a grouped `QuerySet`_.
+        """Return a grouped [QuerySet][model_values.QuerySet].
 
         The queryset is iterable in the same manner as ``itertools.groupby``.
-        Additionally the :meth:`reduce` functions will return annotated querysets.
+        Additionally the [reduce][model_values.QuerySet.reduce] functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
         qs._groupby = fields + tuple(annotations)
         return qs
 
     def annotate(self, *args, **kwargs) -> 'QuerySet':
-        """Annotate extended to also handle mapping values, as a `Case`_ expression.
+        """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
             **kwargs: ``field={Q_obj: value, ...}, ...``
@@ -431,7 +436,7 @@ class QuerySet(models.QuerySet, Lookup):
         return super().annotate(*args, **kwargs)
 
     def alias(self, *args, **kwargs) -> 'QuerySet':
-        """Alias extended to also handle mapping values, as a `Case`_ expression.
+        """Alias extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
             **kwargs: ``field={Q_obj: value, ...}, ...``
@@ -446,12 +451,12 @@ class QuerySet(models.QuerySet, Lookup):
         return self.items(*self._fields, **{alias: F.count()})
 
     def sort_values(self, reverse=False) -> 'QuerySet':
-        """Return `QuerySet`_ ordered by selected values."""
+        """Return [QuerySet][model_values.QuerySet] ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
 
     def reduce(self, *funcs):
-        """Return aggregated values, or an annotated `QuerySet`_ if :meth:`groupby` is in use.
+        """Return aggregated values, or an annotated [QuerySet][model_values.QuerySet].
 
         Args:
             *funcs: aggregation function classes
@@ -466,7 +471,7 @@ class QuerySet(models.QuerySet, Lookup):
         return row[names[0]] if self._flat else tuple(map(row.__getitem__, names))
 
     def update(self, **kwargs) -> int:
-        """Update extended to also handle mapping values, as a `Case`_ expression.
+        """Update extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
             **kwargs: ``field={Q_obj: value, ...}, ...``
@@ -531,7 +536,7 @@ class Manager(models.Manager):
         return QuerySet(self.model, Query(self.model), self._db, self._hints)
 
     def __getitem__(self, pk) -> QuerySet:
-        """Return `QuerySet`_ which matches primary key.
+        """Return [QuerySet][model_values.QuerySet] which matches primary key.
 
         To encourage direct db access, instead of always using get and save.
         """
@@ -583,7 +588,7 @@ class Manager(models.Manager):
             data: ``{pk: value, ...}``
             key: unique key column
             conditional: execute select query and single conditional update;
-            may be more efficient if the percentage of changed rows is relatively small
+                may be more efficient if the percentage of changed rows is relatively small
             **kwargs: additional fields to be updated
         """
         if conditional:

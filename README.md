@@ -9,17 +9,11 @@
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://pypi.org/project/black/)
 [![image](http://mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
 
-[Django](https://docs.djangoproject.com) model utilities for encouraging
-direct data access instead of unnecessary object overhead. Implemented
-through compatible method and operator extensions to `QuerySets` and
-`Managers`.
+[Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions to `QuerySets` and `Managers`.
 
-The goal is to provide elegant syntactic support for best practices in
-using Django's ORM. Specifically avoiding the inefficiencies and race
-conditions associated with always using objects.
+The goal is to provide elegant syntactic support for best practices in using Django's ORM. Specifically avoiding the inefficiencies and race conditions associated with always using objects.
 
 ## Usage
-
 Typical model usage is verbose, inefficient, and incorrect.
 
 ```python
@@ -48,9 +42,7 @@ books.values_list('rating', flat=True)
 books['rating']
 ```
 
-Column-oriented syntax is common in panel data layers, and the greater
-expressiveness cascades. `QuerySets` also support aggregation and
-conditionals.
+Column-oriented syntax is common in panel data layers, and the greater expressiveness cascades. `QuerySets` also support aggregation and conditionals.
 
 ```python
 books.values_list('rating', flat=True).filter(rating__gt=0)
@@ -60,10 +52,7 @@ books.aggregate(models.Avg('rating'))['rating__avg']
 books['rating'].mean()
 ```
 
-`Managers` provide a variety of efficient primary key based utilities.
-To enable, instantiate the `Manager` in your models. As with any custom
-`Manager`, it doesn't have to be named `objects`, but it is designed to
-be a 100% compatible replacement.
+`Managers` provide a variety of efficient primary key based utilities. To enable, instantiate the `Manager` in your models. As with any custom `Manager`, it doesn't have to be named `objects`, but it is designed to be a 100% compatible replacement.
 
 ```python
 from model_values import Manager
@@ -73,8 +62,7 @@ class Book(models.Model):
     objects = Manager()
 ```
 
-`F` expressions are also enhanced, and can be used directly without
-model changes.
+`F` expressions are also enhanced, and can be used directly without model changes.
 
 ```python
 from model_values import F
