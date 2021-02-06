@@ -629,7 +629,6 @@ class Case(models.Case):
     Args:
         conds: ``{Q_obj: value, ...}``
         default: optional default value or ``F`` object
-        output_field: optional field defaults to registered ``types``
     """
 
     types = {
@@ -642,7 +641,7 @@ class Case(models.Case):
     def __new__(cls, conds, default=None, **extra):
         cases = (models.When(cond, Value(conds[cond])) for cond in conds)
         types = set(map(type, conds.values()))
-        if len(types) == 1 and types.issubset(cls.types):
+        if django.VERSION < (3, 2) and len(types) == 1 and types.issubset(cls.types):
             extra.setdefault('output_field', cls.types.get(*types)())
         return models.Case(*cases, default=Value(default), **extra)
 
