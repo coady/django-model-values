@@ -1,5 +1,5 @@
 check:
-	pytest --cov
+	python3 -m pytest --cov
 
 lint:
 	python3 setup.py check -ms
@@ -8,4 +8,4 @@ lint:
 	mypy -p model_values
 
 html:
-	PYTHONPATH=$(PWD):$(PYTHONPATH) mkdocs build
+	python3 -m mkdocs build
