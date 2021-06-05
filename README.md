@@ -84,27 +84,25 @@ from model_values import F
 ```
 
 ## Changes
-1.3
+dev
+* Python >=3.7 required
 
+1.3
 * Django 3.2 support
 
 1.2
-
 * Python >=3.6 required
 * Django >=2.2 required
 
 1.1
-
 * Django 3 support
 
 1.0
-
 * Update related methods moved with deprecation warnings
 * Extensible change detection and updates
 * Django 2.2 functions
 
 0.6
-
 * Transform functions
 * Named tuples
 * Window functions
@@ -115,19 +113,16 @@ from model_values import F
 * Expressions in column selection
 
 0.5
-
 * `F` expressions operators `any` and `all`
 * Spatial lookups and functions
 * Django 2.0 support
 
 0.4
-
 * `upsert` method
 * Django 1.9 database functions
 * `bulk_update` supports additional fields
 
 0.3
-
 * Lookup methods and operators
 * `F` expressions and aggregation methods
 * Database functions
@@ -135,7 +130,6 @@ from model_values import F
 * Bulk updates and change detection
 
 0.2
-
 * Change detection
 * Groupby functionality
 * Named tuples
