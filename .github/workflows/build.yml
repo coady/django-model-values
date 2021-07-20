@@ -21,7 +21,9 @@ jobs:
     - run: pip install --pre 'django${{ matrix.django-version }}'
     - run: pip install pytest-cov pytest-django
     - run: make check
-    - uses: codecov/codecov-action@v1
+    - uses: codecov/codecov-action@v2
+      with:
+        files: .coverage
 
   lint:
     runs-on: ubuntu-latest
