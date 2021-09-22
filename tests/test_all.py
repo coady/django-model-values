@@ -272,6 +272,11 @@ def test_3_2(books):
     assert books.alias(name=F.author.lower()).annotate(name=F('name'))
 
 
+@pytest.mark.skipif(django.VERSION < (4,), reason='requires django >=4')
+def test_4(books):
+    assert books['quantity'].filter(quantity=-1).sum(default=0) == 0
+
+
 def test_lookups(books):
     assert books[F.last_modified.year == timezone.now().year].count() == 5
     assert isinstance(F.quantity.min(), models.Min)
@@ -289,7 +294,6 @@ def test_lookups(books):
     authors = books['author']
     assert set(authors.isin('AB')) == {'A', 'B'}
     assert set(authors.iexact('a')) == {'A'}
-    assert set(authors.contains('A')) == {'A'}
     assert set(authors.icontains('a')) == {'A'}
     assert set(authors.startswith('A')) == {'A'}
     assert set(authors.istartswith('a')) == {'A'}

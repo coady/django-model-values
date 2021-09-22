@@ -12,7 +12,13 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.7', '3.8', '3.9']
-        django-version: ['<3', '<3.2', '']
+        django-version: ['<3', '<4', '']
+        include:
+          - python-version: '3.10.0-rc - 3.10'
+            django-version: ''
+        exclude:
+          - python-version: '3.7'
+            django-version: ''
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

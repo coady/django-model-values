@@ -86,6 +86,7 @@ from model_values import F
 ## Changes
 dev
 * Python >=3.7 required
+* Django 4 support
 
 1.3
 * Django 3.2 support
