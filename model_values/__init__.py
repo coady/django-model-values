@@ -327,7 +327,7 @@ class F(models.F, Lookup, metaclass=MetaF):
 
 
 def reduce(func):
-    return update_wrapper(lambda self: self.reduce(func), func.__name__)
+    return update_wrapper(lambda self, **extra: self.reduce(func, **extra), func.__name__)
 
 
 def field(func):
@@ -455,13 +455,13 @@ class QuerySet(models.QuerySet, Lookup):
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
 
-    def reduce(self, *funcs):
+    def reduce(self, *funcs, **extra):
         """Return aggregated values, or an annotated [QuerySet][model_values.QuerySet].
 
         Args:
             *funcs: aggregation function classes
         """
-        funcs = [func(field) for field, func in zip(self._fields, itertools.cycle(funcs))]
+        funcs = [func(field, **extra) for field, func in zip(self._fields, itertools.cycle(funcs))]
         if hasattr(self, '_groupby'):
             return self[self._groupby].annotate(*funcs)
         names = [func.default_alias for func in funcs]
