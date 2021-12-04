@@ -1,5 +1,5 @@
 site_name: django-model-values
-+site_url: https://coady.github.io/django-model-values/
+site_url: https://coady.github.io/django-model-values/
 site_description: Taking the O out of ORM.
 theme: material
 

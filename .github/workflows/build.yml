@@ -14,7 +14,7 @@ jobs:
         python-version: ['3.7', '3.8', '3.9']
         django-version: ['<3', '<4', '']
         include:
-          - python-version: '3.10.0-rc - 3.10'
+          - python-version: '3.10'
             django-version: ''
         exclude:
           - python-version: '3.7'

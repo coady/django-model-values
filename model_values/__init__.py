@@ -15,7 +15,7 @@ try:  # pragma: no cover
 except Exception:  # pragma: no cover
     gis = None
 
-__version__ = '1.3'
+__version__ = '1.4'
 
 
 def update_wrapper(wrapper, name):
