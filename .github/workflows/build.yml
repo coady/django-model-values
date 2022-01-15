@@ -11,14 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.7', '3.8', '3.9']
-        django-version: ['<3', '<4', '']
+        python-version: ['3.8', '3.9', '3.10']
+        django-version: ['<4', '']
         include:
-          - python-version: '3.10'
-            django-version: ''
-        exclude:
           - python-version: '3.7'
-            django-version: ''
+            django-version: '<4'
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2

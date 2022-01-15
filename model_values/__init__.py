@@ -10,7 +10,7 @@ from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 
 try:  # pragma: no cover
-    import django.contrib.gis.db.models.functions
+    import django.contrib.gis.db.models.functions  # noqa: F401
     import django.contrib.gis.db.models as gis
 except Exception:  # pragma: no cover
     gis = None
@@ -170,6 +170,8 @@ class F(models.F, Lookup, metaclass=MetaF):
         sin=functions.Sin,
         sqrt=functions.Sqrt,
         tan=functions.Tan,
+        sign=functions.Sign,
+        md5=functions.MD5,
     )
     coalesce = method(functions.Coalesce)
     concat = method(functions.Concat)  # __add__ is taken
@@ -209,17 +211,14 @@ class F(models.F, Lookup, metaclass=MetaF):
     pi = functions.Pi()
     __pow__ = method(functions.Power)
     __round__ = method(functions.Round)
-    if django.VERSION >= (3,):  # pragma: no branch
-        lookups.update(sign=functions.Sign, md5=functions.MD5)
-        sha1 = method(functions.SHA1)
-        sha224 = method(functions.SHA224)
-        sha256 = method(functions.SHA256)
-        sha384 = method(functions.SHA384)
-        sha512 = method(functions.SHA512)
-    if django.VERSION >= (3, 2):
-        collate = method(functions.Collate)
-        json = staticmethod(functions.JSONObject)
-        random = staticmethod(functions.Random)
+    sha1 = method(functions.SHA1)
+    sha224 = method(functions.SHA224)
+    sha256 = method(functions.SHA256)
+    sha384 = method(functions.SHA384)
+    sha512 = method(functions.SHA512)
+    collate = method(functions.Collate)
+    json = staticmethod(functions.JSONObject)
+    random = staticmethod(functions.Random)
     if gis:  # pragma: no cover
         area = property(gis.functions.Area)
         geojson = method(gis.functions.AsGeoJSON)
@@ -640,9 +639,6 @@ class Case(models.Case):
 
     def __new__(cls, conds, default=None, **extra):
         cases = (models.When(cond, Value(conds[cond])) for cond in conds)
-        types = set(map(type, conds.values()))
-        if django.VERSION < (3, 2) and len(types) == 1 and types.issubset(cls.types):
-            extra.setdefault('output_field', cls.types.get(*types)())
         return models.Case(*cases, default=Value(default), **extra)
 
     @classmethod

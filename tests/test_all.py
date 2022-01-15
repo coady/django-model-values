@@ -247,7 +247,6 @@ def test_2_2():
     assert isinstance(F.x.tan, F)
 
 
-@pytest.mark.skipif(django.VERSION < (3,), reason='requires django >=3')
 def test_3():
     assert isinstance(F.x.sign(), functions.Sign)
     assert isinstance(F.x.md5(), functions.MD5)
@@ -261,7 +260,6 @@ def test_3():
     assert isinstance(F.x.md5, F)
 
 
-@pytest.mark.skipif(django.VERSION < (3, 2), reason='requires django >=3.2')
 def test_3_2(books):
     assert isinstance(F.x.collate('nocase'), functions.Collate)
     assert isinstance(F.json(), functions.JSONObject)
