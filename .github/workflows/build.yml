@@ -25,7 +25,7 @@ jobs:
     - run: pip install pytest-cov pytest-django
     - run: make check
     - run: coverage xml
-    - uses: codecov/codecov-action@v2
+    - uses: codecov/codecov-action@v3
 
   lint:
     runs-on: ubuntu-latest
