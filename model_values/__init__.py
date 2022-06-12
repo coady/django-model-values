@@ -12,7 +12,7 @@ from django.db.models import functions
 try:  # pragma: no cover
     import django.contrib.gis.db.models.functions  # noqa: F401
     import django.contrib.gis.db.models as gis
-except Exception:  # pragma: no cover
+except Exception:
     gis = None
 
 __version__ = '1.4'
@@ -148,7 +148,7 @@ class F(models.F, Lookup, metaclass=MetaF):
 
     Some ``Func`` objects can also be transformed into lookups,
     if [registered](https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length):
-    ``F.text.length()`` == ``Length(F(text))``,
+    ``F.text.length()`` == ``Length(F('text'))``,
     ``F.text.length > 0`` == ``Q(text__length__gt=0)``.
     """
 
@@ -404,7 +404,7 @@ class QuerySet(models.QuerySet, Lookup):
         getter = operator.itemgetter(size if self._flat else slice(size, None))
         if self._named:
             Row = collections.namedtuple('Row', self._fields)
-            getter = lambda tup: Row(*tup[size:])  # noqa
+            getter = lambda tup: Row(*tup[size:])  # noqa: E731
         return ((key, map(getter, values)) for key, values in groups)
 
     def items(self, *fields, **annotations) -> 'QuerySet':
@@ -592,7 +592,7 @@ class Manager(models.Manager):
         """
         if conditional:
             data = {pk: data[pk] for pk in self.bulk_changed(field, data, key)}
-        updates = collections.defaultdict(list)  # type: dict
+        updates = collections.defaultdict(list)
         for pk in data:
             updates[data[pk]].append(pk)
         if conditional:
