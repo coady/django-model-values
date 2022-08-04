@@ -84,7 +84,7 @@ from model_values import F
 ```
 
 ## Changes
-dev
+1.5
 * Django >=3.2 required
 
 1.4
