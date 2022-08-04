@@ -1,0 +1,617 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Taking the O out of ORM.">
+      
+      
+      
+        <link rel="canonical" href="https://coady.github.io/django-model-values/">
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>django-model-values</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.cbb835fc.min.css">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL(".",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#updates" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="django-model-values" class="md-header__button md-logo" aria-label="django-model-values" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            django-model-values
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Introduction
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/coady/django-model-values" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    coady/django-model-values
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="django-model-values" class="md-nav__button md-logo" aria-label="django-model-values" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    django-model-values
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/coady/django-model-values" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    coady/django-model-values
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Introduction
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        Introduction
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#updates" class="md-nav__link">
+    Updates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selects" class="md-nav__link">
+    Selects
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation" class="md-nav__link">
+    Aggregation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expressions" class="md-nav__link">
+    Expressions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditionals" class="md-nav__link">
+    Conditionals
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="example/" class="md-nav__link">
+        Example
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#updates" class="md-nav__link">
+    Updates
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#selects" class="md-nav__link">
+    Selects
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aggregation" class="md-nav__link">
+    Aggregation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#expressions" class="md-nav__link">
+    Expressions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conditionals" class="md-nav__link">
+    Conditionals
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+
+
+  <h1>Introduction</h1>
+
+<p>Provides <a href="https://docs.djangoproject.com">Django</a> model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions<sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup> to <a href="reference/#model_values.QuerySet">QuerySets</a> and <a href="reference/#model_values.Manager">Managers</a>.</p>
+<p>The primary motivation is the experiential observation that the active record pattern - specifically <code>Model.save</code> - is the root of all evil. The secondary goal is to provide a more intuitive data layer, similar to PyData projects such as <a href="http://pandas.pydata.org">pandas</a>.</p>
+<p>Usage: instantiate the <a href="https://docs.djangoproject.com/en/stable/topics/db/managers/#custom-managers">custom manager</a> in your models.</p>
+<h2 id="updates">Updates</h2>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">book = Book.objects.get(pk=pk)
+book.rating = 5.0
+book.save()
+</code></pre>
+<p>This example is ubiquitous and even encouraged in many django circles. It's also an epic fail:</p>
+<ul>
+<li>Runs an unnecessary select query, as no fields need to be read.</li>
+<li>Updates all fields instead of just the one needed.</li>
+<li>Therefore also suffers from race conditions.</li>
+<li>And is relatively verbose, without addressing errors yet.</li>
+</ul>
+<p>The solution is relatively well-known, and endorsed by <a href="https://docs.djangoproject.com/en/stable/ref/models/querysets/#update">django's own docs</a>, but remains under-utilized.</p>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">Book.objects.filter(pk=pk).update(rating=5.0)
+</code></pre>
+<p>So why not provide syntactic support for the better approach? The <a href="reference/#model_values.Manager">Manager</a> supports filtering by primary key, since that's so common. The <a href="reference/#model_values.QuerySet">QuerySet</a> supports column updates.</p>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">Book.objects[pk]['rating'] = 5.0
+</code></pre>
+<p>But one might posit...</p>
+<ul>
+<li>"Isn't the encapsulation <code>save</code> provides worth it in principle?"</li>
+<li>"Doesn't the new <code>update_fields</code> option fix this in practice?"</li>
+<li>"What if the object is cached or has custom logic in the <code>save</code> method?"</li>
+</ul>
+<p>No, no, and good luck with that.<sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup> Consider a more realistic example which addresses these concerns.</p>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">try:
+    book = Book.objects.get(pk=pk)
+except Book.DoesNotExist:
+    changed = False
+else:
+    changed = book.publisher != publisher
+    if changed:
+        book.publisher = publisher
+        book.pubdate = today
+        book.save(update_fields=['publisher', 'pubdate'])
+</code></pre>
+<p>This solves the most severe problem, though with more verbosity and still an unnecessary read.<sup id="fnref:3"><a class="footnote-ref" href="#fn:3">3</a></sup> Note handling <code>pubdate</code> in the <code>save</code> implementation would only spare the caller one line of code. But the real problem is how to handle custom logic when <code>update_fields</code> <em>isn't</em>
+specified. There's no one obvious correct behavior, which is why projects like <a href="https://pypi.org/project/django-model-utils/">django-model-utils</a> have to track the changes on the object itself.<sup id="fnref:4"><a class="footnote-ref" href="#fn:4">4</a></sup></p>
+<p>A better approach would be an <code>update_publisher</code> method which does all and only what is required. So what would such an implementation be? A straight-forward update won't work, yet only a minor tweak is needed.</p>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">changed = Book.objects.filter(pk=pk).exclude(publisher=publisher) \ 
+    .update(publisher=publisher, pubdate=today)
+</code></pre>
+<p>Now the update is only executed if necessary. And this can be generalized with a little inspiration from <code>{get,update}_or_create</code>.</p>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">changed = Book.objects[pk].change({'pubdate': today}, publisher=publisher)
+</code></pre>
+<h2 id="selects">Selects</h2>
+<p>Direct column access has some of the clunkiest syntax: <code>values_list(..., flat=True)</code>. <a href="reference/#model_values.QuerySet">QuerySets</a> override <code>__getitem__</code>, as well as comparison operators for simple filters. Both are common syntax in panel data layers.</p>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">{book.pk: book.name for book in qs}
+
+(book.name for book in qs.filter(name__isnull=False))
+
+if qs.filter(author=author):
+</code></pre>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">dict(qs.values_list('pk', 'name'))
+
+qs.exclude(name=None).values_list('name', flat=True)
+
+if qs.filter(author=author).exists():
+</code></pre>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">dict(qs['pk', 'name'])
+
+qs['name'] != None
+
+if author in qs['author']:
+</code></pre>
+<h2 id="aggregation">Aggregation</h2>
+<p>Once accustomed to working with data values, a richer set of aggregations becomes possible. Again the method names mirror projects like <a href="http://pandas.pydata.org">pandas</a> whenever applicable.</p>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">collections.Counter(book.author for book in qs)
+
+sum(book.rating for book in qs) / len(qs)
+
+counts = collections.Counter()
+for book in qs:
+    counts[book.author] += book.quantity
+</code></pre>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">dict(qs.values_list('author').annotate(model.Count('author')))
+
+qs.aggregate(models.Avg('rating'))['rating__avg']
+
+dict(qs.values_list('author').annotate(models.Sum('quantity')))
+</code></pre>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">dict(qs['author'].value_counts())
+
+qs['rating'].mean()
+
+dict(qs['quantity'].groupby('author').sum())
+</code></pre>
+<h2 id="expressions">Expressions</h2>
+<p><code>F</code> expressions are similarly extended to easily create <code>Q</code>, <code>Func</code>, and <code>OrderBy</code> objects. Note they can be used directly even without a custom manager.</p>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">(book for book in qs if book.author.startswith('A') or book.author.startswith('B'))
+
+(book.title[:10] for book in qs)
+
+for book in qs:
+    book.rating += 1
+    book.save()
+</code></pre>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">qs.filter(Q(author__startswith='A') | Q(author__startswith='B'))
+
+qs.values_list(functions.Substr('title', 1, 10), flat=True)
+
+qs.update(rating=models.F('rating') + 1)
+</code></pre>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">qs[F.any(map(F.author.startswith, 'AB'))]
+
+qs[F.title[:10]]
+
+qs['rating'] += 1
+</code></pre>
+<h2 id="conditionals">Conditionals</h2>
+<p>Annotations and updates with <code>Case</code> and <code>When</code> expressions. See also <a href="reference/#model_values.Manager">bulk_changed and bulk_change</a> for efficient bulk operations on primary keys.</p>
+<p><em>The Bad</em>:</p>
+<pre><code class="language-python">collections.Counter('low' if book.quantity &lt; 10 else 'high' for book in qs).items()
+
+for author, quantity in items:
+    for book in qs.filter(author=author):
+        book.quantity = quantity
+        book.save()
+</code></pre>
+<p><em>The Ugly</em>:</p>
+<pre><code class="language-python">qs.values_list(models.Case(
+    models.When(quantity__lt=10, then=models.Value('low')),
+    models.When(quantity__gte=10, then=models.Value('high')),
+    output_field=models.CharField(),
+)).annotate(count=models.Count('*'))
+
+cases = (models.When(author=author, then=models.Value(quantity)) for author, quantity in items)
+qs.update(quantity=models.Case(*cases, default='quantity'))
+</code></pre>
+<p><em>The Good</em>:</p>
+<pre><code class="language-python">qs[{F.quantity &lt; 10: 'low', F.quantity &gt;= 10: 'high'}].value_counts()
+
+qs['quantity'] = {F.author == author: quantity for author, quantity in items}
+</code></pre>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>The only incompatible changes are edge cases which aren't documented behavior, such as queryset comparison.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>In the <em>vast</em> majority of instances of that idiom, the object is immediately discarded and no custom logic is necessary. Furthermore the dogma of a model knowing how to serialize itself doesn't inherently imply a single all-purpose instance method. Specialized classmethods or manager methods would be just as encapsulated.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:3">
+<p>Premature optimization? While debatable with respect to general object overhead, nothing good can come from running superfluous database queries.&#160;<a class="footnote-backref" href="#fnref:3" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:4">
+<p>Supporting <code>update_fields</code> with custom logic also results in complex conditionals, ironic given that OO methodology ostensibly favors separate methods over large switch statements.&#160;<a class="footnote-backref" href="#fnref:4" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+      
+        
+        <a href="reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Reference
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
