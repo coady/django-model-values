@@ -1,5 +1,4 @@
 __pycache__/
 site/
 .coverage
-.mypy_cache/
 .venv/

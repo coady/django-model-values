@@ -3,7 +3,7 @@ check:
 
 lint:
 	black --check .
-	flake8
+	flake8 --exclude .venv --ignore E501
 	mypy -p model_values
 
 html:

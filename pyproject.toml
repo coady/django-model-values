@@ -1,7 +1,58 @@
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "django-model-values"
+dynamic = ["version"]
+description = "Taking the O out of ORM."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
+keywords = ["values_list", "pandas", "column-oriented", "data", "mapper", "pattern", "orm"]
+classifiers = [
+    "Development Status :: 6 - Mature",
+    "Framework :: Django :: 3",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Database :: Database Engines/Servers",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = ["django>=3.2"]
+
+[project.urls]
+Homepage = "https://github.com/coady/django-model-values"
+Documentation = "https://coady.github.io/django-model-values"
+
+[tool.setuptools]
+packages = ["model_values"]
+
+[tool.setuptools.dynamic]
+version = {attr = "model_values.__version__"}
+
+[tool.setuptools.package-data]
+model_values = ["py.typed"]
 
 [tool.black]
 line-length = 110
 skip-string-normalization = true
+
+[[tool.mypy.overrides]]
+module = ["django.*"]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["model_values"]
+branch = true
