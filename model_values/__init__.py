@@ -4,7 +4,7 @@ import itertools
 import math
 import operator
 import types
-from typing import Callable, Iterable, Mapping, Union
+from typing import Callable, Iterable, Mapping, Optional, Union
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -637,7 +637,7 @@ class Case(models.Case):
         bool: models.BooleanField,
     }
 
-    def __new__(cls, conds, default=None, **extra):
+    def __new__(cls, conds: Mapping, default=None, **extra):
         cases = (models.When(cond, Value(conds[cond])) for cond in conds)
         return models.Case(*cases, default=Value(default), **extra)
 
@@ -651,7 +651,7 @@ class Case(models.Case):
         return isinstance(value, Mapping) and any(isinstance(key, models.Q) for key in value)
 
 
-def EnumField(enum, display: Callable = None, **options) -> models.Field:
+def EnumField(enum, display: Optional[Callable] = None, **options) -> models.Field:
     """Return a ``CharField`` or ``IntegerField`` with choices from given enum.
 
     By default, enum names and values are used as db values and display labels respectively,
