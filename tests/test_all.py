@@ -1,3 +1,4 @@
+import enum
 import math
 import django
 from django.db import models
@@ -400,8 +401,6 @@ def test_spatial_functions(books):
 
 
 def test_enum():
-    enum = pytest.importorskip('enum')
-
     @EnumField
     class gender(enum.Enum):
         M = 'Male'
