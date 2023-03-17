@@ -49,6 +49,9 @@ model_values = ["py.typed"]
 line-length = 110
 skip-string-normalization = true
 
+[tool.ruff]
+ignore = ["E501"]
+
 [[tool.mypy.overrides]]
 module = ["django.*"]
 ignore_missing_imports = true
