@@ -36,6 +36,8 @@ dependencies = ["django>=3.2"]
 [project.urls]
 Homepage = "https://github.com/coady/django-model-values"
 Documentation = "https://coady.github.io/django-model-values"
+Changelog = "https://github.com/coady/django-model-values/blob/main/CHANGELOG.md"
+Issues = "https://github.com/coady/django-model-values/issues"
 
 [tool.setuptools]
 packages = ["model_values"]

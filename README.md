@@ -7,7 +7,7 @@
 [![image](https://codecov.io/gh/coady/django-model-values/branch/main/graph/badge.svg)](https://codecov.io/gh/coady/django-model-values/)
 [![image](https://github.com/coady/django-model-values/workflows/codeql/badge.svg)](https://github.com/coady/django-model-values/security/code-scanning)
 [![image](https://img.shields.io/badge/code%20style-black-000000.svg)](https://pypi.org/project/black/)
-[![image](http://mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+[![image](https://mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
 [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions to `QuerySets` and `Managers`.
 
@@ -82,61 +82,3 @@ from model_values import F
 ```console
 % pytest [--cov]
 ```
-
-## Changes
-dev
-* Python >=3.8 required
-
-1.5
-* Django >=3.2 required
-
-1.4
-* Python >=3.7 required
-* Django 4 support
-
-1.3
-* Django 3.2 support
-
-1.2
-* Python >=3.6 required
-* Django >=2.2 required
-
-1.1
-* Django 3 support
-
-1.0
-* Update related methods moved with deprecation warnings
-* Extensible change detection and updates
-* Django 2.2 functions
-
-0.6
-* Transform functions
-* Named tuples
-* Window functions
-* Distance lookups
-* Django 2.1 functions
-* `EnumField`
-* Annotated `items`
-* Expressions in column selection
-
-0.5
-* `F` expressions operators `any` and `all`
-* Spatial lookups and functions
-* Django 2.0 support
-
-0.4
-* `upsert` method
-* Django 1.9 database functions
-* `bulk_update` supports additional fields
-
-0.3
-* Lookup methods and operators
-* `F` expressions and aggregation methods
-* Database functions
-* Conditional expressions for updates and annotations
-* Bulk updates and change detection
-
-0.2
-* Change detection
-* Groupby functionality
-* Named tuples
