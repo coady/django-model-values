@@ -1,10 +1,11 @@
+from __future__ import annotations
 import collections
 import functools
 import itertools
 import math
 import operator
 import types
-from typing import Callable, Iterable, Mapping, Optional, Union
+from collections.abc import Callable, Iterable, Mapping
 import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -118,7 +119,7 @@ def transform(lookup, func, value):
 
 
 class MetaF(type):
-    def __getattr__(cls, name: str) -> 'F':
+    def __getattr__(cls, name: str) -> F:
         if name in ('name', '__slots__', '__wrapped__'):
             raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
@@ -258,7 +259,7 @@ class F(models.F, Lookup, metaclass=MetaF):
             __ge__ = method(transform, 'distance_gte')
             within = method(transform, 'dwithin')
 
-    def __getattr__(self, name: str) -> 'F':
+    def __getattr__(self, name: str) -> F:
         """Return new [F][model_values.F] object with chained attribute."""
         return type(self)(f'{self.name}__{name}')
 
@@ -383,7 +384,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Update a single column."""
         self.update(**{key: value})
 
-    def __eq__(self, value, lookup: str = '') -> 'QuerySet':
+    def __eq__(self, value, lookup: str = '') -> QuerySet:
         """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
         (field,) = self._fields
         return self.filter(**{field + lookup: value})
@@ -407,11 +408,11 @@ class QuerySet(models.QuerySet, Lookup):
             getter = lambda tup: Row(*tup[size:])  # noqa: E731
         return ((key, map(getter, values)) for key, values in groups)
 
-    def items(self, *fields, **annotations) -> 'QuerySet':
+    def items(self, *fields, **annotations) -> QuerySet:
         """Return annotated ``values_list``."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
-    def groupby(self, *fields, **annotations) -> 'QuerySet':
+    def groupby(self, *fields, **annotations) -> QuerySet:
         """Return a grouped [QuerySet][model_values.QuerySet].
 
         The queryset is iterable in the same manner as ``itertools.groupby``.
@@ -421,7 +422,7 @@ class QuerySet(models.QuerySet, Lookup):
         qs._groupby = fields + tuple(annotations)
         return qs
 
-    def annotate(self, *args, **kwargs) -> 'QuerySet':
+    def annotate(self, *args, **kwargs) -> QuerySet:
         """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
@@ -434,7 +435,7 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().annotate(*args, **kwargs)
 
-    def alias(self, *args, **kwargs) -> 'QuerySet':
+    def alias(self, *args, **kwargs) -> QuerySet:
         """Alias extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
@@ -445,11 +446,11 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().alias(*args, **kwargs)
 
-    def value_counts(self, alias: str = 'count') -> 'QuerySet':
+    def value_counts(self, alias: str = 'count') -> QuerySet:
         """Return annotated value counts."""
         return self.items(*self._fields, **{alias: F.count()})
 
-    def sort_values(self, reverse=False) -> 'QuerySet':
+    def sort_values(self, reverse=False) -> QuerySet:
         """Return [QuerySet][model_values.QuerySet] ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
@@ -549,7 +550,7 @@ class Manager(models.Manager):
         """Return whether primary key is present using ``exists``."""
         return self[pk].exists()
 
-    def upsert(self, defaults: Mapping = {}, **kwargs) -> Union[int, models.Model]:
+    def upsert(self, defaults: Mapping = {}, **kwargs) -> int | models.Model:
         """Update or insert returning number of rows or created object.
 
         Faster and safer than ``update_or_create``.
@@ -651,7 +652,7 @@ class Case(models.Case):
         return isinstance(value, Mapping) and any(isinstance(key, models.Q) for key in value)
 
 
-def EnumField(enum, display: Optional[Callable] = None, **options) -> models.Field:
+def EnumField(enum, display: Callable | None = None, **options) -> models.Field:
     """Return a ``CharField`` or ``IntegerField`` with choices from given enum.
 
     By default, enum names and values are used as db values and display labels respectively,
