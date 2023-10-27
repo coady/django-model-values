@@ -13,10 +13,7 @@ authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
 keywords = ["values_list", "pandas", "column-oriented", "data", "mapper", "pattern", "orm"]
 classifiers = [
     "Development Status :: 6 - Mature",
-    "Framework :: Django :: 3",
-    "Framework :: Django :: 3.2",
     "Framework :: Django :: 4",
-    "Framework :: Django :: 4.1",
     "Framework :: Django :: 4.2",
     "Framework :: Django :: 5.0",
     "Intended Audience :: Developers",
@@ -27,11 +24,12 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Database :: Database Engines/Servers",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = ["django>=3.2"]
+dependencies = ["django>=4.2"]
 
 [project.urls]
 Homepage = "https://github.com/coady/django-model-values"

@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## Unreleased
 ### Changed
 * Python >=3.8 required
+* Django >=4.2 required
 
 ## [1.5](https://pypi.org/project/django-model-values/1.5/) - 2022-08-03
 ### Changed
