@@ -7,7 +7,7 @@ name = "django-model-values"
 dynamic = ["version"]
 description = "Taking the O out of ORM."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE.txt"}
 authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
 keywords = ["values_list", "pandas", "column-oriented", "data", "mapper", "pattern", "orm"]
@@ -20,7 +20,6 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
