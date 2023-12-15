@@ -317,7 +317,8 @@ def test_spatial_lookups():
     point = 'POINT(0 0)'
     assert F.location.is_valid.children == [('location__isvalid', True)]
     assert F.location.contains(point, bb=True).children == [('location__bbcontains', point)]
-    assert F.location.contains(point, properly=True).children == [('location__contains_properly', point)]
+    expected = [('location__contains_properly', point)]
+    assert F.location.contains(point, properly=True).children == expected
 
     assert F.location.overlaps(point).children == [('location__overlaps', point)]
     assert F.location.overlaps(point, bb=True).children == [('location__bboverlaps', point)]
@@ -339,8 +340,10 @@ def test_spatial_lookups():
     assert F.location.relate(point, '').children == [('location__relate', (point, ''))]
     assert F.location.touches(point).children == [('location__touches', point)]
 
-    assert (F.location << point).children == F.location.left(point).children == [('location__left', point)]
-    assert (F.location >> point).children == F.location.right(point).children == [('location__right', point)]
+    expected = [('location__left', point)]
+    assert (F.location << point).children == F.location.left(point).children == expected
+    expected = [('location__right', point)]
+    assert (F.location >> point).children == F.location.right(point).children == expected
     assert F.location.above(point).children == [('location__strictly_above', point)]
     assert F.location.below(point).children == [('location__strictly_below', point)]
 
@@ -374,7 +377,8 @@ def test_spatial_functions(books):
 
     dist = F.location.distance(point)
     assert isinstance(dist, gis.functions.Distance)
-    fields, items = zip(*F.all([(dist < 0), (dist <= 0), (dist > 0), (dist >= 0), dist.within(0)]).children)
+    dists = (dist < 0), (dist <= 0), (dist > 0), (dist >= 0), dist.within(0)
+    fields, items = zip(*F.all(dists).children)
     assert fields == (
         'location__distance_lt',
         'location__distance_lte',

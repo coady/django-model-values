@@ -7,4 +7,6 @@ def pytest_report_header(config):
 
 
 pytest_plugins = ('django',)
-settings.configure(INSTALLED_APPS=['tests'], DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}})
+settings.configure(
+    INSTALLED_APPS=['tests'], DATABASES={'default': {'ENGINE': 'django.db.backends.sqlite3'}}
+)

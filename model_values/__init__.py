@@ -580,7 +580,9 @@ class Manager(models.Manager):
         rows = self.filter(F(key).isin(data))[key, field].iterator()
         return {pk: value for pk, value in rows if value != data[pk]}
 
-    def bulk_change(self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs) -> int:
+    def bulk_change(
+        self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs
+    ) -> int:
         """Update changed rows with a minimal number of queries, by inverting the data to use ``pk__in``.
 
         Args:
