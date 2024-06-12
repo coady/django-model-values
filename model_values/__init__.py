@@ -6,17 +6,13 @@ import math
 import operator
 import types
 from collections.abc import Callable, Iterable, Mapping
-import django
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 
 try:  # pragma: no cover
-    import django.contrib.gis.db.models.functions  # noqa: F401
     import django.contrib.gis.db.models as gis
 except Exception:
     gis = None
-
-__version__ = '1.6'
 
 
 def update_wrapper(wrapper, name):

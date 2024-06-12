@@ -1,10 +1,6 @@
-[build-system]
-requires = ["setuptools>=61", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "django-model-values"
-dynamic = ["version"]
+version = "1.6"
 description = "Taking the O out of ORM."
 readme = "README.md"
 requires-python = ">=3.9"
@@ -37,20 +33,10 @@ Documentation = "https://coady.github.io/django-model-values"
 Changelog = "https://github.com/coady/django-model-values/blob/main/CHANGELOG.md"
 Issues = "https://github.com/coady/django-model-values/issues"
 
-[tool.setuptools]
-packages = ["model_values"]
-
-[tool.setuptools.dynamic]
-version = {attr = "model_values.__version__"}
-
-[tool.setuptools.package-data]
-model_values = ["py.typed"]
-
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.format]
-preview = true
 quote-style = "preserve"
 
 [[tool.mypy.overrides]]

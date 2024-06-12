@@ -3,9 +3,9 @@
 ![image](https://img.shields.io/pypi/djversions/django-model-values.svg)
 [![image](https://pepy.tech/badge/django-model-values)](https://pepy.tech/project/django-model-values)
 ![image](https://img.shields.io/pypi/status/django-model-values.svg)
-[![image](https://github.com/coady/django-model-values/workflows/build/badge.svg)](https://github.com/coady/django-model-values/actions)
+[![build](https://github.com/coady/django-model-values/actions/workflows/build.yml/badge.svg)](https://github.com/coady/django-model-values/actions/workflows/build.yml)
 [![image](https://codecov.io/gh/coady/django-model-values/branch/main/graph/badge.svg)](https://codecov.io/gh/coady/django-model-values/)
-[![image](https://github.com/coady/django-model-values/workflows/codeql/badge.svg)](https://github.com/coady/django-model-values/security/code-scanning)
+[![CodeQL](https://github.com/coady/django-model-values/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/coady/django-model-values/actions/workflows/github-code-scanning/codeql)
 [![image](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![image](https://mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
 
