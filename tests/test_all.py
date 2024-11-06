@@ -1,6 +1,5 @@
 import enum
 import math
-import django
 from django.db import models
 from django.db.models import functions
 from django.utils import timezone
@@ -271,7 +270,6 @@ def test_3_2(books):
     assert books.alias(name=F.author.lower()).annotate(name=F('name'))
 
 
-@pytest.mark.skipif(django.VERSION < (4,), reason='requires django >=4')
 def test_4(books):
     assert books['quantity'].filter(quantity=-1).sum(default=0) == 0
 
