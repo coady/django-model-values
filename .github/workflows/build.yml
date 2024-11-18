@@ -28,7 +28,7 @@ jobs:
     - run: pip install pytest-cov pytest-django
     - run: make check
     - run: coverage xml
-    - uses: codecov/codecov-action@v4
+    - uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
