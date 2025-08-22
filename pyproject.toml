@@ -4,7 +4,7 @@ version = "1.6"
 description = "Taking the O out of ORM."
 readme = "README.md"
 requires-python = ">=3.10"
-license = {file = "LICENSE.txt"}
+license = "Apache-2.0"
 authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
 keywords = ["values_list", "pandas", "column-oriented", "data", "mapper", "pattern", "orm"]
 classifiers = [
@@ -15,7 +15,6 @@ classifiers = [
     "Framework :: Django :: 5.1",
     "Framework :: Django :: 5.2",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
@@ -47,3 +46,13 @@ ignore_missing_imports = true
 [tool.coverage.run]
 source = ["model_values"]
 branch = true
+
+[dependency-groups]
+dev = [
+    "pytest-cov",
+    "pytest-django",
+    "ruff",
+    "mypy",
+    "mkdocstrings[python]",
+    "mkdocs-material",
+]

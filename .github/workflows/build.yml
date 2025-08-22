@@ -19,13 +19,12 @@ jobs:
           django-version: '<5'
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-python@v5
+    - uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ matrix.python-version }}
-    - run: pip install --pre 'django${{ matrix.django-version }}'
-    - run: pip install pytest-cov pytest-django
+    - run: uv add 'django${{ matrix.django-version }}'
     - run: make check
-    - run: coverage xml
+    - run: uv run coverage xml
     - uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -34,18 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-python@v5
-      with:
-        python-version: 3.x
-    - run: pip install ruff mypy
+    - uses: astral-sh/setup-uv@v6
     - run: make lint
 
   docs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: actions/setup-python@v5
-      with:
-        python-version: 3.x
-    - run: pip install -r docs/requirements.in
+    - uses: astral-sh/setup-uv@v6
     - run: make html

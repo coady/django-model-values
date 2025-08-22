@@ -1,10 +1,10 @@
 check:
-	python -m pytest -s --cov
+	uv run pytest -s --cov
 
 lint:
-	ruff check .
-	ruff format --check .
-	mypy -p model_values
+	uv run ruff check .
+	uv run ruff format --check .
+	uv run mypy -p model_values
 
 html:
-	python -m mkdocs build
+	uv run mkdocs build
