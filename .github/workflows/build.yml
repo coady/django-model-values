@@ -19,7 +19,7 @@ jobs:
           django-version: '<5'
     steps:
     - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v6
+    - uses: astral-sh/setup-uv@v7
       with:
         python-version: ${{ matrix.python-version }}
     - run: uv add 'django${{ matrix.django-version }}'
@@ -33,12 +33,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v6
+    - uses: astral-sh/setup-uv@v7
     - run: make lint
 
   docs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v5
-    - uses: astral-sh/setup-uv@v6
+    - uses: astral-sh/setup-uv@v7
     - run: make html
