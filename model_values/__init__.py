@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import collections
 import functools
 import itertools
@@ -6,6 +7,7 @@ import math
 import operator
 import types
 from collections.abc import Callable, Iterable, Mapping
+
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
 
@@ -121,32 +123,32 @@ class MetaF(type):
         return cls(name)
 
     def any(cls, exprs: Iterable[models.Q]) -> models.Q:
-        """Return ``Q`` OR object."""
+        """Return `Q` OR object."""
         return functools.reduce(operator.or_, exprs)
 
     def all(cls, exprs: Iterable[models.Q]) -> models.Q:
-        """Return ``Q`` AND object."""
+        """Return `Q` AND object."""
         return functools.reduce(operator.and_, exprs)
 
 
 class F(models.F, Lookup, metaclass=MetaF):
-    """Create ``F``, ``Q``, and ``Func`` objects with expressions.
+    """Create `F`, `Q`, and `Func` objects with expressions.
 
-    ``F`` creation supported as attributes:
-    ``F.user`` == ``F('user')``,
-    ``F.user.created`` == ``F('user__created')``.
+    `F` creation supported as attributes:
+    `F.user` == `F('user')`,
+    `F.user.created` == `F('user__created')`.
 
-    ``Q`` lookups supported as methods or operators:
-    ``F.text.iexact(...)`` == ``Q(text__iexact=...)``,
-    ``F.user.created >= ...`` == ``Q(user__created__gte=...)``.
+    `Q` lookups supported as methods or operators:
+    `F.text.iexact(...)` == `Q(text__iexact=...)`,
+    `F.user.created >= ...` == `Q(user__created__gte=...)`.
 
-    ``Func`` objects also supported as methods:
-    ``F.user.created.min()`` == ``Min('user__created')``.
+    `Func` objects also supported as methods:
+    `F.user.created.min()` == `Min('user__created')`.
 
-    Some ``Func`` objects can also be transformed into lookups,
+    Some `Func` objects can also be transformed into lookups,
     if [registered](https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length):
-    ``F.text.length()`` == ``Length(F('text'))``,
-    ``F.text.length > 0`` == ``Q(text__length__gt=0)``.
+    `F.text.length()` == `Length(F('text'))`,
+    `F.text.length > 0` == `Q(text__length__gt=0)`.
     """
 
     lookups = dict(
@@ -247,7 +249,7 @@ class F(models.F, Lookup, metaclass=MetaF):
 
         @method
         class distance(gis.functions.Distance):
-            """Return ``Distance`` with support for lookups: <, <=, >, >=, within."""
+            """Return `Distance` with support for lookups: <, <=, >, >=, within."""
 
             __lt__ = method(transform, 'distance_lt')
             __le__ = method(transform, 'distance_lte')
@@ -260,7 +262,7 @@ class F(models.F, Lookup, metaclass=MetaF):
         return type(self)(f'{self.name}__{name}')
 
     def __eq__(self, value, lookup: str = '') -> models.Q:
-        """Return ``Q`` object with lookup."""
+        """Return `Q` object with lookup."""
         if not lookup and type(value) is models.F:
             return self.name == value.name
         return models.Q(**{self.name + lookup: value})
@@ -281,7 +283,7 @@ class F(models.F, Lookup, metaclass=MetaF):
         raise TypeError("'F' object is not iterable")
 
     def __getitem__(self, slc: slice) -> models.Func:
-        """Return field ``Substr`` or ``Right``."""
+        """Return field `Substr` or `Right`."""
         assert (slc.stop or 0) >= 0 and slc.step is None
         start = slc.start or 0
         if start < 0:
@@ -298,27 +300,27 @@ class F(models.F, Lookup, metaclass=MetaF):
 
     @method
     def count(self='*', **extra):
-        """Return ``Count`` with optional field."""
+        """Return `Count` with optional field."""
         return models.Count(getattr(self, 'name', self), **extra)
 
     def find(self, sub, **extra) -> models.Expression:
-        """Return ``StrIndex`` with ``str.find`` semantics."""
+        """Return `StrIndex` with `str.find` semantics."""
         return functions.StrIndex(self, Value(sub), **extra) - 1
 
     def replace(self, old, new='', **extra) -> models.Func:
-        """Return ``Replace`` with wrapped values."""
+        """Return `Replace` with wrapped values."""
         return functions.Replace(self, Value(old), Value(new), **extra)
 
     def ljust(self, width: int, fill=' ', **extra) -> models.Func:
-        """Return ``LPad`` with wrapped values."""
+        """Return `LPad` with wrapped values."""
         return functions.LPad(self, width, Value(fill), **extra)
 
     def rjust(self, width: int, fill=' ', **extra) -> models.Func:
-        """Return ``RPad`` with wrapped values."""
+        """Return `RPad` with wrapped values."""
         return functions.RPad(self, width, Value(fill), **extra)
 
     def log(self, base=math.e, **extra) -> models.Func:
-        """Return ``Log``, by default ``Ln``."""
+        """Return `Log`, by default `Ln`."""
         return functions.Log(self, base, **extra)
 
 
@@ -359,13 +361,13 @@ class QuerySet(models.QuerySet, Lookup):
         return issubclass(self._iterable_class, models.query.NamedValuesListIterable)
 
     def __getitem__(self, key):
-        """Allow column access by field names, expressions, or ``F`` objects.
+        """Allow column access by field names, expressions, or `F` objects.
 
-        ``qs[field]`` returns flat ``values_list``
+        `qs[field]` returns flat `values_list`
 
-        ``qs[field, ...]`` returns tupled ``values_list``
+        `qs[field, ...]` returns tupled `values_list`
 
-        ``qs[Q_obj]`` provisionally returns filtered [QuerySet][model_values.QuerySet]
+        `qs[Q_obj]` provisionally returns filtered [QuerySet][model_values.QuerySet]
         """
         if isinstance(key, tuple):
             return self.values_list(*map(extract, key), named=True)
@@ -386,7 +388,7 @@ class QuerySet(models.QuerySet, Lookup):
         return self.filter(**{field + lookup: value})
 
     def __contains__(self, value):
-        """Return whether value is present using ``exists``."""
+        """Return whether value is present using `exists`."""
         if self._result_cache is None and self._flat:
             return (self == value).exists()
         return value in iter(self)
@@ -405,13 +407,13 @@ class QuerySet(models.QuerySet, Lookup):
         return ((key, map(getter, values)) for key, values in groups)
 
     def items(self, *fields, **annotations) -> QuerySet:
-        """Return annotated ``values_list``."""
+        """Return annotated `values_list`."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
     def groupby(self, *fields, **annotations) -> QuerySet:
         """Return a grouped [QuerySet][model_values.QuerySet].
 
-        The queryset is iterable in the same manner as ``itertools.groupby``.
+        The queryset is iterable in the same manner as `itertools.groupby`.
         Additionally the [reduce][model_values.QuerySet.reduce] functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
@@ -422,9 +424,9 @@ class QuerySet(models.QuerySet, Lookup):
         """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
-            **kwargs: ``field={Q_obj: value, ...}, ...``
+            **kwargs: `field={Q_obj: value, ...}, ...`
 
-        As a provisional feature, an optional ``default`` key may be specified.
+        As a provisional feature, an optional `default` key may be specified.
         """
         for field, value in kwargs.items():
             if Case.isa(value):
@@ -435,7 +437,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Alias extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
-            **kwargs: ``field={Q_obj: value, ...}, ...``
+            **kwargs: `field={Q_obj: value, ...}, ...`
         """
         for field, value in kwargs.items():
             if Case.isa(value):
@@ -470,7 +472,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Update extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
-            **kwargs: ``field={Q_obj: value, ...}, ...``
+            **kwargs: `field={Q_obj: value, ...}, ...`
         """
         for field, value in kwargs.items():
             if Case.isa(value):
@@ -482,19 +484,19 @@ class QuerySet(models.QuerySet, Lookup):
 
         For triggering on-change logic without fetching first.
 
-        ``if qs.change(status=...):`` status actually changed
+        `if qs.change(status=...):` status actually changed
 
-        ``qs.change({'last_modified': now}, status=...)`` last_modified only updated if status updated
+        `qs.change({'last_modified': now}, status=...)` last_modified only updated if status updated
 
         Args:
-            defaults: optional mapping which will be updated conditionally, as with ``update_or_create``.
+            defaults: optional mapping which will be updated conditionally, as with `update_or_create`.
         """
         return self.exclude(**kwargs).update(**dict(defaults, **kwargs))
 
     def changed(self, **kwargs) -> dict:
         """Return first mapping of fields and values which differ in the db.
 
-        Also efficient enough to be used in boolean contexts, instead of ``exists``.
+        Also efficient enough to be used in boolean contexts, instead of `exists`.
         """
         row = self.exclude(**kwargs).values(*kwargs).first() or {}
         return {field: value for field, value in row.items() if value != kwargs[field]}
@@ -543,17 +545,17 @@ class Manager(models.Manager):
         self[pk].delete()
 
     def __contains__(self, pk):
-        """Return whether primary key is present using ``exists``."""
+        """Return whether primary key is present using `exists`."""
         return self[pk].exists()
 
     def upsert(self, defaults: Mapping = {}, **kwargs) -> int | models.Model:
         """Update or insert returning number of rows or created object.
 
-        Faster and safer than ``update_or_create``.
-        Supports combined expression updates by assuming the identity element on insert:  ``F(...) + 1``.
+        Faster and safer than `update_or_create`.
+        Supports combined expression updates by assuming the identity element on insert:  `F(...) + 1`.
 
         Args:
-            defaults: optional mapping which will be updated, as with ``update_or_create``.
+            defaults: optional mapping which will be updated, as with `update_or_create`.
         """
         update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
         for field, value in defaults.items():
@@ -570,7 +572,7 @@ class Manager(models.Manager):
 
         Args:
             field: value column
-            data: ``{pk: value, ...}``
+            data: `{pk: value, ...}`
             key: unique key column
         """
         rows = self.filter(F(key).isin(data))[key, field].iterator()
@@ -579,11 +581,11 @@ class Manager(models.Manager):
     def bulk_change(
         self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs
     ) -> int:
-        """Update changed rows with a minimal number of queries, by inverting the data to use ``pk__in``.
+        """Update changed rows with a minimal number of queries, by inverting the data to use `pk__in`.
 
         Args:
             field: value column
-            data: ``{pk: value, ...}``
+            data: `{pk: value, ...}`
             key: unique key column
             conditional: execute select query and single conditional update;
                 may be more efficient if the percentage of changed rows is relatively small
@@ -622,11 +624,11 @@ def extract(field):
 
 
 class Case(models.Case):
-    """``Case`` expression from mapping of when conditionals.
+    """`Case` expression from mapping of when conditionals.
 
     Args:
-        conds: ``{Q_obj: value, ...}``
-        default: optional default value or ``F`` object
+        conds: `{Q_obj: value, ...}`
+        default: optional default value or `F` object
     """
 
     types = {
@@ -651,10 +653,10 @@ class Case(models.Case):
 
 
 def EnumField(enum, display: Callable | None = None, **options) -> models.Field:
-    """Return a ``CharField`` or ``IntegerField`` with choices from given enum.
+    """Return a `CharField` or `IntegerField` with choices from given enum.
 
     By default, enum names and values are used as db values and display labels respectively,
-    returning a ``CharField`` with computed ``max_length``.
+    returning a `CharField` with computed `max_length`.
 
     Args:
         display: optional callable to transform enum names to display labels,

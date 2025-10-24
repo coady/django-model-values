@@ -1,4 +1,5 @@
 from django.db import models
+
 from model_values import F, Manager, classproperty
 
 

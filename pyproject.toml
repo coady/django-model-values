@@ -36,6 +36,9 @@ Issues = "https://github.com/coady/django-model-values/issues"
 [tool.ruff]
 line-length = 100
 
+[tool.ruff.lint]
+select = ["I"]
+
 [tool.ruff.format]
 quote-style = "preserve"
 

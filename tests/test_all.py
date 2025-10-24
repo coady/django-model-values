@@ -1,11 +1,14 @@
 import enum
 import math
+
+import pytest
 from django.db import models
 from django.db.models import functions
 from django.utils import timezone
-import pytest
-from .models import Book
+
 from model_values import Case, EnumField, F, gis, transform
+
+from .models import Book
 
 pytestmark = pytest.mark.django_db
 
