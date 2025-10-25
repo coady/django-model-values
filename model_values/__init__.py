@@ -394,11 +394,11 @@ class QuerySet(models.QuerySet, Lookup):
         return value in iter(self)
 
     def __iter__(self):
-        """Iteration extended to support [groupby][model_values.QuerySet.groupby]."""
-        if not hasattr(self, '_groupby'):
+        """Iteration extended to support [group_by][model_values.QuerySet.group_by]."""
+        if not hasattr(self, '_group_by'):
             return super().__iter__()
-        size = len(self._groupby)
-        rows = self[self._groupby + self._fields].order_by(*self._groupby).iterator()
+        size = len(self._group_by)
+        rows = self[self._group_by + self._fields].order_by(*self._group_by).iterator()
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
         getter = operator.itemgetter(size if self._flat else slice(size, None))
         if self._named:
@@ -406,19 +406,23 @@ class QuerySet(models.QuerySet, Lookup):
             getter = lambda tup: Row(*tup[size:])  # noqa: E731
         return ((key, map(getter, values)) for key, values in groups)
 
-    def items(self, *fields, **annotations) -> QuerySet:
+    def select(self, *fields, **annotations) -> QuerySet:
         """Return annotated `values_list`."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
-    def groupby(self, *fields, **annotations) -> QuerySet:
+    items = select  # deprecated name
+
+    def group_by(self, *fields, **annotations) -> QuerySet:
         """Return a grouped [QuerySet][model_values.QuerySet].
 
         The queryset is iterable in the same manner as `itertools.groupby`.
         Additionally the [reduce][model_values.QuerySet.reduce] functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
-        qs._groupby = fields + tuple(annotations)
+        qs._group_by = fields + tuple(annotations)
         return qs
+
+    groupby = group_by  # deprecated name
 
     def annotate(self, *args, **kwargs) -> QuerySet:
         """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
@@ -446,12 +450,14 @@ class QuerySet(models.QuerySet, Lookup):
 
     def value_counts(self, alias: str = 'count') -> QuerySet:
         """Return annotated value counts."""
-        return self.items(*self._fields, **{alias: F.count()})
+        return self.select(*self._fields, **{alias: F.count()})
 
-    def sort_values(self, reverse=False) -> QuerySet:
+    def sort(self, reverse=False) -> QuerySet:
         """Return [QuerySet][model_values.QuerySet] ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
+
+    sort_values = sort  # deprecated name
 
     def reduce(self, *funcs, **extra):
         """Return aggregated values, or an annotated [QuerySet][model_values.QuerySet].
@@ -460,8 +466,8 @@ class QuerySet(models.QuerySet, Lookup):
             *funcs: aggregation function classes
         """
         funcs = [func(field, **extra) for field, func in zip(self._fields, itertools.cycle(funcs))]
-        if hasattr(self, '_groupby'):
-            return self[self._groupby].annotate(*funcs)
+        if hasattr(self, '_group_by'):
+            return self[self._group_by].annotate(*funcs)
         names = [func.default_alias for func in funcs]
         row = self.aggregate(*funcs)
         if self._named:

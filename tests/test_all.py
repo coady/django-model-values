@@ -42,8 +42,8 @@ def test_queryset(books):
     assert quant and 10 in quant
     assert books[0] in books.all()
     assert ('A', 10) in books['author', 'quantity']
-    assert list(quant.sort_values()) == [1, 2, 2, 10, 10]
-    assert list(quant.sort_values(reverse=True)) == [10, 10, 2, 2, 1]
+    assert list(quant.sort()) == [1, 2, 2, 10, 10]
+    assert list(quant.sort(reverse=True)) == [10, 10, 2, 2, 1]
 
     now = timezone.now()
     assert books.filter(author='B').change({'last_modified': now}, quantity=2) == 1
@@ -85,7 +85,7 @@ def test_aggregation(books):
     assert books['quantity'].sum() == 25
     assert books['quantity'].mean() == 5.0
 
-    groups = books['quantity'].groupby('author')
+    groups = books['quantity'].group_by('author')
     assert {key: sorted(values) for key, values in groups} == {'A': [10, 10], 'B': [1, 2, 2]}
     assert dict(groups.min()) == {'A': 10, 'B': 1}
     assert dict(groups.max()) == {'A': 10, 'B': 2}
@@ -93,10 +93,10 @@ def test_aggregation(books):
     assert dict(groups.mean()) == {'A': 10, 'B': 5.0 / 3}
     assert isinstance(groups.var(), models.QuerySet)
     assert isinstance(groups.std(), models.QuerySet)
-    key, values = next(iter(books.values('title', 'last_modified').groupby('author', 'quantity')))
+    key, values = next(iter(books.values('title', 'last_modified').group_by('author', 'quantity')))
     assert key == ('A', 10) and next(values)[0] == ''
 
-    groups = books['quantity'].groupby(author=F.author.lower())
+    groups = books['quantity'].group_by(author=F.author.lower())
     assert dict(groups.sum()) == {'a': 20, 'b': 5}
     counts = books[F.author.lower()].value_counts()
     assert dict(counts) == {'a': 2, 'b': 3}
@@ -104,13 +104,13 @@ def test_aggregation(books):
     case = {F.quantity <= 1: 'low', F.quantity >= 10: 'high'}
     assert dict(books[case].value_counts()) == {'low': 1, None: 2, 'high': 2}
     case['default'] = 'medium'
-    assert set(books.items(amount=case)) == {('low',), ('medium',), ('high',)}
+    assert set(books.select(amount=case)) == {('low',), ('medium',), ('high',)}
     with pytest.raises(Exception):
         Case({models.Q(): None}).output_field
 
     expr = books.values_list(F.quantity * -1)
     assert type(expr.sum()) is tuple
-    key, values = next(iter(expr.groupby('author')))
+    key, values = next(iter(expr.group_by('author')))
     assert set(map(type, values)) == {tuple}
 
 
@@ -167,7 +167,7 @@ def test_2(books):
     assert (row.id, row.author) == row
     row = books[('author',)].min()
     assert (row.author__min,) == row
-    key, values = next(iter(books[('quantity',)].groupby('author')))
+    key, values = next(iter(books[('quantity',)].group_by('author')))
     assert next(values).quantity
     assert dict(books[F.author.find('A')].value_counts()) == {-1: 3, 0: 2}
 

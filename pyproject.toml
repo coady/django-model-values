@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "Apache-2.0"
 authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
-keywords = ["values_list", "pandas", "column-oriented", "data", "mapper", "pattern", "orm"]
+keywords = ["values_list", "dataframe", "column-oriented", "data-mapper", "orm"]
 classifiers = [
     "Development Status :: 6 - Mature",
     "Framework :: Django :: 4",

@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ## Unreleased
 ### Changed
 * Python >=3.10 required
+* Methods renamed to match dataframes
 
 ## [1.6](https://pypi.org/project/django-model-values/1.6/) - 2023-11-04
 ### Changed

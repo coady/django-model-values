@@ -1,6 +1,6 @@
 Provides [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions[^1] to [QuerySets](reference.md#model_values.QuerySet) and [Managers](reference.md#model_values.Manager).
 
-The primary motivation is the experiential observation that the active record pattern - specifically `Model.save` - is the root of all evil. The secondary goal is to provide a more intuitive data layer, similar to PyData projects such as [pandas](http://pandas.pydata.org).
+The primary motivation is the experiential observation that the active record pattern - specifically `Model.save` - is the root of all evil. The secondary goal is to provide a more intuitive data layer, similar to [dataframes](https://ibis-project.org).
 
 Usage: instantiate the [custom manager](https://docs.djangoproject.com/en/stable/topics/db/managers/#custom-managers) in your models.
 
@@ -37,7 +37,7 @@ Book.objects[pk]['rating'] = 5.0
 But one might posit...
 
 * "Isn't the encapsulation `save` provides worth it in principle?"
-* "Doesn't the new `update_fields` option fix this in practice?"
+* "Doesn't the `update_fields` option fix this in practice?"
 * "What if the object is cached or has custom logic in the `save` method?"
 
 No, no, and good luck with that.[^2] Consider a more realistic example which addresses these concerns.
@@ -106,7 +106,7 @@ if author in qs['author']:
 
 ## Aggregation
 
-Once accustomed to working with data values, a richer set of aggregations becomes possible. Again the method names mirror projects like [pandas](http://pandas.pydata.org) whenever applicable.
+Once accustomed to working with data values, a richer set of aggregations becomes possible. The method names mirror projects like [ibis](https://ibis-project.org) whenever applicable.
 
 *The Bad*:
 ```python
@@ -134,7 +134,7 @@ dict(qs['author'].value_counts())
 
 qs['rating'].mean()
 
-dict(qs['quantity'].groupby('author').sum())
+dict(qs['quantity'].group_by('author').sum())
 ```
 
 ## Expressions
