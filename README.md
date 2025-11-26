@@ -73,12 +73,12 @@ from model_values import F
 
 ## Installation
 ```console
-% pip install django-model-values
+pip install django-model-values
 ```
 
 ## Tests
 100% branch coverage.
 
 ```console
-% pytest [--cov]
+pytest [--cov]
 ```
