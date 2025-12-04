@@ -3,19 +3,17 @@ name = "django-model-values"
 version = "1.7"
 description = "Taking the O out of ORM."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = "Apache-2.0"
 authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
 keywords = ["values_list", "dataframe", "column-oriented", "data-mapper", "orm"]
 classifiers = [
     "Development Status :: 6 - Mature",
-    "Framework :: Django :: 4",
     "Framework :: Django :: 5",
     "Framework :: Django :: 6",
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -24,7 +22,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Typing :: Typed",
 ]
-dependencies = ["django>=4.2"]
+dependencies = ["django>=5.2"]
 
 [project.urls]
 Homepage = "https://github.com/coady/django-model-values"
