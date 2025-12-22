@@ -39,20 +39,17 @@ select = ["I"]
 [tool.ruff.format]
 quote-style = "preserve"
 
-[[tool.mypy.overrides]]
-module = ["django.*"]
-ignore_missing_imports = true
+[tool.ty.rules]
+# unused-ignore-comment = "error"
+invalid-argument-type = "ignore"
+invalid-method-override = "ignore"
+possibly-missing-attribute = "ignore"
+unresolved-import = "ignore"
 
 [tool.coverage.run]
 source = ["model_values"]
 branch = true
 
 [dependency-groups]
-dev = [
-    "pytest-cov",
-    "pytest-django",
-    "ruff",
-    "mypy",
-    "mkdocstrings[python]",
-    "mkdocs-material",
-]
+dev = ["pytest-cov", "pytest-django"]
+docs = ["mkdocstrings[python]", "mkdocs-material"]

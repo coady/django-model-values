@@ -7,7 +7,7 @@
 [![image](https://codecov.io/gh/coady/django-model-values/branch/main/graph/badge.svg)](https://codecov.io/gh/coady/django-model-values/)
 [![CodeQL](https://github.com/coady/django-model-values/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/coady/django-model-values/actions/workflows/github-code-scanning/codeql)
 [![image](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![image](https://mypy-lang.org/static/mypy_badge.svg)](https://mypy-lang.org/)
+[![ty](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ty/main/assets/badge/v0.json)](https://github.com/astral-sh/ty)
 
 [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions to `QuerySets` and `Managers`.
 

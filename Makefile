@@ -2,9 +2,9 @@ check:
 	uv run pytest -s --cov
 
 lint:
-	uv run ruff check
-	uv run ruff format --check
-	uv run mypy -p model_values
+	uvx ruff check
+	uvx ruff format --check
+	uvx ty check model_values
 
 html:
-	uv run mkdocs build
+	uv run --group docs mkdocs build

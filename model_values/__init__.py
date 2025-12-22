@@ -14,7 +14,7 @@ from django.db.models import functions
 try:  # pragma: no cover
     import django.contrib.gis.db.models as gis
 except Exception:
-    gis = None
+    gis = None  # type: ignore
 
 
 def update_wrapper(wrapper, name):
@@ -56,6 +56,9 @@ class Lookup:
     __rshift__ = right = eq('right')
     above = eq('strictly_above')
     below = eq('strictly_below')
+
+    def __eq__(self, value, lookup: str = ''):
+        NotImplemented
 
     def range(self, *values):
         """range"""
@@ -384,7 +387,7 @@ class QuerySet(models.QuerySet, Lookup):
 
     def __eq__(self, value, lookup: str = '') -> QuerySet:
         """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
-        (field,) = self._fields
+        (field,) = self._fields  # type: ignore
         return self.filter(**{field + lookup: value})
 
     def __contains__(self, value):
@@ -398,7 +401,7 @@ class QuerySet(models.QuerySet, Lookup):
         if not hasattr(self, '_group_by'):
             return super().__iter__()
         size = len(self._group_by)
-        rows = self[self._group_by + self._fields].order_by(*self._group_by).iterator()
+        rows = self[self._group_by + self._fields].order_by(*self._group_by).iterator()  # type: ignore
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
         getter = operator.itemgetter(size if self._flat else slice(size, None))
         if self._named:
@@ -419,7 +422,7 @@ class QuerySet(models.QuerySet, Lookup):
         Additionally the [reduce][model_values.QuerySet.reduce] functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
-        qs._group_by = fields + tuple(annotations)
+        qs._group_by = fields + tuple(annotations)  # type: ignore
         return qs
 
     groupby = group_by  # deprecated name
@@ -616,7 +619,7 @@ class classproperty(property):
     """A property bound to a class."""
 
     def __get__(self, instance, owner):
-        return self.fget(owner)
+        return self.fget(owner)  # type: ignore
 
 
 def Value(value):
