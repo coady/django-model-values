@@ -22,54 +22,54 @@ def update_wrapper(wrapper, name):
 
 
 def eq(lookup):
-    return update_wrapper(lambda self, value: self.__eq__(value, '__' + lookup), lookup)
+    return update_wrapper(lambda self, value: self.__eq__(value, "__" + lookup), lookup)
 
 
 class Lookup:
     """Mixin for field lookups."""
 
-    __ne__ = eq('ne')
-    __lt__ = eq('lt')
-    __le__ = eq('lte')
-    __gt__ = eq('gt')
-    __ge__ = eq('gte')
-    iexact = eq('iexact')
-    icontains = eq('icontains')
-    startswith = eq('startswith')
-    istartswith = eq('istartswith')
-    endswith = eq('endswith')
-    iendswith = eq('iendswith')
-    regex = eq('regex')
-    iregex = eq('iregex')
-    isin = eq('in')
+    __ne__ = eq("ne")
+    __lt__ = eq("lt")
+    __le__ = eq("lte")
+    __gt__ = eq("gt")
+    __ge__ = eq("gte")
+    iexact = eq("iexact")
+    icontains = eq("icontains")
+    startswith = eq("startswith")
+    istartswith = eq("istartswith")
+    endswith = eq("endswith")
+    iendswith = eq("iendswith")
+    regex = eq("regex")
+    iregex = eq("iregex")
+    isin = eq("in")
     # spatial lookups
-    contained = eq('contained')
-    coveredby = eq('coveredby')
-    covers = eq('covers')
-    crosses = eq('crosses')
-    disjoint = eq('disjoint')
-    equals = eq('equals')  # __eq__ is taken
-    intersects = eq('intersects')  # __and__ is ambiguous
-    touches = eq('touches')
-    __lshift__ = left = eq('left')
-    __rshift__ = right = eq('right')
-    above = eq('strictly_above')
-    below = eq('strictly_below')
+    contained = eq("contained")
+    coveredby = eq("coveredby")
+    covers = eq("covers")
+    crosses = eq("crosses")
+    disjoint = eq("disjoint")
+    equals = eq("equals")  # __eq__ is taken
+    intersects = eq("intersects")  # __and__ is ambiguous
+    touches = eq("touches")
+    __lshift__ = left = eq("left")
+    __rshift__ = right = eq("right")
+    above = eq("strictly_above")
+    below = eq("strictly_below")
 
-    def __eq__(self, value, lookup: str = ''): ...
+    def __eq__(self, value, lookup: str = ""): ...
 
     def range(self, *values):
         """range"""
-        return self.__eq__(values, '__range')
+        return self.__eq__(values, "__range")
 
     def relate(self, *values):
         """relate"""
-        return self.__eq__(values, '__relate')
+        return self.__eq__(values, "__relate")
 
     @property
     def is_valid(self):
         """Whether field `isvalid`."""
-        return self.__eq__(True, '__isvalid')
+        return self.__eq__(True, "__isvalid")
 
     def contains(self, value, properly=False, bb=False):
         """Return whether field `contains` the value.  Options apply only to geom fields.
@@ -78,19 +78,19 @@ class Lookup:
             properly: `contains_properly`
             bb: bounding box, `bbcontains`
         """
-        properly = '_properly' * bool(properly)
-        bb = 'bb' * bool(bb)
-        return self.__eq__(value, f'__{bb}contains{properly}')
+        properly = "_properly" * bool(properly)
+        bb = "bb" * bool(bb)
+        return self.__eq__(value, f"__{bb}contains{properly}")
 
-    def overlaps(self, geom, position='', bb=False):
+    def overlaps(self, geom, position="", bb=False):
         """Return whether field `overlaps` with geometry .
 
         Args:
             position: `overlaps_{left, right, above, below}`
             bb: bounding box, `bboverlaps`
         """
-        bb = 'bb' * bool(bb)
-        return self.__eq__(geom, f'__{bb}overlaps_{position}'.rstrip('_'))
+        bb = "bb" * bool(bb)
+        return self.__eq__(geom, f"__{bb}overlaps_{position}".rstrip("_"))
 
     def within(self, geom, distance=None):
         """Return whether field is `within` geometry.
@@ -99,8 +99,8 @@ class Lookup:
             distance: `dwithin`
         """
         if distance is None:
-            return self.__eq__(geom, '__within')
-        return self.__eq__((geom, distance), '__dwithin')
+            return self.__eq__(geom, "__within")
+        return self.__eq__((geom, distance), "__dwithin")
 
 
 class method(functools.partial):
@@ -114,12 +114,12 @@ class method(functools.partial):
 def transform(lookup, func, value):
     field, expr = func.source_expressions
     expr = expr if isinstance(expr, models.F) else expr.value
-    return field.__eq__((expr, value), '__' + lookup)
+    return field.__eq__((expr, value), "__" + lookup)
 
 
 class MetaF(type):
     def __getattr__(cls, name: str) -> Self:
-        if name in ('name', '__slots__', '__wrapped__'):
+        if name in ("name", "__slots__", "__wrapped__"):
             raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
 
@@ -252,17 +252,17 @@ class F(models.F, Lookup, metaclass=MetaF):
         class distance(gis.functions.Distance):
             """Return `Distance` with support for lookups: <, <=, >, >=, within."""
 
-            __lt__ = method(transform, 'distance_lt')
-            __le__ = method(transform, 'distance_lte')
-            __gt__ = method(transform, 'distance_gt')
-            __ge__ = method(transform, 'distance_gte')
-            within = method(transform, 'dwithin')
+            __lt__ = method(transform, "distance_lt")
+            __le__ = method(transform, "distance_lte")
+            __gt__ = method(transform, "distance_gt")
+            __ge__ = method(transform, "distance_gte")
+            within = method(transform, "dwithin")
 
     def __getattr__(self, name: str) -> Self:
         """Return new [F][model_values.F] object with chained attribute."""
-        return type(self)(f'{self.name}__{name}')
+        return type(self)(f"{self.name}__{name}")
 
-    def __eq__(self, value, lookup: str = '') -> models.Q:
+    def __eq__(self, value, lookup: str = "") -> models.Q:
         """Return `Q` object with lookup."""
         if not lookup and type(value) is models.F:
             return self.name == value.name
@@ -271,13 +271,13 @@ class F(models.F, Lookup, metaclass=MetaF):
     def __ne__(self, value) -> models.Q:
         """Allow __ne=None lookup without custom queryset."""
         if value is None:
-            return self.__eq__(False, '__isnull')
-        return self.__eq__(value, '__ne')
+            return self.__eq__(False, "__isnull")
+        return self.__eq__(value, "__ne")
 
     __hash__ = models.F.__hash__
 
     def __call__(self, *args, **extra) -> models.Func:
-        name, _, func = self.name.rpartition('__')
+        name, _, func = self.name.rpartition("__")
         return self.lookups[func](name, *args, **extra)
 
     def __iter__(self):
@@ -300,23 +300,23 @@ class F(models.F, Lookup, metaclass=MetaF):
         return functions.Power(value, self)
 
     @method
-    def count(self='*', **extra):
+    def count(self="*", **extra):
         """Return `Count` with optional field."""
-        return models.Count(getattr(self, 'name', self), **extra)
+        return models.Count(getattr(self, "name", self), **extra)
 
     def find(self, sub, **extra) -> models.Expression:
         """Return `StrIndex` with `str.find` semantics."""
         return functions.StrIndex(self, Value(sub), **extra) - 1
 
-    def replace(self, old, new='', **extra) -> models.Func:
+    def replace(self, old, new="", **extra) -> models.Func:
         """Return `Replace` with wrapped values."""
         return functions.Replace(self, Value(old), Value(new), **extra)
 
-    def ljust(self, width: int, fill=' ', **extra) -> models.Func:
+    def ljust(self, width: int, fill=" ", **extra) -> models.Func:
         """Return `LPad` with wrapped values."""
         return functions.LPad(self, width, Value(fill), **extra)
 
-    def rjust(self, width: int, fill=' ', **extra) -> models.Func:
+    def rjust(self, width: int, fill=" ", **extra) -> models.Func:
         """Return `RPad` with wrapped values."""
         return functions.RPad(self, width, Value(fill), **extra)
 
@@ -383,7 +383,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Update a single column."""
         self.update(**{key: value})
 
-    def __eq__(self, value, lookup: str = '') -> Self:
+    def __eq__(self, value, lookup: str = "") -> Self:
         """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
         (field,) = self._fields  # type: ignore
         return self.filter(**{field + lookup: value})
@@ -396,14 +396,14 @@ class QuerySet(models.QuerySet, Lookup):
 
     def __iter__(self):
         """Iteration extended to support [group_by][model_values.QuerySet.group_by]."""
-        if not hasattr(self, '_group_by'):
+        if not hasattr(self, "_group_by"):
             return super().__iter__()
         size = len(self._group_by)
         rows = self[self._group_by + self._fields].order_by(*self._group_by).iterator()  # type: ignore
         groups = itertools.groupby(rows, key=operator.itemgetter(*range(size)))
         getter = operator.itemgetter(size if self._flat else slice(size, None))
         if self._named:
-            Row = collections.namedtuple('Row', self._fields)
+            Row = collections.namedtuple("Row", self._fields)
             getter = lambda tup: Row(*tup[size:])  # noqa: E731
         return ((key, map(getter, values)) for key, values in groups)
 
@@ -449,7 +449,7 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().alias(*args, **kwargs)
 
-    def value_counts(self, alias: str = 'count') -> Self:
+    def value_counts(self, alias: str = "count") -> Self:
         """Return annotated value counts."""
         return self.select(*self._fields, **{alias: F.count()})
 
@@ -467,12 +467,12 @@ class QuerySet(models.QuerySet, Lookup):
             *funcs: aggregation function classes
         """
         funcs = [func(field, **extra) for field, func in zip(self._fields, itertools.cycle(funcs))]
-        if hasattr(self, '_group_by'):
+        if hasattr(self, "_group_by"):
             return self[self._group_by].annotate(*funcs)
         names = [func.default_alias for func in funcs]
         row = self.aggregate(*funcs)
         if self._named:
-            return collections.namedtuple('Row', names)(**row)
+            return collections.namedtuple("Row", names)(**row)
         return row[names[0]] if self._flat else tuple(map(row.__getitem__, names))
 
     def update(self, **kwargs) -> int:
@@ -519,20 +519,20 @@ class QuerySet(models.QuerySet, Lookup):
 class NotEqual(models.Lookup):
     """Missing != operator."""
 
-    lookup_name = 'ne'
+    lookup_name = "ne"
 
     def as_sql(self, *args):
         lhs, lhs_params = self.process_lhs(*args)
         rhs, rhs_params = self.process_rhs(*args)
-        return f'{lhs} <> {rhs}', (lhs_params + rhs_params)
+        return f"{lhs} <> {rhs}", (lhs_params + rhs_params)
 
 
 class Query(models.sql.Query):
     """Allow __ne=None lookup."""
 
     def build_lookup(self, lookups, lhs, rhs):
-        if rhs is None and lookups[-1:] == ['ne']:
-            rhs, lookups[-1] = False, 'isnull'
+        if rhs is None and lookups[-1:] == ["ne"]:
+            rhs, lookups[-1] = False, "isnull"
         return super().build_lookup(lookups, lhs, rhs)
 
 
@@ -564,7 +564,7 @@ class Manager(models.Manager):
         Args:
             defaults: optional mapping which will be updated, as with `update_or_create`.
         """
-        update = getattr(self.filter(**kwargs), 'update' if defaults else 'count')
+        update = getattr(self.filter(**kwargs), "update" if defaults else "count")
         for field, value in defaults.items():
             expr = isinstance(value, models.expressions.CombinedExpression)
             kwargs[field] = value.rhs.value if expr else value
@@ -574,7 +574,7 @@ class Manager(models.Manager):
         except IntegrityError:
             return update(**defaults)
 
-    def bulk_changed(self, field, data: Mapping, key: str = 'pk') -> dict:
+    def bulk_changed(self, field, data: Mapping, key: str = "pk") -> dict:
         """Return mapping of values which differ in the db.
 
         Args:
@@ -586,7 +586,7 @@ class Manager(models.Manager):
         return {pk: value for pk, value in rows if value != data[pk]}
 
     def bulk_change(
-        self, field, data: Mapping, key: str = 'pk', conditional=False, **kwargs
+        self, field, data: Mapping, key: str = "pk", conditional=False, **kwargs
     ) -> int:
         """Update changed rows with a minimal number of queries, by inverting the data to use `pk__in`.
 
@@ -652,7 +652,7 @@ class Case(models.Case):
     @classmethod
     def defaultdict(cls, conds):
         conds = dict(conds)
-        return cls(conds, default=conds.pop('default', None))
+        return cls(conds, default=conds.pop("default", None))
 
     @classmethod
     def isa(cls, value):
