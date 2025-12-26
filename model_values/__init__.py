@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import collections
 import functools
 import itertools
@@ -7,6 +5,7 @@ import math
 import operator
 import types
 from collections.abc import Callable, Iterable, Mapping
+from typing import Self
 
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -57,8 +56,7 @@ class Lookup:
     above = eq('strictly_above')
     below = eq('strictly_below')
 
-    def __eq__(self, value, lookup: str = ''):
-        NotImplemented
+    def __eq__(self, value, lookup: str = ''): ...
 
     def range(self, *values):
         """range"""
@@ -120,7 +118,7 @@ def transform(lookup, func, value):
 
 
 class MetaF(type):
-    def __getattr__(cls, name: str) -> F:
+    def __getattr__(cls, name: str) -> Self:
         if name in ('name', '__slots__', '__wrapped__'):
             raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
@@ -260,7 +258,7 @@ class F(models.F, Lookup, metaclass=MetaF):
             __ge__ = method(transform, 'distance_gte')
             within = method(transform, 'dwithin')
 
-    def __getattr__(self, name: str) -> F:
+    def __getattr__(self, name: str) -> Self:
         """Return new [F][model_values.F] object with chained attribute."""
         return type(self)(f'{self.name}__{name}')
 
@@ -385,7 +383,7 @@ class QuerySet(models.QuerySet, Lookup):
         """Update a single column."""
         self.update(**{key: value})
 
-    def __eq__(self, value, lookup: str = '') -> QuerySet:
+    def __eq__(self, value, lookup: str = '') -> Self:
         """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
         (field,) = self._fields  # type: ignore
         return self.filter(**{field + lookup: value})
@@ -409,13 +407,13 @@ class QuerySet(models.QuerySet, Lookup):
             getter = lambda tup: Row(*tup[size:])  # noqa: E731
         return ((key, map(getter, values)) for key, values in groups)
 
-    def select(self, *fields, **annotations) -> QuerySet:
+    def select(self, *fields, **annotations) -> Self:
         """Return annotated `values_list`."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
     items = select  # deprecated name
 
-    def group_by(self, *fields, **annotations) -> QuerySet:
+    def group_by(self, *fields, **annotations) -> Self:
         """Return a grouped [QuerySet][model_values.QuerySet].
 
         The queryset is iterable in the same manner as `itertools.groupby`.
@@ -427,7 +425,7 @@ class QuerySet(models.QuerySet, Lookup):
 
     groupby = group_by  # deprecated name
 
-    def annotate(self, *args, **kwargs) -> QuerySet:
+    def annotate(self, *args, **kwargs) -> Self:
         """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
@@ -440,7 +438,7 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().annotate(*args, **kwargs)
 
-    def alias(self, *args, **kwargs) -> QuerySet:
+    def alias(self, *args, **kwargs) -> Self:
         """Alias extended to also handle mapping values, as a [Case][model_values.Case] expression.
 
         Args:
@@ -451,11 +449,11 @@ class QuerySet(models.QuerySet, Lookup):
                 kwargs[field] = Case.defaultdict(value)
         return super().alias(*args, **kwargs)
 
-    def value_counts(self, alias: str = 'count') -> QuerySet:
+    def value_counts(self, alias: str = 'count') -> Self:
         """Return annotated value counts."""
         return self.select(*self._fields, **{alias: F.count()})
 
-    def sort(self, reverse=False) -> QuerySet:
+    def sort(self, reverse=False) -> Self:
         """Return [QuerySet][model_values.QuerySet] ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
