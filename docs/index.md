@@ -1,3 +1,5 @@
+# Introduction
+
 Provides [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions[^1] to [QuerySets](reference.md#model_values.QuerySet) and [Managers](reference.md#model_values.Manager).
 
 The primary motivation is the experiential observation that the active record pattern - specifically `Model.save` - is the root of all evil. The secondary goal is to provide a more intuitive data layer, similar to [dataframes](https://ibis-project.org).

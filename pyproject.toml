@@ -49,4 +49,4 @@ branch = true
 
 [dependency-groups]
 dev = ["pytest-cov", "pytest-django"]
-docs = ["mkdocstrings[python]", "mkdocs-material"]
+docs = ["zensical", "mkdocstrings[python]"]

@@ -1,0 +1,30 @@
+[project]
+site_name = "django-model-values"
+site_description = "Taking the O out of ORM."
+site_url = "https://coady.github.io/django-model-values/"
+
+repo_name = "coady/django-model-values"
+repo_url = "https://github.com/coady/django-model-values"
+
+[project.theme]
+features = [
+    "content.code.annotate",
+    "content.code.copy",
+    "content.code.select",
+    "content.footnote.tooltips",
+    "navigation.instant",
+    "navigation.instant.prefetch",
+    "search.highlight",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle = { icon = "lucide/moon", name = "Switch to light mode" }
+
+[project.plugins.mkdocstrings.handlers.python]

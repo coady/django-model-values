@@ -4,11 +4,17 @@ permissions:
   id-token: write
   pages: write
 
-on: [workflow_dispatch]
+on:
+  workflow_dispatch:
+    inputs:
+      docs_only:
+        description: "upload docs without publishing to pypi"
+        type: boolean
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: ${{ !inputs.docs_only }}
     steps:
     - uses: actions/checkout@v6
     - uses: astral-sh/setup-uv@v7

@@ -7,4 +7,4 @@ lint:
 	uvx ty check model_values
 
 html:
-	uv run --group docs mkdocs build
+	uv run --group docs zensical build
