@@ -367,16 +367,12 @@ class QuerySet(models.QuerySet, Lookup):
         `qs[field]` returns flat `values_list`
 
         `qs[field, ...]` returns tupled `values_list`
-
-        `qs[Q_obj]` provisionally returns filtered [QuerySet][model_values.QuerySet]
         """
         if isinstance(key, tuple):
             return self.values_list(*map(extract, key), named=True)
         key = extract(key)
         if isinstance(key, (str, models.Expression)):
             return self.values_list(key, flat=True)
-        if isinstance(key, models.Q):
-            return self.filter(key)
         return super().__getitem__(key)
 
     def __setitem__(self, key, value):

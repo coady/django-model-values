@@ -100,7 +100,7 @@ def test_aggregation(books):
     assert dict(groups.sum()) == {"a": 20, "b": 5}
     counts = books[F.author.lower()].value_counts()
     assert dict(counts) == {"a": 2, "b": 3}
-    assert dict(counts[F("count") > 2]) == {"b": 3}
+    assert dict(counts.filter(F("count") > 2)) == {"b": 3}
     case = {F.quantity <= 1: "low", F.quantity >= 10: "high"}
     assert dict(books[case].value_counts()) == {"low": 1, None: 2, "high": 2}
     case["default"] = "medium"
@@ -157,9 +157,9 @@ def test_functions(books):
 
     for name, func in F.lookups.items():
         models.CharField.register_lookup(func, name)
-    assert books[F.author.length <= 1]
-    assert books[F.author.lower == "a"]
-    assert books[F.author.upper == "A"]
+    assert books.filter(F.author.length <= 1)
+    assert books.filter(F.author.lower == "a")
+    assert books.filter(F.author.upper == "A")
 
 
 def test_2(books):
@@ -278,7 +278,7 @@ def test_4(books):
 
 
 def test_lookups(books):
-    assert books[F.last_modified.year == timezone.now().year].count() == 5
+    assert books.filter(F.last_modified.year == timezone.now().year).count() == 5
     assert isinstance(F.quantity.min(), models.Min)
     assert isinstance(F.quantity.max(), models.Max)
     assert isinstance(F.quantity.sum(), models.Sum)
