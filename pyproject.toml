@@ -34,11 +34,9 @@ Issues = "https://github.com/coady/django-model-values/issues"
 line-length = 100
 
 [tool.ruff.lint]
-select = ["I"]
+extend-select = ["I"]
 
 [tool.ty.rules]
-# unused-ignore-comment = "error"
-invalid-argument-type = "ignore"
 invalid-method-override = "ignore"
 possibly-missing-attribute = "ignore"
 unresolved-import = "ignore"
