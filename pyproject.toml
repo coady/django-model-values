@@ -38,7 +38,7 @@ extend-select = ["I"]
 
 [tool.ty.rules]
 invalid-method-override = "ignore"
-possibly-missing-attribute = "ignore"
+possibly-missing-submodule = "ignore"
 unresolved-import = "ignore"
 
 [tool.coverage.run]

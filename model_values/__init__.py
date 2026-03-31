@@ -115,7 +115,7 @@ def transform(lookup, func, value):
 
 
 class MetaF(type):
-    def __getattr__(cls, name: str) -> Self:
+    def __getattr__(cls, name: str):
         if name in ("name", "__slots__", "__wrapped__"):
             raise AttributeError(f"'{name}' is a reserved attribute")
         return cls(name)
