@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12', '3.13', '3.14']
-        django-version: ['<6', '']
+        django-version: ['<6', '<6.1', '>=6.1a']
         include:
         - python-version: '3.11'
           django-version: '<6'
@@ -20,8 +20,7 @@ jobs:
     - uses: astral-sh/setup-uv@v7
       with:
         python-version: ${{ matrix.python-version }}
-    - run: uv add 'django${{ matrix.django-version }}'
-    - run: make check
+    - run: uv run --with 'django${{ matrix.django-version }}' pytest --cov
     - run: uv run coverage xml
     - uses: codecov/codecov-action@v6
       with:
