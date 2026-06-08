@@ -22,7 +22,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - run: uv run --with 'django${{ matrix.django-version }}' pytest --cov
     - run: uv run coverage xml
-    - uses: codecov/codecov-action@v6
+    - uses: codecov/codecov-action@v7
       with:
         use_oidc: true
 
