@@ -7,4 +7,4 @@ lint:
 	uv run ty check model_values
 
 html:
-	uv run --group docs zensical build
+	uv run --group docs great-docs build

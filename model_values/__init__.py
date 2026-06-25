@@ -26,7 +26,11 @@ def eq(lookup):
 
 
 class Lookup:
-    """Mixin for field lookups."""
+    """Mixin for field lookups.
+
+    .. note::
+        Spatial lookups require `django.contrib.gis` to be enabled.
+    """
 
     __ne__ = eq("ne")
     __lt__ = eq("lt")
@@ -131,6 +135,16 @@ class MetaF(type):
 
 class F(models.F, Lookup, metaclass=MetaF):
     """Create `F`, `Q`, and `Func` objects with expressions.
+
+    .. note::
+        Since attributes are used for constructing ``F`` objects, there may be
+        collisions between field names and methods. For example, ``name`` is a
+        reserved attribute, but the usual constructor can still be used:
+        ``F('name')``.
+
+    .. note::
+        See source for available spatial functions if `django.contrib.gis` is
+        configured.
 
     `F` creation supported as attributes:
     `F.user` == `F('user')`,
@@ -330,6 +344,13 @@ def field(func):
 
 
 class QuerySet(models.QuerySet, Lookup):
+    """Extended queryset with column-oriented access.
+
+    .. note::
+        See source for available aggregate spatial functions if
+        `django.contrib.gis` is configured.
+    """
+
     _fields: tuple[str]
     _group_by: tuple[str]
 

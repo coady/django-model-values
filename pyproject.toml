@@ -5,7 +5,7 @@ description = "Taking the O out of ORM."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
-authors = [{name = "Aric Coady", email = "aric.coady@gmail.com"}]
+authors = [{name = "A. Coady"}]
 keywords = ["values_list", "dataframe", "column-oriented", "data-mapper", "orm"]
 classifiers = [
     "Development Status :: 6 - Mature",
@@ -46,4 +46,4 @@ branch = true
 
 [dependency-groups]
 dev = ["pytest-cov", "pytest-django", "ty"]
-docs = ["zensical", "mkdocstrings[python]"]
+docs = ["great-docs"]

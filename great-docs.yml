@@ -1,0 +1,22 @@
+user_guide: docs
+parser: google
+inline_methods: true
+
+authors:
+- name: A. Coady
+  github: coady
+
+reference:
+- title: Lookups
+  contents:
+  - Lookup
+  - F
+- title: Query API
+  contents:
+  - QuerySet
+  - Manager
+- title: Utilities
+  contents:
+  - Case
+  - classproperty
+  - EnumField

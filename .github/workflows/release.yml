@@ -26,8 +26,9 @@ jobs:
     steps:
     - uses: actions/checkout@v7
     - uses: astral-sh/setup-uv@v7
+    - uses: quarto-dev/quarto-actions/setup@v2
     - run: make html
     - uses: actions/upload-pages-artifact@v5
       with:
-        path: site/
+        path: great-docs/_site/
     - uses: actions/deploy-pages@v5

@@ -1,6 +1,8 @@
-# Introduction
+---
+title: Introduction
+---
 
-Provides [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions[^1] to [QuerySets](reference.md#model_values.QuerySet) and [Managers](reference.md#model_values.Manager).
+Provides [Django](https://docs.djangoproject.com) model utilities for encouraging direct data access instead of unnecessary object overhead. Implemented through compatible method and operator extensions[^1] to [QuerySets](../reference/QuerySet.qmd) and [Managers](../reference/Manager.qmd).
 
 The primary motivation is the experiential observation that the active record pattern - specifically `Model.save` - is the root of all evil. The secondary goal is to provide a more intuitive data layer, similar to [dataframes](https://ibis-project.org).
 
@@ -29,7 +31,7 @@ The solution is relatively well-known, and endorsed by [django's own docs](https
 Book.objects.filter(pk=pk).update(rating=5.0)
 ```
 
-So why not provide syntactic support for the better approach? The [Manager](reference.md#model_values.Manager) supports filtering by primary key, since that's so common. The [QuerySet](reference.md#model_values.QuerySet) supports column updates.
+So why not provide syntactic support for the better approach? The [Manager](../reference/Manager.qmd) supports filtering by primary key, since that's so common. The [QuerySet](../reference/QuerySet.qmd) supports column updates.
 
 *The Good*:
 ```python
@@ -65,7 +67,7 @@ A better approach would be an `update_publisher` method which does all and only 
 
 *The Ugly*:
 ```python
-changed = Book.objects.filter(pk=pk).exclude(publisher=publisher) \ 
+changed = Book.objects.filter(pk=pk).exclude(publisher=publisher) \
     .update(publisher=publisher, pubdate=today)
 ```
 Now the update is only executed if necessary. And this can be generalized with a little inspiration from `{get,update}_or_create`.
@@ -77,7 +79,7 @@ changed = Book.objects[pk].change({'pubdate': today}, publisher=publisher)
 
 ## Selects
 
-Direct column access has some of the clunkiest syntax: `values_list(..., flat=True)`. [QuerySets](reference.md#model_values.QuerySet) override `__getitem__`, as well as comparison operators for simple filters. Both are common syntax in panel data layers.
+Direct column access has some of the clunkiest syntax: `values_list(..., flat=True)`. [QuerySets](../reference/QuerySet.qmd) override `__getitem__`, as well as comparison operators for simple filters. Both are common syntax in panel data layers.
 
 *The Bad*:
 ```python
@@ -174,7 +176,7 @@ qs['rating'] += 1
 
 ## Conditionals
 
-Annotations and updates with `Case` and `When` expressions. See also [bulk_changed and bulk_change](reference.md#model_values.Manager) for efficient bulk operations on primary keys.
+Annotations and updates with `Case` and `When` expressions. See also [bulk_changed and bulk_change](../reference/Manager.qmd#bulk_changed) for efficient bulk operations on primary keys.
 
 *The Bad*:
 ```python
