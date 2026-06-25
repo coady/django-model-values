@@ -13,7 +13,7 @@ from django.db.models import functions
 try:  # pragma: no cover
     import django.contrib.gis.db.models as gis
 except Exception:
-    gis = None  # type: ignore
+    gis: types.ModuleType | None = None
 
 
 def update_wrapper(wrapper, name):
