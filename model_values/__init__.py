@@ -5,7 +5,7 @@ import math
 import operator
 import types
 from collections.abc import Callable, Iterable, Mapping
-from typing import Self
+from typing import ClassVar, Self
 
 from django.db import IntegrityError, models, transaction
 from django.db.models import functions
@@ -163,7 +163,7 @@ class F(models.F, Lookup, metaclass=MetaF):
     `F.text.length > 0` == `Q(text__length__gt=0)`.
     """
 
-    lookups = dict(
+    lookups: ClassVar = dict(
         length=functions.Length,
         lower=functions.Lower,
         upper=functions.Upper,
@@ -420,7 +420,7 @@ class QuerySet(models.QuerySet, Lookup):
         getter = operator.itemgetter(size if self._flat else slice(size, None))
         if self._named:
             Row = collections.namedtuple("Row", self._fields)
-            getter = lambda tup: Row(*tup[size:])  # noqa: E731
+            getter = lambda tup: Row(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
     def select(self, *fields, **annotations) -> Self:
@@ -654,7 +654,7 @@ class Case(models.Case):
         default: optional default value or `F` object
     """
 
-    types = {
+    types: ClassVar[dict] = {
         str: models.CharField,
         int: models.IntegerField,
         float: models.FloatField,

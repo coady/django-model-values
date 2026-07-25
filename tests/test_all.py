@@ -105,7 +105,7 @@ def test_aggregation(books):
     assert dict(books[case].value_counts()) == {"low": 1, None: 2, "high": 2}
     case["default"] = "medium"
     assert set(books.select(amount=case)) == {("low",), ("medium",), ("high",)}
-    with pytest.raises(Exception):
+    with pytest.raises(ValueError):
         Case({models.Q(): None}).output_field
 
     expr = books.values_list(F.quantity * -1)
@@ -130,7 +130,7 @@ def test_functions(books):
     book["quantity"] **= 2
     assert book["quantity"].first() == 9
 
-    assert (F.author != None) == models.Q(author__isnull=False)  # noqa: E711
+    assert (F.author != None) == models.Q(author__isnull=False)
     assert isinstance(F.coalesce("author", "title"), functions.Coalesce)
     assert isinstance(F.author.concat("title"), functions.Concat)
     assert isinstance(F.author.length(), functions.Length)
@@ -144,7 +144,7 @@ def test_functions(books):
     with pytest.raises(TypeError):
         iter(F.title)
     assert hash(F.title)
-    assert not (F.author == models.F("title"))
+    assert F.author != models.F("title")
     ((field, values),) = transform("op", F.author.coalesce("title"), None).children
     assert field == "author__op" and values == (F.title, None)
 
@@ -167,7 +167,7 @@ def test_2(books):
     assert (row.id, row.author) == row
     row = books[("author",)].min()
     assert (row.author__min,) == row
-    key, values = next(iter(books[("quantity",)].group_by("author")))
+    _, values = next(iter(books[("quantity",)].group_by("author")))
     assert next(values).quantity
     assert dict(books[F.author.find("A")].value_counts()) == {-1: 3, 0: 2}
 
@@ -388,7 +388,7 @@ def test_spatial_functions(books):
         "location__dwithin",
     )
     assert items == ((point, 0),) * 5
-    ((field, values),) = (F.location.distance(point) > 0).children
+    ((_, values),) = (F.location.distance(point) > 0).children
     assert values == (point, 0)
 
     assert isinstance(F.location.difference(point), gis.functions.Difference)
