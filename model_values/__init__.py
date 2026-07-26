@@ -137,29 +137,27 @@ class F(models.F, Lookup, metaclass=MetaF):
     """Create `F`, `Q`, and `Func` objects with expressions.
 
     .. note::
-        Since attributes are used for constructing ``F`` objects, there may be
-        collisions between field names and methods. For example, ``name`` is a
-        reserved attribute, but the usual constructor can still be used:
-        ``F('name')``.
+        Since attributes are used for constructing `F` objects, there may be collisions between
+        field names and methods. For example, `name` is a reserved attribute. In such cases, use:
+        `F("name")` or `F.user.attr("name")`.
 
     .. note::
-        See source for available spatial functions if `django.contrib.gis` is
-        configured.
+        See source for available spatial functions if `django.contrib.gis` is configured.
 
     `F` creation supported as attributes:
-    `F.user` == `F('user')`,
-    `F.user.created` == `F('user__created')`.
+    `F.user` == `F("user")`,
+    `F.user.created` == `F("user__created")`.
 
     `Q` lookups supported as methods or operators:
     `F.text.iexact(...)` == `Q(text__iexact=...)`,
     `F.user.created >= ...` == `Q(user__created__gte=...)`.
 
     `Func` objects also supported as methods:
-    `F.user.created.min()` == `Min('user__created')`.
+    `F.user.created.min()` == `Min("user__created")`.
 
     Some `Func` objects can also be transformed into lookups,
     if [registered](https://docs.djangoproject.com/en/stable/ref/models/database-functions/#length):
-    `F.text.length()` == `Length(F('text'))`,
+    `F.text.length()` == `Length(F("text"))`,
     `F.text.length > 0` == `Q(text__length__gt=0)`.
     """
 
@@ -272,6 +270,8 @@ class F(models.F, Lookup, metaclass=MetaF):
     def __getattr__(self, name: str) -> Self:
         """Return new [F][model_values.F] object with chained attribute."""
         return type(self)(f"{self.name}__{name}")
+
+    attr = __getattr__
 
     def __eq__(self, value, lookup: str = "") -> models.Q:
         """Return `Q` object with lookup."""
@@ -509,7 +509,7 @@ class QuerySet(models.QuerySet, Lookup):
 
         `if qs.change(status=...):` status actually changed
 
-        `qs.change({'last_modified': now}, status=...)` last_modified only updated if status updated
+        `qs.change({"last_modified": now}, status=...)` last_modified only updated if status updated
 
         Args:
             defaults: optional mapping which will be updated conditionally, as with `update_or_create`.

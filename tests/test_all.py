@@ -141,6 +141,7 @@ def test_functions(books):
         F.title[:-10]
     with pytest.raises(AttributeError):
         F.name
+    assert F.user.attr("name").name == "user__name"
     with pytest.raises(TypeError):
         iter(F.title)
     assert hash(F.title)
