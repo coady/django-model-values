@@ -268,7 +268,7 @@ class F(models.F, Lookup, metaclass=MetaF):
             within = partial(transform, "dwithin")
 
     def __getattr__(self, name: str) -> Self:
-        """Return new [F][model_values.F] object with chained attribute."""
+        """Return new `F` object with chained attribute."""
         return type(self)(f"{self.name}__{name}")
 
     attr = __getattr__
@@ -400,7 +400,7 @@ class QuerySet(models.QuerySet, Lookup):
         self.update(**{key: value})
 
     def __eq__(self, value, lookup: str = "") -> Self:
-        """Return [QuerySet][model_values.QuerySet] filtered by comparison to given value."""
+        """Return `QuerySet` filtered by comparison to given value."""
         (field,) = self._fields
         return self.filter(**{field + lookup: value})
 
@@ -411,7 +411,7 @@ class QuerySet(models.QuerySet, Lookup):
         return value in iter(self)
 
     def __iter__(self):
-        """Iteration extended to support [group_by][model_values.QuerySet.group_by]."""
+        """Iteration extended to support `group_by`."""
         if not hasattr(self, "_group_by"):
             return super().__iter__()
         size = len(self._group_by)
@@ -427,22 +427,18 @@ class QuerySet(models.QuerySet, Lookup):
         """Return annotated `values_list`."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
-    items = select  # deprecated name
-
     def group_by(self, *fields, **annotations) -> Self:
-        """Return a grouped [QuerySet][model_values.QuerySet].
+        """Return a grouped `QuerySet`.
 
         The queryset is iterable in the same manner as `itertools.groupby`.
-        Additionally the [reduce][model_values.QuerySet.reduce] functions will return annotated querysets.
+        Additionally the `reduce` functions will return annotated querysets.
         """
         qs = self.annotate(**annotations)
         qs._group_by = fields + tuple(annotations)
         return qs
 
-    groupby = group_by  # deprecated name
-
     def annotate(self, *args, **kwargs) -> Self:
-        """Annotate extended to also handle mapping values, as a [Case][model_values.Case] expression.
+        """Annotate extended to also handle mapping values, as a `Case` expression.
 
         Args:
             **kwargs: `field={Q_obj: value, ...}, ...`
@@ -455,7 +451,7 @@ class QuerySet(models.QuerySet, Lookup):
         return super().annotate(*args, **kwargs)
 
     def alias(self, *args, **kwargs) -> Self:
-        """Alias extended to also handle mapping values, as a [Case][model_values.Case] expression.
+        """Alias extended to also handle mapping values, as a `Case` expression.
 
         Args:
             **kwargs: `field={Q_obj: value, ...}, ...`
@@ -470,14 +466,12 @@ class QuerySet(models.QuerySet, Lookup):
         return self.select(*self._fields, **{alias: F.count()})
 
     def sort(self, reverse=False) -> Self:
-        """Return [QuerySet][model_values.QuerySet] ordered by selected values."""
+        """Return `QuerySet` ordered by selected values."""
         qs = self.order_by(*self._fields)
         return qs.reverse() if reverse else qs
 
-    sort_values = sort  # deprecated name
-
     def reduce(self, *funcs, **extra):
-        """Return aggregated values, or an annotated [QuerySet][model_values.QuerySet].
+        """Return aggregated values, or an annotated `QuerySet`.
 
         Args:
             *funcs: aggregation function classes
@@ -492,7 +486,7 @@ class QuerySet(models.QuerySet, Lookup):
         return row[names[0]] if self._flat else tuple(map(row.__getitem__, names))
 
     def update(self, **kwargs) -> int:
-        """Update extended to also handle mapping values, as a [Case][model_values.Case] expression.
+        """Update extended to also handle mapping values, as a `Case` expression.
 
         Args:
             **kwargs: `field={Q_obj: value, ...}, ...`
@@ -557,7 +551,7 @@ class Manager(models.Manager):
         return QuerySet(self.model, Query(self.model), self._db, self._hints)
 
     def __getitem__(self, pk) -> QuerySet:
-        """Return [QuerySet][model_values.QuerySet] which matches primary key.
+        """Return `QuerySet` which matches primary key.
 
         To encourage direct db access, instead of always using get and save.
         """

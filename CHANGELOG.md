@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Removed
 * Subscript filtering
+* Deprecated method aliases: `items`, `groupby`, `sort_values`
 
 ## [1.7](https://pypi.org/project/django-model-values/1.7/) - 2025-10-27
 ### Changed
