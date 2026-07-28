@@ -1,6 +1,6 @@
 [project]
 name = "django-model-values"
-version = "1.7"
+version = "1.8"
 description = "Taking the O out of ORM."
 readme = "README.md"
 requires-python = ">=3.11"
