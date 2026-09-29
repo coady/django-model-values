@@ -23,6 +23,6 @@ class Book(models.Model):
         return self.object.changed(**kwargs)
 
     def update(self, **kwargs):
-        for name in kwargs:
-            setattr(self, name, kwargs[name])
+        for name, value in kwargs.items():
+            setattr(self, name, value)
         return self.object.update(**kwargs)

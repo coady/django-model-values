@@ -12,7 +12,7 @@ from django.db.models import functions
 
 try:  # pragma: no cover
     import django.contrib.gis.db.models as gis
-except Exception:
+except Exception:  # noqa: BLE001
     gis: types.ModuleType | None = None
 
 
@@ -161,27 +161,27 @@ class F(models.F, Lookup, metaclass=MetaF):
     `F.text.length > 0` == `Q(text__length__gt=0)`.
     """
 
-    lookups: ClassVar = dict(
-        length=functions.Length,
-        lower=functions.Lower,
-        upper=functions.Upper,
-        chr=functions.Chr,
-        ord=functions.Ord,
-        acos=functions.ACos,
-        asin=functions.ASin,
-        atan=functions.ATan,
-        atan2=functions.ATan2,
-        cos=functions.Cos,
-        cot=functions.Cot,
-        degrees=functions.Degrees,
-        exp=functions.Exp,
-        radians=functions.Radians,
-        sin=functions.Sin,
-        sqrt=functions.Sqrt,
-        tan=functions.Tan,
-        sign=functions.Sign,
-        md5=functions.MD5,
-    )
+    lookups: ClassVar = {
+        "length": functions.Length,
+        "lower": functions.Lower,
+        "upper": functions.Upper,
+        "chr": functions.Chr,
+        "ord": functions.Ord,
+        "acos": functions.ACos,
+        "asin": functions.ASin,
+        "atan": functions.ATan,
+        "atan2": functions.ATan2,
+        "cos": functions.Cos,
+        "cot": functions.Cot,
+        "degrees": functions.Degrees,
+        "exp": functions.Exp,
+        "radians": functions.Radians,
+        "sin": functions.Sin,
+        "sqrt": functions.Sqrt,
+        "tan": functions.Tan,
+        "sign": functions.Sign,
+        "md5": functions.MD5,
+    }
     coalesce = partial(functions.Coalesce)
     concat = partial(functions.Concat)  # __add__ is taken
     min = partial(models.Min)
@@ -351,8 +351,8 @@ class QuerySet(models.QuerySet, Lookup):
         `django.contrib.gis` is configured.
     """
 
-    _fields: tuple[str]
-    _group_by: tuple[str]
+    _fields: tuple[str, ...]
+    _group_by: tuple[str, ...]
 
     min = reduce(models.Min)
     max = reduce(models.Max)
@@ -423,11 +423,11 @@ class QuerySet(models.QuerySet, Lookup):
             getter = lambda tup: Row(*tup[size:])
         return ((key, map(getter, values)) for key, values in groups)
 
-    def select(self, *fields, **annotations) -> Self:
+    def select(self, *fields: str, **annotations) -> Self:
         """Return annotated `values_list`."""
         return self.annotate(**annotations)[fields + tuple(annotations)]
 
-    def group_by(self, *fields, **annotations) -> Self:
+    def group_by(self, *fields: str, **annotations) -> Self:
         """Return a grouped `QuerySet`.
 
         The queryset is iterable in the same manner as `itertools.groupby`.
